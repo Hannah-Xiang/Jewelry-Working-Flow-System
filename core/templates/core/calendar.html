@@ -1,0 +1,461 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+
+<div class="calendar-page">
+
+```
+<!-- Header -->
+
+<div class="page-header">
+    <p class="page-tag">SCHEDULE</p>
+    <h1>Calendar View</h1>
+</div>
+
+<!-- Legend -->
+
+<div class="legend">
+
+    <div class="legend-item">
+        <span class="dot progress"></span>
+        In Progress
+    </div>
+
+    <div class="legend-item">
+        <span class="dot pickup"></span>
+        Ready for Pickup
+    </div>
+
+    <div class="legend-item">
+        <span class="dot received"></span>
+        Received
+    </div>
+
+    <div class="legend-item">
+        <span class="dot overdue"></span>
+        Overdue
+    </div>
+
+</div>
+
+<div class="calendar-layout">
+
+    <!-- Calendar -->
+
+    <div class="calendar-card">
+
+        <div class="calendar-header">
+
+            <button class="month-btn">
+                &#8249;
+            </button>
+
+            <h2>June 2026</h2>
+
+            <button class="month-btn">
+                &#8250;
+            </button>
+
+        </div>
+
+        <div class="weekdays">
+            <div>SUN</div>
+            <div>MON</div>
+            <div>TUE</div>
+            <div>WED</div>
+            <div>THU</div>
+            <div>FRI</div>
+            <div>SAT</div>
+        </div>
+
+        <div class="calendar-grid">
+
+            <!-- Week 1 -->
+
+            <div class="day"></div>
+
+            <div class="day">
+                <span class="day-number">1</span>
+            </div>
+
+            <div class="day">
+                <span class="day-number">2</span>
+            </div>
+
+            <div class="day">
+                <span class="day-number">3</span>
+            </div>
+
+            <div class="day">
+                <span class="day-number">4</span>
+            </div>
+
+            <div class="day">
+                <span class="day-number">5</span>
+
+                <div class="event overdue-event">
+                    Robert
+                </div>
+            </div>
+
+            <div class="day">
+                <span class="day-number">6</span>
+            </div>
+
+            <!-- Week 2 -->
+
+            <div class="day">
+                <span class="day-number">7</span>
+            </div>
+
+            <div class="day">
+                <span class="day-number">8</span>
+
+                <div class="event overdue-event">
+                    Margaret
+                </div>
+            </div>
+
+            <div class="day">
+                <span class="day-number">9</span>
+            </div>
+
+            <div class="day today">
+                <span class="today-circle">10</span>
+            </div>
+
+            <div class="day">
+                <span class="day-number">11</span>
+            </div>
+
+            <div class="day">
+                <span class="day-number">12</span>
+
+                <div class="event pickup-event">
+                    Eleanor
+                </div>
+            </div>
+
+            <div class="day">
+                <span class="day-number">13</span>
+
+                <div class="event progress-event">
+                    Maria
+                </div>
+
+                <div class="event pickup-event">
+                    Maria
+                </div>
+            </div>
+
+            <!-- Week 3 -->
+
+            <div class="day">
+                <span class="day-number">14</span>
+
+                <div class="event progress-event">
+                    James
+                </div>
+
+                <div class="event progress-event">
+                    Catherine
+                </div>
+            </div>
+
+            <div class="day">
+                <span class="day-number">15</span>
+
+                <div class="event progress-event">
+                    Thomas
+                </div>
+            </div>
+
+            <div class="day">
+                <span class="day-number">16</span>
+            </div>
+
+            <div class="day">
+                <span class="day-number">17</span>
+            </div>
+
+            <div class="day">
+                <span class="day-number">18</span>
+
+                <div class="event received-event">
+                    Eleanor
+                </div>
+
+                <div class="event received-event">
+                    Robert
+                </div>
+            </div>
+
+            <div class="day">
+                <span class="day-number">19</span>
+            </div>
+
+            <div class="day">
+                <span class="day-number">20</span>
+
+                <div class="event progress-event">
+                    David
+                </div>
+
+                <div class="event received-event">
+                    James
+                </div>
+            </div>
+
+            <!-- Week 4 -->
+
+            <div class="day">
+                <span class="day-number">21</span>
+            </div>
+
+            <div class="day">
+                <span class="day-number">22</span>
+            </div>
+
+            <div class="day">
+                <span class="day-number">23</span>
+            </div>
+
+            <div class="day">
+                <span class="day-number">24</span>
+            </div>
+
+            <div class="day">
+                <span class="day-number">25</span>
+
+                <div class="event progress-event">
+                    Thomas
+                </div>
+
+                <div class="event progress-event">
+                    Margaret
+                </div>
+            </div>
+
+            <div class="day">
+                <span class="day-number">26</span>
+            </div>
+
+            <div class="day">
+                <span class="day-number">27</span>
+            </div>
+
+            <!-- Week 5 -->
+
+            <div class="day"><span class="day-number">28</span></div>
+            <div class="day"><span class="day-number">29</span></div>
+            <div class="day"><span class="day-number">30</span></div>
+            <div class="day"></div>
+            <div class="day"></div>
+            <div class="day"></div>
+            <div class="day"></div>
+
+        </div>
+
+    </div>
+
+    <!-- Sidebar -->
+
+    <div class="due-panel">
+
+        <div class="due-header">
+            <p>DUE ON</p>
+            <h3>June 11, 2026</h3>
+        </div>
+
+        <div class="empty-state">
+            <h4>No jobs due</h4>
+            <p>Nothing scheduled for this day.</p>
+        </div>
+
+    </div>
+
+</div>
+```
+
+</div>
+
+<style>
+
+.calendar-page{
+    width:100%;
+}
+
+.page-tag{
+    color:#c79c3d;
+    letter-spacing:2px;
+    font-size:13px;
+    margin-bottom:10px;
+}
+
+.page-header{
+    margin-bottom:25px;
+}
+
+.page-header h1{
+    font-size:48px;
+}
+
+.legend{
+    display:flex;
+    gap:25px;
+    margin-bottom:25px;
+}
+
+.legend-item{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:#666;
+}
+
+.dot{
+    width:10px;
+    height:10px;
+    border-radius:50%;
+}
+
+.progress{
+    background:#d4a017;
+}
+
+.pickup{
+    background:#22c55e;
+}
+
+.received{
+    background:#a8a29e;
+}
+
+.overdue{
+    background:#ef4444;
+}
+
+.calendar-layout{
+    display:grid;
+    grid-template-columns:3fr 1.4fr;
+    gap:25px;
+}
+
+.calendar-card,
+.due-panel{
+    background:white;
+    border-radius:16px;
+    border:1px solid #eee;
+    overflow:hidden;
+}
+
+.calendar-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:20px;
+}
+
+.month-btn{
+    border:none;
+    background:#f6f4ee;
+    width:40px;
+    height:40px;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+.weekdays{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    background:#faf8f2;
+}
+
+.weekdays div{
+    padding:15px;
+    text-align:center;
+    color:#666;
+    font-size:13px;
+    font-weight:600;
+}
+
+.calendar-grid{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+}
+
+.day{
+    min-height:110px;
+    border-top:1px solid #eee;
+    border-right:1px solid #eee;
+    padding:10px;
+}
+
+.day-number{
+    font-size:14px;
+}
+
+.today-circle{
+    background:#c79c3d;
+    color:white;
+    width:30px;
+    height:30px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    border-radius:50%;
+}
+
+.event{
+    margin-top:6px;
+    padding:4px 8px;
+    border-radius:6px;
+    font-size:12px;
+}
+
+.progress-event{
+    background:#fff4d8;
+}
+
+.pickup-event{
+    background:#dcfce7;
+}
+
+.received-event{
+    background:#efefef;
+}
+
+.overdue-event{
+    background:#ffe5e5;
+}
+
+.due-header{
+    padding:20px;
+    border-bottom:1px solid #eee;
+}
+
+.due-header p{
+    color:#777;
+    font-size:12px;
+}
+
+.empty-state{
+    text-align:center;
+    margin-top:80px;
+}
+
+.empty-state p{
+    color:#777;
+}
+
+@media(max-width:1200px){
+
+    .calendar-layout{
+        grid-template-columns:1fr;
+    }
+
+}
+
+</style>
+
+{% endblock %}

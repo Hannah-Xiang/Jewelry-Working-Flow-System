@@ -1,0 +1,310 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+
+<div class="ticket-page">
+
+<div class="page-header">
+    <p class="page-tag">NEW JOB</p>
+    <h1>Create Repair Ticket</h1>
+    <p class="page-subtitle">
+        Fill in the job details to generate a new work order.
+    </p>
+</div>
+
+<form method="POST" enctype="multipart/form-data">
+
+    {% csrf_token %}
+
+    <!-- Ticket Number -->
+
+    <div class="card ticket-number-card">
+
+        <div>
+            <span class="card-label">TICKET NUMBER</span>
+            <h2>JW-2026-0104</h2>
+        </div>
+
+        <div class="ticket-date">
+            June 11, 2026
+        </div>
+
+    </div>
+
+    <!-- Customer Information -->
+
+    <div class="card">
+
+        <h3>Customer Information</h3>
+
+        <div class="form-group">
+            <label>Customer Name *</label>
+            <input type="text" placeholder="Full name">
+        </div>
+
+        <div class="form-row">
+
+            <div class="form-group">
+                <label>Phone Number *</label>
+                <input type="text" placeholder="(519) 555-0000">
+            </div>
+
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" placeholder="customer@email.com">
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Job Details -->
+
+    <div class="card">
+
+        <h3>Job Details</h3>
+
+        <div class="form-row">
+
+            <div class="form-group">
+                <label>Job Type *</label>
+
+                <select>
+                    <option>Select type...</option>
+                    <option>Ring Resizing</option>
+                    <option>Stone Setting</option>
+                    <option>Cleaning & Polish</option>
+                    <option>Jewelry Repair</option>
+                    <option>Custom Design</option>
+                    <option>Appraisal</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Due Date *</label>
+                <input type="date">
+            </div>
+
+        </div>
+
+        <div class="form-group">
+            <label>Job Description *</label>
+
+            <textarea rows="5"
+                placeholder="Describe the work to be done in detail — include metal type, stone details, size, any special instructions..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Initial Status</label>
+
+            <select>
+                <option>Received</option>
+                <option>In Progress</option>
+                <option>Ready For Pickup</option>
+            </select>
+        </div>
+
+    </div>
+
+    <!-- Photos -->
+
+    <div class="card">
+
+        <h3>Photos</h3>
+
+        <div class="upload-box">
+
+            <input type="file" multiple>
+
+            <div class="upload-content">
+
+                <div class="upload-icon">📷</div>
+
+                <h4>Upload Photos</h4>
+
+                <p>
+                    Click to select images — JPG, PNG, HEIC supported
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Buttons -->
+
+    <div class="action-buttons">
+
+        <button type="button" class="btn-secondary">
+            Cancel
+        </button>
+
+        <button type="submit" class="btn-primary">
+            Create Ticket
+        </button>
+
+    </div>
+
+</form>
+```
+
+</div>
+
+<style>
+
+.ticket-page{
+    max-width:900px;
+    margin:0 auto;
+}
+
+.page-header{
+    margin-bottom:35px;
+}
+
+.page-tag{
+    color:#c79c3d;
+    letter-spacing:2px;
+    font-size:13px;
+    margin-bottom:8px;
+}
+
+.page-header h1{
+    font-size:46px;
+    margin-bottom:10px;
+}
+
+.page-subtitle{
+    color:#777;
+}
+
+.card{
+    background:#fff;
+    border-radius:16px;
+    padding:25px;
+    margin-bottom:25px;
+    border:1px solid #eee;
+}
+
+.ticket-number-card{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.card-label{
+    color:#777;
+    font-size:13px;
+    letter-spacing:1px;
+}
+
+.ticket-number-card h2{
+    color:#c79c3d;
+    margin-top:10px;
+}
+
+.ticket-date{
+    color:#777;
+}
+
+.card h3{
+    margin-bottom:25px;
+}
+
+.form-group{
+    display:flex;
+    flex-direction:column;
+    margin-bottom:20px;
+}
+
+.form-group label{
+    margin-bottom:8px;
+    font-weight:500;
+}
+
+.form-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+}
+
+input,
+select,
+textarea{
+    padding:14px;
+    border:1px solid #ddd;
+    border-radius:10px;
+    font-size:15px;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+    outline:none;
+    border-color:#c79c3d;
+}
+
+.upload-box{
+    border:2px dashed #ddd;
+    border-radius:16px;
+    padding:40px;
+    text-align:center;
+    position:relative;
+}
+
+.upload-box input{
+    position:absolute;
+    inset:0;
+    opacity:0;
+    cursor:pointer;
+}
+
+.upload-icon{
+    font-size:40px;
+    margin-bottom:10px;
+}
+
+.upload-content p{
+    color:#777;
+}
+
+.action-buttons{
+    display:flex;
+    justify-content:flex-end;
+    gap:15px;
+    margin-top:30px;
+}
+
+.btn-primary{
+    background:#c79c3d;
+    color:white;
+    border:none;
+    padding:14px 30px;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+.btn-secondary{
+    background:#f3f3f3;
+    border:none;
+    padding:14px 30px;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+@media(max-width:768px){
+
+    .form-row{
+        grid-template-columns:1fr;
+    }
+
+    .ticket-number-card{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:15px;
+    }
+}
+
+</style>
+
+{% endblock %}

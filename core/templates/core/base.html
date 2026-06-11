@@ -1,19 +1,145 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Jewelry Workflow System</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Jewelry Workflow System{% endblock %}</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Inter',sans-serif;
+        }
+
+        body{
+            display:flex;
+            min-height:100vh;
+            background:#f7f7f7;
+        }
+
+        /* =========================
+           Sidebar
+        ========================== */
+        .sidebar{
+            width:260px;
+            background:#111111;
+            color:white;
+            display:flex;
+            flex-direction:column;
+            padding-top:30px;
+        }
+
+        .logo{
+            padding:0 25px 30px;
+            border-bottom:1px solid #222;
+        }
+
+        .logo h2{
+            font-size:22px;
+            color:#d4af37;
+            margin-bottom:5px;
+        }
+
+        .logo p{
+            color:#999;
+            font-size:13px;
+        }
+
+        .menu{
+            margin-top:20px;
+        }
+
+        .menu a{
+            display:flex;
+            align-items:center;
+            gap:15px;
+            padding:15px 25px;
+            color:#ddd;
+            text-decoration:none;
+            transition:.3s;
+        }
+
+        .menu a:hover{
+            background:#1e1e1e;
+            color:#d4af37;
+        }
+
+        .menu a.active{
+            background:#1e1e1e;
+            border-left:4px solid #d4af37;
+            color:#d4af37;
+        }
+
+        .menu i{
+            width:20px;
+        }
+
+        /* =========================
+           Main Content
+        ========================== */
+
+        .main-content{
+            flex:1;
+            padding:40px;
+        }
+
+    </style>
+
 </head>
 <body>
 
+    <!-- Sidebar -->
     <div class="sidebar">
-        <a href="/">Dashboard</a><br>
-        <a href="/new-ticket/">New Ticket</a><br>
-        <a href="/tickets/">All Tickets</a><br>
-        <a href="/calendar/">Calendar</a><br>
-        <a href="/customers/">Customers</a><br>
+
+        <div class="logo">
+            <h2>💎 Zareh's</h2>
+            <p>Jewelry Workflow</p>
+        </div>
+
+        <div class="menu">
+
+            <a href="/" class="{% if request.path == '/' %}active{% endif %}">
+                <i class="fas fa-chart-line"></i>
+                Dashboard
+            </a>
+
+            <a href="/new-ticket/" class="{% if request.path == '/new-ticket/' %}active{% endif %}">
+                <i class="fas fa-plus-circle"></i>
+                New Ticket
+            </a>
+
+            <a href="/tickets/" class="{% if request.path == '/tickets/' %}active{% endif %}">
+                <i class="fas fa-file-alt"></i>
+                All Tickets
+            </a>
+
+            <a href="/calendar/" class="{% if request.path == '/calendar/' %}active{% endif %}">
+                <i class="fas fa-calendar"></i>
+                Calendar
+            </a>
+
+            <a href="/customers/" class="{% if request.path == '/customers/' %}active{% endif %}">
+                <i class="fas fa-users"></i>
+                Customers
+            </a>
+
+        </div>
+
     </div>
 
-    <div class="content">
+    <!-- Content -->
+    <div class="main-content">
         {% block content %}
         {% endblock %}
     </div>

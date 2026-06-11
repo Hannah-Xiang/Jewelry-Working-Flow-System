@@ -17,5 +17,5 @@ def calendar(request):
 def customers(request):
     return render(request, 'core/customers.html')
 
-def customers(request):
+def base(request):
     return render(request, 'core/base.html')

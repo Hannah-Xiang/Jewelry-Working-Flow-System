@@ -1,0 +1,312 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+
+<div class="tickets-page">
+
+```
+<!-- Header -->
+
+<div class="page-header">
+
+    <div>
+        <p class="page-tag">WORK ORDERS</p>
+        <h1>All Tickets</h1>
+    </div>
+
+    <a href="{% url 'new_ticket' %}" class="new-ticket-btn">
+        + New Ticket
+    </a>
+
+</div>
+
+<!-- Search -->
+
+<div class="search-card">
+
+    <div class="search-box">
+        <input
+            type="text"
+            placeholder="Search by ticket number, customer name, or phone..."
+        >
+    </div>
+
+    <button class="filter-btn">
+        Filters
+    </button>
+
+</div>
+
+<!-- Count -->
+
+<div class="ticket-count">
+    20 tickets found
+</div>
+
+<!-- Table -->
+
+<div class="table-card">
+
+    <table class="ticket-table">
+
+        <thead>
+
+            <tr>
+                <th>TICKET #</th>
+                <th>CUSTOMER</th>
+                <th>JOB TYPE</th>
+                <th>STATUS</th>
+                <th>DUE DATE</th>
+                <th>CREATED</th>
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            <tr>
+                <td class="ticket-number">JW-2026-0094</td>
+                <td>
+                    <strong>Catherine Park</strong><br>
+                    <span class="phone">(617) 555-0836</span>
+                </td>
+                <td>Cleaning & Polish</td>
+                <td>
+                    <span class="badge completed">
+                        Completed
+                    </span>
+                </td>
+                <td>Jun 12, 2026</td>
+                <td>Jun 11, 2026</td>
+            </tr>
+
+            <tr>
+                <td class="ticket-number">JW-2026-0096</td>
+                <td>
+                    <strong>David Okonkwo</strong><br>
+                    <span class="phone">(617) 555-0563</span>
+                </td>
+                <td>Wedding Band</td>
+                <td>
+                    <span class="badge progress">
+                        In Progress
+                    </span>
+                </td>
+                <td>Jun 20, 2026</td>
+                <td>Jun 11, 2026</td>
+            </tr>
+
+            <tr>
+                <td class="ticket-number">JW-2026-0100</td>
+                <td>
+                    <strong>James Chen</strong><br>
+                    <span class="phone">(617) 555-0287</span>
+                </td>
+                <td>Wedding Band</td>
+                <td>
+                    <span class="badge received">
+                        Received
+                    </span>
+                </td>
+                <td>Jun 20, 2026</td>
+                <td>Jun 11, 2026</td>
+            </tr>
+
+            <tr>
+                <td class="ticket-number">JW-2026-0102</td>
+                <td>
+                    <strong>Robert Fontaine</strong><br>
+                    <span class="phone">(617) 555-0391</span>
+                </td>
+                <td>Jewelry Repair</td>
+                <td>
+                    <span class="badge received">
+                        Received
+                    </span>
+                </td>
+                <td>Jun 18, 2026</td>
+                <td>Jun 11, 2026</td>
+            </tr>
+
+            <tr>
+                <td class="ticket-number">JW-2026-0098</td>
+                <td>
+                    <strong>Maria Santos</strong><br>
+                    <span class="phone">(617) 555-0729</span>
+                </td>
+                <td>Ring Resizing</td>
+                <td>
+                    <span class="badge pickup">
+                        Ready for Pickup
+                    </span>
+                </td>
+                <td>Jun 13, 2026</td>
+                <td>Jun 10, 2026</td>
+            </tr>
+
+        </tbody>
+
+    </table>
+
+</div>
+```
+
+</div>
+
+<style>
+
+.tickets-page{
+    width:100%;
+}
+
+.page-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+}
+
+.page-tag{
+    color:#c79c3d;
+    letter-spacing:2px;
+    font-size:13px;
+    margin-bottom:10px;
+}
+
+.page-header h1{
+    font-size:48px;
+}
+
+.new-ticket-btn{
+    background:#c79c3d;
+    color:white;
+    text-decoration:none;
+    padding:14px 28px;
+    border-radius:12px;
+    font-weight:600;
+}
+
+.search-card{
+    background:white;
+    border-radius:16px;
+    padding:15px;
+    border:1px solid #eee;
+    display:flex;
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.search-box{
+    flex:1;
+}
+
+.search-box input{
+    width:100%;
+    padding:14px 18px;
+    border:1px solid #ddd;
+    border-radius:10px;
+}
+
+.filter-btn{
+    border:none;
+    background:#f8f8f8;
+    padding:0 25px;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+.ticket-count{
+    color:#777;
+    margin-bottom:15px;
+}
+
+.table-card{
+    background:white;
+    border-radius:16px;
+    overflow:hidden;
+    border:1px solid #eee;
+}
+
+.ticket-table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.ticket-table thead{
+    background:#faf8f2;
+}
+
+.ticket-table th{
+    text-align:left;
+    padding:18px;
+    color:#666;
+    font-size:13px;
+    letter-spacing:1px;
+}
+
+.ticket-table td{
+    padding:18px;
+    border-top:1px solid #f0f0f0;
+}
+
+.ticket-number{
+    color:#c79c3d;
+    font-weight:600;
+}
+
+.phone{
+    color:#777;
+    font-size:13px;
+}
+
+.badge{
+    padding:6px 12px;
+    border-radius:20px;
+    font-size:12px;
+}
+
+.completed{
+    background:#e7efff;
+    color:#2563eb;
+}
+
+.progress{
+    background:#fff4d8;
+    color:#b7791f;
+}
+
+.received{
+    background:#efefef;
+    color:#666;
+}
+
+.pickup{
+    background:#dcfce7;
+    color:#15803d;
+}
+
+@media(max-width:900px){
+
+    .page-header{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:20px;
+    }
+
+    .search-card{
+        flex-direction:column;
+    }
+
+    .table-card{
+        overflow-x:auto;
+    }
+
+    .ticket-table{
+        min-width:900px;
+    }
+
+}
+
+</style>
+
+{% endblock %}

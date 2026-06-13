@@ -24,91 +24,116 @@
 
 <form method="GET">
 
-<div class="search-card">
+<form id="filterForm" method="GET">
 
-    <div class="search-box">
+    <div class="search-card">
 
-        <input
-            type="text"
-            name="search"
-            value="{{ search }}"
-            placeholder="Search by ticket number, customer name, or phone..."
+        <div class="search-box">
+
+            <input
+                type="text"
+                id="searchInput"
+                name="search"
+                value="{{ search }}"
+                placeholder="Search by ticket number, customer name, or phone..."
+            >
+
+        </div>
+
+        <button
+            type="button"
+            class="filter-btn"
+            onclick="toggleFilters()"
         >
+            Filters
+        </button>
 
     </div>
 
-    <button
-        type="button"
-        class="filter-btn"
-        onclick="toggleFilters()"
+    <div
+        id="filterPanel"
+        class="filter-panel"
+        {% if selected_status or selected_job_type %}
+        style="display:block;"
+        {% endif %}
     >
-        Filters
-    </button>
 
-</div>
+        <div class="filter-group">
 
-<div
-    id="filterPanel"
-    style="display:none;margin-bottom:20px;"
->
+            <label>Status</label>
 
-    <select name="status">
+            <select
+                id="statusFilter"
+                name="status"
+            >
 
-        <option value="">
-            All Statuses
-        </option>
+                <option value="">
+                    All Statuses
+                </option>
 
-        {% for status in statuses %}
+                {% for status in statuses %}
 
-        <option
-            value="{{ status.id }}"
-            {% if selected_status == status.id|stringformat:"s" %}
-            selected
-            {% endif %}
+                <option
+                    value="{{ status.id }}"
+                    {% if selected_status == status.id|stringformat:"s" %}
+                    selected
+                    {% endif %}
+                >
+                    {{ status.status }}
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+        <div class="filter-group">
+
+            <label>Job Type</label>
+
+            <select
+                id="jobTypeFilter"
+                name="job_type"
+            >
+
+                <option value="">
+                    All Job Types
+                </option>
+
+                {% for job in job_types %}
+
+                <option
+                    value="{{ job.id }}"
+                    {% if selected_job_type == job.id|stringformat:"s" %}
+                    selected
+                    {% endif %}
+                >
+                    {{ job.type }}
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+        <a
+            href="{% url 'all_tickets' %}"
+            class="clear-link"
         >
-            {{ status.status }}
-        </option>
+            Clear all
+        </a>
 
-        {% endfor %}
+    </div>
 
-    </select>
-
-    <select name="job_type">
-
-        <option value="">
-            All Job Types
-        </option>
-
-        {% for job in job_types %}
-
-        <option
-            value="{{ job.id }}"
-            {% if selected_job_type == job.id|stringformat:"s" %}
-            selected
-            {% endif %}
-        >
-            {{ job.type }}
-        </option>
-
-        {% endfor %}
-
-    </select>
-
-    <button type="submit">
-        Apply
-    </button>
-
-    <a href="{% url 'all_tickets' %}">
-        Clear
-    </a>
-
-</div>
+</form>
 
 </form>
 
 <!-- Count -->
 
-<div class="ticket-count">
+<div class="ticket-count" id="ticketCount">
     {{ ticket_count }} tickets found
 </div>
 
@@ -131,7 +156,7 @@
 
         </thead>
 
-        <tbody>
+        <tbody id="ticketTableBody>
 
 {% for ticket in tickets %}
 
@@ -370,8 +395,212 @@
 
 }
 
+.filter-panel{
+
+    display:none;
+
+    background:white;
+
+    border:1px solid #eee;
+
+    border-top:none;
+
+    border-radius:0 0 16px 16px;
+
+    padding:20px;
+
+    margin-top:-20px;
+
+    margin-bottom:20px;
+
+    display:flex;
+
+    align-items:flex-end;
+
+    gap:20px;
+
+    flex-wrap:wrap;
+}
+
+.filter-group{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.filter-group label{
+    font-size:12px;
+    font-weight:600;
+    color:#666;
+    text-transform:uppercase;
+}
+
+.filter-group select{
+
+    min-width:180px;
+
+    padding:12px 15px;
+
+    border:1px solid #ddd;
+
+    border-radius:10px;
+
+    background:white;
+}
+
+.clear-link{
+
+    color:#c79c3d;
+
+    text-decoration:none;
+
+    font-weight:600;
+}
+
 
 
 </style>
+
+<script>
+
+const searchInput =
+    document.getElementById(
+        "searchInput"
+    );
+
+const statusFilter =
+    document.getElementById(
+        "statusFilter"
+    );
+
+const jobTypeFilter =
+    document.getElementById(
+        "jobTypeFilter"
+    );
+
+let typingTimer;
+
+function loadTickets(){
+
+    const search =
+        searchInput.value;
+
+    const status =
+        statusFilter.value;
+
+    const jobType =
+        jobTypeFilter.value;
+
+    fetch(
+
+        `/tickets/search/?search=${encodeURIComponent(search)}&status=${status}&job_type=${jobType}`
+
+    )
+
+    .then(
+        response => response.json()
+    )
+
+    .then(data => {
+
+        const tbody =
+            document.getElementById(
+                "ticketTableBody"
+            );
+
+        tbody.innerHTML = "";
+
+        document.getElementById(
+            "ticketCount"
+        ).innerText =
+            data.count +
+            " tickets found";
+
+        data.tickets.forEach(ticket => {
+
+            tbody.innerHTML += `
+
+<tr>
+
+<td class="ticket-number">
+${ticket.ticket_number}
+</td>
+
+<td>
+<strong>
+${ticket.customer}
+</strong>
+<br>
+<span class="phone">
+${ticket.phone}
+</span>
+</td>
+
+<td>
+${ticket.job_type}
+</td>
+
+<td>
+
+<span
+class="badge"
+style="
+background:${ticket.status_color}20;
+color:${ticket.status_color};
+"
+>
+
+${ticket.status}
+
+</span>
+
+</td>
+
+<td>
+${ticket.due_date}
+</td>
+
+<td>
+${ticket.created_date}
+</td>
+
+</tr>
+
+`;
+
+        });
+
+    });
+
+}
+
+searchInput.addEventListener(
+    "input",
+    function(){
+
+        clearTimeout(
+            typingTimer
+        );
+
+        typingTimer =
+            setTimeout(
+                loadTickets,
+                300
+            );
+
+    }
+);
+
+statusFilter.addEventListener(
+    "change",
+    loadTickets
+);
+
+jobTypeFilter.addEventListener(
+    "change",
+    loadTickets
+);
+
+</script>
 
 {% endblock %}

@@ -2,6 +2,8 @@ from django.shortcuts import render
 from .models import Status, Ticket, JobType, Customer
 from datetime import timedelta
 from django.utils import timezone
+from django.db.models import Q
+from django.http import JsonResponse
 
 
 
@@ -150,6 +152,89 @@ def all_tickets(request):
         "core/all_tickets.html",
         context
     )
+
+
+def ticket_search(request):
+
+    search = request.GET.get('search', '')
+    status = request.GET.get('status', '')
+    job_type = request.GET.get('job_type', '')
+
+    tickets = Ticket.objects.select_related(
+        'customer',
+        'job_type',
+        'status'
+    ).order_by('-created_date')
+
+    if search:
+
+        tickets = tickets.filter(
+
+            Q(ticket_number__icontains=search)
+
+            |
+
+            Q(customer__name__icontains=search)
+
+            |
+
+            Q(customer__phone__icontains=search)
+
+        )
+
+    if status:
+
+        tickets = tickets.filter(
+            status_id=status
+        )
+
+    if job_type:
+
+        tickets = tickets.filter(
+            job_type_id=job_type
+        )
+
+    data = []
+
+    for ticket in tickets:
+
+        data.append({
+
+            "ticket_number":
+                ticket.ticket_number,
+
+            "customer":
+                ticket.customer.name,
+
+            "phone":
+                ticket.customer.phone,
+
+            "job_type":
+                ticket.job_type.type,
+
+            "status":
+                ticket.status.status,
+
+            "status_color":
+                ticket.status.color,
+
+            "due_date":
+                ticket.due_date.strftime(
+                    "%b %d, %Y"
+                ),
+
+            "created_date":
+                ticket.created_date.strftime(
+                    "%b %d, %Y"
+                )
+
+        })
+
+    return JsonResponse({
+        "tickets": data,
+        "count": len(data)
+    })
+
 
 def calendar(request):
     return render(request, 'core/calendar.html')

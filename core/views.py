@@ -1,13 +1,9 @@
 from django.shortcuts import render
-from .models import Status, Ticket
+from .models import Status, Ticket, JobType, Customer
 from datetime import timedelta
 from django.utils import timezone
 
-# Create your views here.
 
-from datetime import timedelta
-from django.utils import timezone
-from .models import Ticket
 
 def dashboard(request):
 
@@ -92,7 +88,68 @@ def new_ticket(request):
     return render(request, 'core/new_ticket.html')
 
 def all_tickets(request):
-    return render(request, 'core/all_tickets.html')
+
+    tickets = Ticket.objects.select_related(
+        'customer',
+        'job_type',
+        'status'
+    ).order_by('-created_date')
+
+    search = request.GET.get('search')
+    status_id = request.GET.get('status')
+    job_type_id = request.GET.get('job_type')
+
+    if search:
+
+        tickets = tickets.filter(
+
+            Q(ticket_number__icontains=search)
+
+            |
+
+            Q(customer__name__icontains=search)
+
+            |
+
+            Q(customer__phone__icontains=search)
+
+        )
+
+    if status_id:
+
+        tickets = tickets.filter(
+            status_id=status_id
+        )
+
+    if job_type_id:
+
+        tickets = tickets.filter(
+            job_type_id=job_type_id
+        )
+
+    context = {
+
+        "tickets": tickets,
+
+        "statuses": Status.objects.all(),
+
+        "job_types": JobType.objects.all(),
+
+        "ticket_count": tickets.count(),
+
+        "selected_status": status_id,
+
+        "selected_job_type": job_type_id,
+
+        "search": search or ""
+
+    }
+
+    return render(
+        request,
+        "core/all_tickets.html",
+        context
+    )
 
 def calendar(request):
     return render(request, 'core/calendar.html')

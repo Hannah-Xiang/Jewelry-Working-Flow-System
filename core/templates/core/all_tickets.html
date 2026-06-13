@@ -4,7 +4,7 @@
 
 <div class="tickets-page">
 
-```
+
 <!-- Header -->
 
 <div class="page-header">
@@ -22,25 +22,94 @@
 
 <!-- Search -->
 
+<form method="GET">
+
 <div class="search-card">
 
     <div class="search-box">
+
         <input
             type="text"
+            name="search"
+            value="{{ search }}"
             placeholder="Search by ticket number, customer name, or phone..."
         >
+
     </div>
 
-    <button class="filter-btn">
+    <button
+        type="button"
+        class="filter-btn"
+        onclick="toggleFilters()"
+    >
         Filters
     </button>
 
 </div>
 
+<div
+    id="filterPanel"
+    style="display:none;margin-bottom:20px;"
+>
+
+    <select name="status">
+
+        <option value="">
+            All Statuses
+        </option>
+
+        {% for status in statuses %}
+
+        <option
+            value="{{ status.id }}"
+            {% if selected_status == status.id|stringformat:"s" %}
+            selected
+            {% endif %}
+        >
+            {{ status.status }}
+        </option>
+
+        {% endfor %}
+
+    </select>
+
+    <select name="job_type">
+
+        <option value="">
+            All Job Types
+        </option>
+
+        {% for job in job_types %}
+
+        <option
+            value="{{ job.id }}"
+            {% if selected_job_type == job.id|stringformat:"s" %}
+            selected
+            {% endif %}
+        >
+            {{ job.type }}
+        </option>
+
+        {% endfor %}
+
+    </select>
+
+    <button type="submit">
+        Apply
+    </button>
+
+    <a href="{% url 'all_tickets' %}">
+        Clear
+    </a>
+
+</div>
+
+</form>
+
 <!-- Count -->
 
 <div class="ticket-count">
-    20 tickets found
+    {{ ticket_count }} tickets found
 </div>
 
 <!-- Table -->
@@ -64,92 +133,86 @@
 
         <tbody>
 
-            <tr>
-                <td class="ticket-number">JW-2026-0094</td>
-                <td>
-                    <strong>Catherine Park</strong><br>
-                    <span class="phone">(617) 555-0836</span>
-                </td>
-                <td>Cleaning & Polish</td>
-                <td>
-                    <span class="badge completed">
-                        Completed
-                    </span>
-                </td>
-                <td>Jun 12, 2026</td>
-                <td>Jun 11, 2026</td>
-            </tr>
+{% for ticket in tickets %}
 
-            <tr>
-                <td class="ticket-number">JW-2026-0096</td>
-                <td>
-                    <strong>David Okonkwo</strong><br>
-                    <span class="phone">(617) 555-0563</span>
-                </td>
-                <td>Wedding Band</td>
-                <td>
-                    <span class="badge progress">
-                        In Progress
-                    </span>
-                </td>
-                <td>Jun 20, 2026</td>
-                <td>Jun 11, 2026</td>
-            </tr>
+<tr>
 
-            <tr>
-                <td class="ticket-number">JW-2026-0100</td>
-                <td>
-                    <strong>James Chen</strong><br>
-                    <span class="phone">(617) 555-0287</span>
-                </td>
-                <td>Wedding Band</td>
-                <td>
-                    <span class="badge received">
-                        Received
-                    </span>
-                </td>
-                <td>Jun 20, 2026</td>
-                <td>Jun 11, 2026</td>
-            </tr>
+    <td class="ticket-number">
 
-            <tr>
-                <td class="ticket-number">JW-2026-0102</td>
-                <td>
-                    <strong>Robert Fontaine</strong><br>
-                    <span class="phone">(617) 555-0391</span>
-                </td>
-                <td>Jewelry Repair</td>
-                <td>
-                    <span class="badge received">
-                        Received
-                    </span>
-                </td>
-                <td>Jun 18, 2026</td>
-                <td>Jun 11, 2026</td>
-            </tr>
+        {{ ticket.ticket_number }}
 
-            <tr>
-                <td class="ticket-number">JW-2026-0098</td>
-                <td>
-                    <strong>Maria Santos</strong><br>
-                    <span class="phone">(617) 555-0729</span>
-                </td>
-                <td>Ring Resizing</td>
-                <td>
-                    <span class="badge pickup">
-                        Ready for Pickup
-                    </span>
-                </td>
-                <td>Jun 13, 2026</td>
-                <td>Jun 10, 2026</td>
-            </tr>
+    </td>
 
-        </tbody>
+    <td>
+
+        <strong>
+            {{ ticket.customer.name }}
+        </strong>
+
+        <br>
+
+        <span class="phone">
+            {{ ticket.customer.phone }}
+        </span>
+
+    </td>
+
+    <td>
+
+        {{ ticket.job_type.type }}
+
+    </td>
+
+    <td>
+
+        <span
+            class="badge"
+            style="
+                background:{{ ticket.status.color }}20;
+                color:{{ ticket.status.color }};
+            "
+        >
+
+            {{ ticket.status.status }}
+
+        </span>
+
+    </td>
+
+    <td>
+
+        {{ ticket.due_date|date:"M d, Y" }}
+
+    </td>
+
+    <td>
+
+        {{ ticket.created_date|date:"M d, Y" }}
+
+    </td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+
+    <td colspan="6">
+
+        No tickets found.
+
+    </td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
 
     </table>
 
 </div>
-```
+
 
 </div>
 
@@ -306,6 +369,8 @@
     }
 
 }
+
+
 
 </style>
 

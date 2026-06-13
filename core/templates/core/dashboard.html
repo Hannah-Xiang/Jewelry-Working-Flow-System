@@ -16,22 +16,22 @@
 
         <div class="stat-card jobs">
             <h4>OPEN JOBS</h4>
-            <h2>11</h2>
+            <h2>{{ open_jobs }}</h2>
         </div>
 
         <div class="stat-card due">
             <h4>DUE THIS WEEK</h4>
-            <h2>5</h2>
+            <h2>{{ due_this_week }}</h2>
         </div>
 
         <div class="stat-card pickup">
             <h4>READY FOR PICKUP</h4>
-            <h2>3</h2>
+            <h2>{{ ready_for_pickup }}</h2>
         </div>
 
         <div class="stat-card overdue">
             <h4>OVERDUE</h4>
-            <h2>2</h2>
+            <h2>{{ overdue }}</h2>
         </div>
 
     </div>
@@ -59,47 +59,45 @@
 
                 <tbody>
 
-                    <tr>
-                        <td>JW-2026-0094</td>
-                        <td>Catherine Park</td>
-                        <td>Cleaning & Polish</td>
-                        <td><span class="status completed">Completed</span></td>
-                        <td>Jun 12</td>
-                    </tr>
+{% for ticket in recent_tickets %}
 
-                    <tr>
-                        <td>JW-2026-0096</td>
-                        <td>David Okonkwo</td>
-                        <td>Wedding Band</td>
-                        <td><span class="status progress">In Progress</span></td>
-                        <td>Jun 20</td>
-                    </tr>
+<tr>
 
-                    <tr>
-                        <td>JW-2026-0100</td>
-                        <td>James Chen</td>
-                        <td>Wedding Band</td>
-                        <td><span class="status received">Received</span></td>
-                        <td>Jun 20</td>
-                    </tr>
+    <td>{{ ticket.ticket_number }}</td>
 
-                    <tr>
-                        <td>JW-2026-0102</td>
-                        <td>Robert Fontaine</td>
-                        <td>Jewelry Repair</td>
-                        <td><span class="status received">Received</span></td>
-                        <td>Jun 18</td>
-                    </tr>
+    <td>{{ ticket.customer.name }}</td>
 
-                    <tr>
-                        <td>JW-2026-0105</td>
-                        <td>Maria Santos</td>
-                        <td>Ring Resizing</td>
-                        <td><span class="status pickup-status">Ready for Pickup</span></td>
-                        <td>Jun 13</td>
-                    </tr>
+    <td>{{ ticket.job_type.type }}</td>
 
-                </tbody>
+    <td>
+
+        <span
+            class="status"
+            style="
+                background-color: {{ ticket.status.color }}20;
+                color: {{ ticket.status.color }};
+            "
+        >
+            {{ ticket.status.status }}
+        </span>
+
+    </td>
+
+    <td>{{ ticket.due_date|date:"M d" }}</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+    <td colspan="5">
+        No tickets found
+    </td>
+</tr>
+
+{% endfor %}
+
+</tbody>
 
             </table>
 
@@ -117,32 +115,25 @@
 
                 <div class="chart-container">
 
-                    <div class="bar-item">
-                        <div class="bar received-bar"></div>
-                        <span>Received</span>
-                    </div>
+    {% for item in status_summary %}
 
-                    <div class="bar-item">
-                        <div class="bar progress-bar"></div>
-                        <span>In Progress</span>
-                    </div>
+    <div class="bar-item">
 
-                    <div class="bar-item">
-                        <div class="bar ready-bar"></div>
-                        <span>Ready</span>
-                    </div>
+        <div
+            class="bar"
+            style="
+                height:{{ item.count|add:'1' }}0px;
+                background:{{ item.color }};
+            "
+        ></div>
 
-                    <div class="bar-item">
-                        <div class="bar complete-bar"></div>
-                        <span>Completed</span>
-                    </div>
+        <span>{{ item.name }}</span>
 
-                    <div class="bar-item">
-                        <div class="bar overdue-bar"></div>
-                        <span>Overdue</span>
-                    </div>
+    </div>
 
-                </div>
+    {% endfor %}
+
+</div>
 
             </div>
 
@@ -155,39 +146,39 @@
 
                 <div class="due-list">
 
-                    <div class="due-item">
-                        <div>
-                            <strong>Eleanor Whitmore</strong>
-                            <p>Stone Setting</p>
-                        </div>
-                        <span class="danger">2d</span>
-                    </div>
+{% for ticket in upcoming_due_dates %}
 
-                    <div class="due-item">
-                        <div>
-                            <strong>Maria Santos</strong>
-                            <p>Appraisal</p>
-                        </div>
-                        <span>3d</span>
-                    </div>
+<div class="due-item">
 
-                    <div class="due-item">
-                        <div>
-                            <strong>Maria Santos</strong>
-                            <p>Ring Resizing</p>
-                        </div>
-                        <span>3d</span>
-                    </div>
+    <div>
 
-                    <div class="due-item">
-                        <div>
-                            <strong>Eleanor Whitmore</strong>
-                            <p>Cleaning & Polish</p>
-                        </div>
-                        <span>4d</span>
-                    </div>
+        <strong>
+            {{ ticket.customer.name }}
+        </strong>
 
-                </div>
+        <p>
+            {{ ticket.job_type.type }}
+        </p>
+
+    </div>
+
+    <span>
+
+        {{ ticket.due_date|date:"M d" }}
+
+    </span>
+
+</div>
+
+{% empty %}
+
+<div class="due-item">
+    No upcoming jobs
+</div>
+
+{% endfor %}
+
+</div>
 
             </div>
 

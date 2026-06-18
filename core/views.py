@@ -4,6 +4,9 @@ from datetime import timedelta
 from django.utils import timezone
 from django.db.models import Q
 from django.http import JsonResponse
+import calendar as pycalendar
+from datetime import date
+from django.shortcuts import get_object_or_404
 
 
 
@@ -143,7 +146,8 @@ def all_tickets(request):
 
         "selected_job_type": job_type_id,
 
-        "search": search or ""
+        "search": search or "",
+        "today": timezone.now().date(),
 
     }
 
@@ -200,6 +204,9 @@ def ticket_search(request):
 
         data.append({
 
+            "id":
+                ticket.id,
+
             "ticket_number":
                 ticket.ticket_number,
 
@@ -226,7 +233,9 @@ def ticket_search(request):
             "created_date":
                 ticket.created_date.strftime(
                     "%b %d, %Y"
-                )
+                ),
+
+            
 
         })
 
@@ -237,7 +246,136 @@ def ticket_search(request):
 
 
 def calendar(request):
-    return render(request, 'core/calendar.html')
+
+    today = timezone.now().date()
+
+    month = int(
+        request.GET.get(
+            "month",
+            today.month
+        )
+    )
+
+    year = int(
+        request.GET.get(
+            "year",
+            today.year
+        )
+    )
+
+    pycalendar.setfirstweekday(
+        pycalendar.SUNDAY
+    )
+
+    cal = pycalendar.monthcalendar(
+        year,
+        month
+    )
+
+    tickets = Ticket.objects.select_related(
+        'customer',
+        'status'
+    )
+
+    tickets_by_day = {}
+
+    for ticket in tickets:
+
+        if (
+            ticket.due_date.year == year and
+            ticket.due_date.month == month
+        ):
+
+            day = ticket.due_date.day
+
+            if day not in tickets_by_day:
+                tickets_by_day[day] = []
+
+            tickets_by_day[day].append(ticket)
+
+    # Previous Month
+
+    prev_month = month - 1
+    prev_year = year
+
+    if prev_month == 0:
+        prev_month = 12
+        prev_year -= 1
+
+    # Next Month
+
+    next_month = month + 1
+    next_year = year
+
+    if next_month == 13:
+        next_month = 1
+        next_year += 1
+
+    context = {
+
+        "month_name":
+            pycalendar.month_name[month],
+
+        "year":
+            year,
+
+        "month":
+            month,
+
+        "calendar_weeks":
+            cal,
+
+        "tickets_by_day":
+            tickets_by_day,
+
+        "today":
+            today.day,
+
+        "prev_month":
+            prev_month,
+
+        "prev_year":
+            prev_year,
+
+        "next_month":
+            next_month,
+
+        "next_year":
+            next_year,
+
+        "years":
+            range(today.year - 5,
+                  today.year + 6),
+
+        "months":
+            range(1,13),
+    }
+
+    return render(
+        request,
+        'core/calendar.html',
+        context
+    )
+
+def ticket_detail(request, ticket_id):
+
+    ticket = get_object_or_404(
+        Ticket,
+        id=ticket_id
+    )
+
+    context = {
+        "ticket": ticket,
+        "statuses": Status.objects.all()
+    }
+
+    return render(
+        request,
+        "core/ticket_detail.html",
+        context
+    )
+
+
 
 def customers(request):
     return render(request, 'core/customers.html')

@@ -40,13 +40,13 @@
 
         </div>
 
-        <button
+        <!-- <button
             type="button"
             class="filter-btn"
             onclick="toggleFilters()"
         >
             Filters
-        </button>
+        </button> -->
 
     </div>
 
@@ -156,15 +156,22 @@
 
         </thead>
 
-        <tbody id="ticketTableBody>
+        <tbody id="ticketTableBody">
 
 {% for ticket in tickets %}
 
-<tr>
+<tr onclick="
+    window.location='{% url 'ticket_detail' ticket.id %}'
+    "
+    class="clickable-row">
 
     <td class="ticket-number">
-
+        <a
+        href="{% url 'ticket_detail' ticket.id %}"
+        class="ticket-link"
+    >
         {{ ticket.ticket_number }}
+        </a>
 
     </td>
 
@@ -205,10 +212,14 @@
     </td>
 
     <td>
-
+    {% if ticket.due_date < today and ticket.status.status != "Completed" %}
+        <span class="overdue-date">
+            {{ ticket.due_date|date:"M d, Y" }}
+        </span>
+    {% else %}
         {{ ticket.due_date|date:"M d, Y" }}
-
-    </td>
+    {% endif %}
+</td>
 
     <td>
 
@@ -456,6 +467,38 @@
 
     font-weight:600;
 }
+.clickable-row{
+    cursor:pointer;
+}
+
+.clickable-row:hover{
+    background:#faf8f2;
+}
+
+.ticket-link{
+
+    color:#c79c3d;
+
+    text-decoration:none;
+
+    font-weight:600;
+
+}
+
+.ticket-link:hover{
+
+    text-decoration:underline;
+
+}
+
+.overdue-date{
+    color:white;
+    background:#ef4444;
+    padding:4px 10px;
+    border-radius:20px;
+    font-size:13px;
+    font-weight:600;
+}
 
 
 
@@ -522,8 +565,15 @@ function loadTickets(){
 
 <tr>
 
-<td class="ticket-number">
+<td>
+
+<a
+    href="/ticket/${ticket.id}/"
+    class="ticket-link"
+>
 ${ticket.ticket_number}
+</a>
+
 </td>
 
 <td>

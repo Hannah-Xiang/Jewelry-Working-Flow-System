@@ -14,7 +14,10 @@
     <!-- Statistics -->
     <div class="stats-grid">
 
-        <div class="stat-card jobs">
+        <div
+    class="stat-card jobs clickable-card"
+    onclick="window.location='{% url 'all_tickets' %}'"
+>
             <h4>OPEN JOBS</h4>
             <h2>{{ open_jobs }}</h2>
         </div>
@@ -24,7 +27,10 @@
             <h2>{{ due_this_week }}</h2>
         </div>
 
-        <div class="stat-card pickup">
+        <div
+    class="stat-card pickup clickable-card"
+    onclick="window.location='{% url 'all_tickets' %}?status=Ready for Pickup'"
+>
             <h4>READY FOR PICKUP</h4>
             <h2>{{ ready_for_pickup }}</h2>
         </div>
@@ -61,7 +67,10 @@
 
 {% for ticket in recent_tickets %}
 
-<tr>
+<tr
+    class="clickable-row"
+    onclick="window.location='{% url 'ticket_detail' ticket.id %}'"
+>
 
     <td>{{ ticket.ticket_number }}</td>
 
@@ -74,8 +83,8 @@
         <span
             class="status"
             style="
-                background-color: {{ ticket.status.color }}20;
-                color: {{ ticket.status.color }};
+                background-color:{{ ticket.status.color }}20;
+                color:{{ ticket.status.color }};
             "
         >
             {{ ticket.status.status }}
@@ -148,7 +157,10 @@
 
 {% for ticket in upcoming_due_dates %}
 
-<div class="due-item">
+<div
+    class="due-item clickable-card"
+    onclick="window.location='{% url 'ticket_detail' ticket.id %}'"
+>
 
     <div>
 
@@ -163,9 +175,7 @@
     </div>
 
     <span>
-
         {{ ticket.due_date|date:"M d" }}
-
     </span>
 
 </div>
@@ -400,6 +410,24 @@
 .danger{
     color:#ef4444;
     font-weight:600;
+}
+
+.clickable-row{
+    cursor:pointer;
+    transition:.2s;
+}
+
+.clickable-row:hover{
+    background:#faf8f2;
+}
+
+.clickable-card{
+    cursor:pointer;
+    transition:.2s;
+}
+
+.clickable-card:hover{
+    background:#faf8f2;
 }
 
 /* Responsive */

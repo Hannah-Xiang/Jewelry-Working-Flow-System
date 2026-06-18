@@ -1,18 +1,18 @@
 {% extends 'core/base.html' %}
-
+{% load custom_tags %}
 {% block content %}
 
 <div class="calendar-page">
 
-```
 <!-- Header -->
 
 <div class="page-header">
     <p class="page-tag">SCHEDULE</p>
     <h1>Calendar View</h1>
-</div>
+</div> 
 
 <!-- Legend -->
+
 
 <div class="legend">
 
@@ -46,17 +46,63 @@
 
         <div class="calendar-header">
 
-            <button class="month-btn">
-                &#8249;
-            </button>
+    <a
+        class="month-btn"
+        href="?month={{ prev_month }}&year={{ prev_year }}"
+    >
+        &#8249;
+    </a>
 
-            <h2>June 2026</h2>
+    <div class="month-selector">
 
-            <button class="month-btn">
-                &#8250;
-            </button>
+        <select
+            id="monthSelect"
+        >
 
-        </div>
+            {% for m in months %}
+
+            <option
+                value="{{ m }}"
+                {% if m == month %}
+                selected
+                {% endif %}
+            >
+                {{ m }}
+            </option>
+
+            {% endfor %}
+
+        </select>
+
+        <select
+            id="yearSelect"
+        >
+
+            {% for y in years %}
+
+            <option
+                value="{{ y }}"
+                {% if y == year %}
+                selected
+                {% endif %}
+            >
+                {{ y }}
+            </option>
+
+            {% endfor %}
+
+        </select>
+
+    </div>
+
+    <a
+        class="month-btn"
+        href="?month={{ next_month }}&year={{ next_year }}"
+    >
+        &#8250;
+    </a>
+
+</div>
 
         <div class="weekdays">
             <div>SUN</div>
@@ -67,194 +113,64 @@
             <div>FRI</div>
             <div>SAT</div>
         </div>
-
         <div class="calendar-grid">
 
-            <!-- Week 1 -->
+{% for week in calendar_weeks %}
+
+    {% for day in week %}
+
+        {% if day == 0 %}
 
             <div class="day"></div>
 
-            <div class="day">
-                <span class="day-number">1</span>
-            </div>
+        {% else %}
 
             <div class="day">
-                <span class="day-number">2</span>
+
+                {% if day == today %}
+                    <span class="today-circle">
+                        {{ day }}
+                    </span>
+                {% else %}
+                    <span class="day-number">
+                        {{ day }}
+                    </span>
+                {% endif %}
+
+                {% if day in tickets_by_day %}
+
+                    {% for ticket in tickets_by_day|get_item:day %}
+
+                        <a
+    href="{% url 'ticket_detail' ticket.id %}"
+    class="event-link"
+>
+
+    <div
+        class="event"
+        style="
+            background:{{ ticket.status.color }}20;
+            color:{{ ticket.status.color }};
+        "
+    >
+        {{ ticket.customer.name }}
+    </div>
+
+</a>
+
+                    {% endfor %}
+
+                {% endif %}
+
             </div>
 
-            <div class="day">
-                <span class="day-number">3</span>
-            </div>
+        {% endif %}
 
-            <div class="day">
-                <span class="day-number">4</span>
-            </div>
+    {% endfor %}
 
-            <div class="day">
-                <span class="day-number">5</span>
+{% endfor %}
 
-                <div class="event overdue-event">
-                    Robert
-                </div>
-            </div>
-
-            <div class="day">
-                <span class="day-number">6</span>
-            </div>
-
-            <!-- Week 2 -->
-
-            <div class="day">
-                <span class="day-number">7</span>
-            </div>
-
-            <div class="day">
-                <span class="day-number">8</span>
-
-                <div class="event overdue-event">
-                    Margaret
-                </div>
-            </div>
-
-            <div class="day">
-                <span class="day-number">9</span>
-            </div>
-
-            <div class="day today">
-                <span class="today-circle">10</span>
-            </div>
-
-            <div class="day">
-                <span class="day-number">11</span>
-            </div>
-
-            <div class="day">
-                <span class="day-number">12</span>
-
-                <div class="event pickup-event">
-                    Eleanor
-                </div>
-            </div>
-
-            <div class="day">
-                <span class="day-number">13</span>
-
-                <div class="event progress-event">
-                    Maria
-                </div>
-
-                <div class="event pickup-event">
-                    Maria
-                </div>
-            </div>
-
-            <!-- Week 3 -->
-
-            <div class="day">
-                <span class="day-number">14</span>
-
-                <div class="event progress-event">
-                    James
-                </div>
-
-                <div class="event progress-event">
-                    Catherine
-                </div>
-            </div>
-
-            <div class="day">
-                <span class="day-number">15</span>
-
-                <div class="event progress-event">
-                    Thomas
-                </div>
-            </div>
-
-            <div class="day">
-                <span class="day-number">16</span>
-            </div>
-
-            <div class="day">
-                <span class="day-number">17</span>
-            </div>
-
-            <div class="day">
-                <span class="day-number">18</span>
-
-                <div class="event received-event">
-                    Eleanor
-                </div>
-
-                <div class="event received-event">
-                    Robert
-                </div>
-            </div>
-
-            <div class="day">
-                <span class="day-number">19</span>
-            </div>
-
-            <div class="day">
-                <span class="day-number">20</span>
-
-                <div class="event progress-event">
-                    David
-                </div>
-
-                <div class="event received-event">
-                    James
-                </div>
-            </div>
-
-            <!-- Week 4 -->
-
-            <div class="day">
-                <span class="day-number">21</span>
-            </div>
-
-            <div class="day">
-                <span class="day-number">22</span>
-            </div>
-
-            <div class="day">
-                <span class="day-number">23</span>
-            </div>
-
-            <div class="day">
-                <span class="day-number">24</span>
-            </div>
-
-            <div class="day">
-                <span class="day-number">25</span>
-
-                <div class="event progress-event">
-                    Thomas
-                </div>
-
-                <div class="event progress-event">
-                    Margaret
-                </div>
-            </div>
-
-            <div class="day">
-                <span class="day-number">26</span>
-            </div>
-
-            <div class="day">
-                <span class="day-number">27</span>
-            </div>
-
-            <!-- Week 5 -->
-
-            <div class="day"><span class="day-number">28</span></div>
-            <div class="day"><span class="day-number">29</span></div>
-            <div class="day"><span class="day-number">30</span></div>
-            <div class="day"></div>
-            <div class="day"></div>
-            <div class="day"></div>
-            <div class="day"></div>
-
-        </div>
+</div>
 
     </div>
 
@@ -275,7 +191,6 @@
     </div>
 
 </div>
-```
 
 </div>
 
@@ -356,13 +271,45 @@
     padding:20px;
 }
 
-.month-btn{
-    border:none;
-    background:#f6f4ee;
-    width:40px;
-    height:40px;
+.month-selector{
+    display:flex;
+    gap:10px;
+}
+
+.month-selector select{
+
+    padding:10px 15px;
+
+    border:1px solid #ddd;
+
     border-radius:10px;
+
+    font-size:16px;
+
     cursor:pointer;
+}
+
+.month-btn{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    text-decoration:none;
+
+    color:black;
+
+    border:none;
+
+    background:#f6f4ee;
+
+    width:40px;
+
+    height:40px;
+
+    border-radius:10px;
 }
 
 .weekdays{
@@ -448,6 +395,25 @@
     color:#777;
 }
 
+.event-link{
+    text-decoration:none;
+    display:block;
+}
+
+.event{
+    margin-top:6px;
+    padding:4px 8px;
+    border-radius:6px;
+    font-size:12px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.event:hover{
+    transform:scale(1.03);
+    opacity:.9;
+}
+
 @media(max-width:1200px){
 
     .calendar-layout{
@@ -457,5 +423,37 @@
 }
 
 </style>
+
+<script>
+
+const monthSelect =
+    document.getElementById(
+        "monthSelect"
+    );
+
+const yearSelect =
+    document.getElementById(
+        "yearSelect"
+    );
+
+function changeMonthYear(){
+
+    window.location.href =
+
+        `?month=${monthSelect.value}&year=${yearSelect.value}`;
+
+}
+
+monthSelect.addEventListener(
+    "change",
+    changeMonthYear
+);
+
+yearSelect.addEventListener(
+    "change",
+    changeMonthYear
+);
+
+</script>
 
 {% endblock %}

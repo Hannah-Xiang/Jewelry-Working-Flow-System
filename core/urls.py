@@ -10,6 +10,11 @@ urlpatterns = [
         views.ticket_search,
         name='ticket_search'
     ),
+    path(
+        'ticket/<int:ticket_id>/',
+        views.ticket_detail,
+        name='ticket_detail'
+    ),
     path('calendar/', views.calendar, name='calendar'),
     path('customers/', views.customers, name='customers'),
 ]

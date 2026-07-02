@@ -7,6 +7,7 @@ from django.http import JsonResponse
 import calendar as pycalendar
 from datetime import date
 from django.shortcuts import get_object_or_404
+import json
 
 
 
@@ -249,112 +250,102 @@ def calendar(request):
 
     today = timezone.now().date()
 
-    month = int(
-        request.GET.get(
-            "month",
-            today.month
-        )
-    )
+    # Current viewing month/year
+    month = int(request.GET.get("month", today.month))
+    year = int(request.GET.get("year", today.year))
 
-    year = int(
-        request.GET.get(
-            "year",
-            today.year
-        )
-    )
-
-    pycalendar.setfirstweekday(
-        pycalendar.SUNDAY
-    )
-
-    cal = pycalendar.monthcalendar(
-        year,
-        month
-    )
+    pycalendar.setfirstweekday(pycalendar.SUNDAY)
+    cal = pycalendar.monthcalendar(year, month)
 
     tickets = Ticket.objects.select_related(
-        'customer',
-        'status'
+        "customer",
+        "status",
+        "job_type",
+    ).filter(
+        due_date__year=year,
+        due_date__month=month,
     )
 
     tickets_by_day = {}
+    tickets_json = {}
 
     for ticket in tickets:
 
-        if (
-            ticket.due_date.year == year and
-            ticket.due_date.month == month
-        ):
+        day = ticket.due_date.day
 
-            day = ticket.due_date.day
+        tickets_by_day.setdefault(day, []).append(ticket)
 
-            if day not in tickets_by_day:
-                tickets_by_day[day] = []
+        tickets_json.setdefault(day, []).append({
+            "id": ticket.id,
+            "ticket_number": ticket.ticket_number,
+            "customer": ticket.customer.name,
+            "job_type": ticket.job_type.type,
+            "status": ticket.status.status,
+            "color": ticket.status.color,
+        })
 
-            tickets_by_day[day].append(ticket)
-
-    # Previous Month
-
-    prev_month = month - 1
-    prev_year = year
-
-    if prev_month == 0:
+    # Previous month
+    if month == 1:
         prev_month = 12
-        prev_year -= 1
+        prev_year = year - 1
+    else:
+        prev_month = month - 1
+        prev_year = year
 
-    # Next Month
-
-    next_month = month + 1
-    next_year = year
-
-    if next_month == 13:
+    # Next month
+    if month == 12:
         next_month = 1
-        next_year += 1
+        next_year = year + 1
+    else:
+        next_month = month + 1
+        next_year = year
+
+    months = [
+        "January", "February", "March", "April",
+        "May", "June", "July", "August",
+        "September", "October", "November", "December"
+    ]
 
     context = {
 
-        "month_name":
-            pycalendar.month_name[month],
+        # Calendar
+        "calendar_weeks": cal,
+        "tickets_by_day": tickets_by_day,
 
-        "year":
-            year,
+        # JSON for JavaScript
+        "tickets_json": json.dumps(tickets_json),
 
-        "month":
-            month,
+        # Current viewing month
+        "month": month,
+        "year": year,
+        "month_name": months[month - 1],
 
-        "calendar_weeks":
-            cal,
+        # Month picker
+        "months": months,
+        "years": range(today.year - 5, today.year + 6),
 
-        "tickets_by_day":
-            tickets_by_day,
+        # Previous/next buttons
+        "prev_month": prev_month,
+        "prev_year": prev_year,
+        "next_month": next_month,
+        "next_year": next_year,
 
-        "today":
-            today.day,
+        # Today
+        "today": today.day,
+        "today_month": today.month,
+        "today_year": today.year,
 
-        "prev_month":
-            prev_month,
-
-        "prev_year":
-            prev_year,
-
-        "next_month":
-            next_month,
-
-        "next_year":
-            next_year,
-
-        "years":
-            range(today.year - 5,
-                  today.year + 6),
-
-        "months":
-            range(1,13),
+        # Only highlight today if viewing current month
+        "is_current_month": (
+            month == today.month and
+            year == today.year
+        ),
     }
 
     return render(
         request,
-        'core/calendar.html',
-        context
+        "core/calendar.html",
+        context,
     )
 
 def ticket_detail(request, ticket_id):
@@ -377,8 +368,47 @@ def ticket_detail(request, ticket_id):
 
 
 
+from django.db.models import Count, Sum
+
 def customers(request):
-    return render(request, 'core/customers.html')
+
+    customers = Customer.objects.annotate(
+        job_count=Count("tickets")
+    ).order_by("name")
+
+    customer_id = request.GET.get("customer")
+
+    if customer_id:
+        customer = Customer.objects.get(id=customer_id)
+    else:
+        customer = customers.first()
+
+    tickets = Ticket.objects.filter(
+        customer=customer
+    ).select_related(
+        "status",
+        "job_type"
+    ).order_by("-created_date")
+
+    total_value = (
+        tickets.aggregate(
+            Sum("price")
+        )["price__sum"] or 0
+    )
+
+    context = {
+        "customers": customers,
+        "customer": customer,
+        "tickets": tickets,
+        "job_count": tickets.count(),
+        "total_value": total_value,
+    }
+
+    return render(
+        request,
+        "core/customers.html",
+        context,
+    )
 
 def base(request):
     return render(request, 'core/base.html')

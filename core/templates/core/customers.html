@@ -23,69 +23,38 @@
 
         <div class="customer-list">
 
-            <div class="customer-item">
-                <div class="avatar">MH</div>
-                <div>
-                    <strong>Margaret Holloway</strong>
-                    <p>3 jobs</p>
-                </div>
-            </div>
+            {% for c in customers %}
 
-            <div class="customer-item">
-                <div class="avatar">JC</div>
-                <div>
-                    <strong>James Chen</strong>
-                    <p>2 jobs</p>
-                </div>
-            </div>
+<a
+href="?customer={{ c.id }}"
+class="customer-link"
+>
 
-            <div class="customer-item">
-                <div class="avatar">RF</div>
-                <div>
-                    <strong>Robert Fontaine</strong>
-                    <p>3 jobs</p>
-                </div>
-            </div>
+<div class="customer-item {% if customer.id == c.id %}active{% endif %}">
 
-            <div class="customer-item">
-                <div class="avatar">EW</div>
-                <div>
-                    <strong>Eleanor Whitmore</strong>
-                    <p>3 jobs</p>
-                </div>
-            </div>
+    <div class="avatar">
 
-            <div class="customer-item">
-                <div class="avatar">DO</div>
-                <div>
-                    <strong>David Okonkwo</strong>
-                    <p>2 jobs</p>
-                </div>
-            </div>
+        {{ c.name|slice:":1" }}{{ c.name|cut:" "|slice:"1:2"|upper }}
 
-            <div class="customer-item">
-                <div class="avatar">TB</div>
-                <div>
-                    <strong>Thomas Beaumont</strong>
-                    <p>2 jobs</p>
-                </div>
-            </div>
+    </div>
 
-            <div class="customer-item">
-                <div class="avatar">MS</div>
-                <div>
-                    <strong>Maria Santos</strong>
-                    <p>3 jobs</p>
-                </div>
-            </div>
+    <div>
 
-            <div class="customer-item active">
-                <div class="avatar gold">CP</div>
-                <div>
-                    <strong>Catherine Park</strong>
-                    <p>2 jobs</p>
-                </div>
-            </div>
+        <strong>{{ c.name }}</strong>
+
+        <p>
+
+            {{ c.job_count }} jobs
+
+        </p>
+
+    </div>
+
+</div>
+
+</a>
+
+{% endfor %}
 
         </div>
 
@@ -104,23 +73,23 @@
                 <div class="profile-left">
 
                     <div class="profile-avatar">
-                        CP
+                        {{ customer.name|slice:":1" }}
                     </div>
 
                     <div>
 
-                        <h2>Catherine Park</h2>
+                        <h2>{{ customer.name }}</h2>
 
                         <div class="profile-info">
 
-                            <span>(617) 555-0836</span>
-                            <span>catherine.park@mit.edu</span>
-                            <span>77 Massachusetts Ave, Cambridge, MA</span>
+                            <span>{{ customer.phone }}</span>
+                            <span>{{ customer.email }}</span>
+                            <span>{{ customer.address }}</span>
 
                         </div>
 
                         <p class="since">
-                            Customer since Jun 18, 2023
+                            Customer since {{ customer.created_date|date:"M d, Y" }}
                         </p>
 
                     </div>
@@ -130,12 +99,12 @@
                 <div class="profile-stats">
 
                     <div>
-                        <h3>2</h3>
+                        <h3>{{ job_count }}</h3>
                         <p>Jobs</p>
                     </div>
 
                     <div>
-                        <h3>$150</h3>
+                        <h3>${{ total_value }}</h3>
                         <p>Total Value</p>
                     </div>
 
@@ -148,8 +117,7 @@
                 <h4>NOTES</h4>
 
                 <p>
-                    Faculty at MIT. Purchased wedding set in 2023.
-                    Comes in annually for cleaning.
+                    {{ customer.notes }}
                 </p>
 
             </div>
@@ -195,43 +163,94 @@
 
                 <tbody>
 
-                    <tr>
-                        <td class="ticket-id">
-                            JW-2026-0094
-                        </td>
+{% for ticket in tickets %}
 
-                        <td>Cleaning & Polish</td>
+<tr onclick="
+    window.location='{% url 'ticket_detail' ticket.id %}'
+    "
+    class="clickable-row">
 
-                        <td>
-                            <span class="status completed">
-                                Completed
-                            </span>
-                        </td>
+<td class="ticket-id">
 
-                        <td>Jun 11, 2026</td>
-                        <td>Jun 12, 2026</td>
-                        <td><strong>$95</strong></td>
-                    </tr>
 
-                    <tr>
-                        <td class="ticket-id">
-                            JW-2026-0099
-                        </td>
 
-                        <td>Cleaning & Polish</td>
+{{ ticket.ticket_number }}
 
-                        <td>
-                            <span class="status progress">
-                                In Progress
-                            </span>
-                        </td>
 
-                        <td>Jun 11, 2026</td>
-                        <td>Jun 14, 2026</td>
-                        <td><strong>$55</strong></td>
-                    </tr>
+</td>
 
-                </tbody>
+<td>
+
+{{ ticket.job_type.type }}
+
+</td>
+
+<td>
+
+<span
+
+class="status"
+
+style="
+background:{{ ticket.status.color }}20;
+color:{{ ticket.status.color }};
+"
+
+>
+
+{{ ticket.status.status }}
+
+</span>
+
+</td>
+
+<td>
+
+{{ ticket.created_date|date:"M d, Y" }}
+
+</td>
+
+<td>
+
+<span
+
+{% if ticket.due_date < today and ticket.status.status != "Completed" %}
+
+style="color:#ef4444;font-weight:600;"
+
+{% endif %}
+
+>
+
+{{ ticket.due_date|date:"M d, Y" }}
+
+</span>
+
+</td>
+
+<td>
+
+${{ ticket.price }}
+
+</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+
+<td colspan="6">
+
+No jobs found.
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
 
             </table>
 
@@ -299,6 +318,14 @@
 
 .customer-item.active{
     background:#faf7ef;
+}
+
+.customer-link{
+
+    text-decoration:none;
+
+    color:inherit;
+
 }
 
 .avatar{
@@ -438,6 +465,25 @@
 .progress{
     background:#fff4d8;
     color:#b7791f;
+}
+
+.clickable-row{
+    cursor:pointer;
+    transition:.2s;
+}
+
+.clickable-row:hover{
+    background:#faf8f2;
+}
+
+.ticket-link{
+    color:#c79c3d;
+    text-decoration:none;
+    font-weight:600;
+}
+
+.ticket-link:hover{
+    text-decoration:underline;
 }
 
 @media(max-width:1200px){

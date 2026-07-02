@@ -5,187 +5,124 @@
 <div class="calendar-page">
 
 <!-- Header -->
-
 <div class="page-header">
     <p class="page-tag">SCHEDULE</p>
     <h1>Calendar View</h1>
-</div> 
+</div>
 
 <!-- Legend -->
-
-
 <div class="legend">
-
-    <div class="legend-item">
-        <span class="dot progress"></span>
-        In Progress
-    </div>
-
-    <div class="legend-item">
-        <span class="dot pickup"></span>
-        Ready for Pickup
-    </div>
-
-    <div class="legend-item">
-        <span class="dot received"></span>
-        Received
-    </div>
-
-    <div class="legend-item">
-        <span class="dot overdue"></span>
-        Overdue
-    </div>
-
+    <div class="legend-item"><span class="dot progress"></span> In Progress</div>
+    <div class="legend-item"><span class="dot pickup"></span> Ready for Pickup</div>
+    <div class="legend-item"><span class="dot received"></span> Received</div>
+    <div class="legend-item"><span class="dot overdue"></span> Overdue</div>
 </div>
 
 <div class="calendar-layout">
 
     <!-- Calendar -->
-
     <div class="calendar-card">
 
         <div class="calendar-header">
 
-    <a
-        class="month-btn"
-        href="?month={{ prev_month }}&year={{ prev_year }}"
-    >
-        &#8249;
-    </a>
+            <a class="month-btn" href="?month={{ prev_month }}&year={{ prev_year }}">&#8249;</a>
 
-    <div class="month-selector">
+            <div class="month-picker">
 
-        <select
-            id="monthSelect"
-        >
+                <button id="monthTitle" class="month-title" type="button">
+                    {{ month_name }} {{ year }}
+                    <span id="arrow">⌃</span>
+                </button>
 
-            {% for m in months %}
+                <div id="pickerPopup" class="picker-popup">
 
-            <option
-                value="{{ m }}"
-                {% if m == month %}
-                selected
-                {% endif %}
-            >
-                {{ m }}
-            </option>
+                    <div class="picker-header">
+                        <button id="prevYear" type="button">‹</button>
+                        <h3 id="popupYear">{{ year }}</h3>
+                        <button id="nextYear" type="button">›</button>
+                    </div>
 
-            {% endfor %}
+                    <div class="month-grid">
+                        {% for m in months %}
+                        <button
+                            type="button"
+                            class="month-item {% if forloop.counter == month %}active{% endif %}"
+                            data-month="{{ forloop.counter }}"
+                        >
+                            {{ m|slice:":3" }}
+                        </button>
+                        {% endfor %}
+                    </div>
 
-        </select>
+                    <button id="todayBtn" class="today-btn" type="button">
+                        Back to today
+                    </button>
 
-        <select
-            id="yearSelect"
-        >
-
-            {% for y in years %}
-
-            <option
-                value="{{ y }}"
-                {% if y == year %}
-                selected
-                {% endif %}
-            >
-                {{ y }}
-            </option>
-
-            {% endfor %}
-
-        </select>
-
-    </div>
-
-    <a
-        class="month-btn"
-        href="?month={{ next_month }}&year={{ next_year }}"
-    >
-        &#8250;
-    </a>
-
-</div>
-
-        <div class="weekdays">
-            <div>SUN</div>
-            <div>MON</div>
-            <div>TUE</div>
-            <div>WED</div>
-            <div>THU</div>
-            <div>FRI</div>
-            <div>SAT</div>
-        </div>
-        <div class="calendar-grid">
-
-{% for week in calendar_weeks %}
-
-    {% for day in week %}
-
-        {% if day == 0 %}
-
-            <div class="day"></div>
-
-        {% else %}
-
-            <div class="day">
-
-                {% if day == today %}
-                    <span class="today-circle">
-                        {{ day }}
-                    </span>
-                {% else %}
-                    <span class="day-number">
-                        {{ day }}
-                    </span>
-                {% endif %}
-
-                {% if day in tickets_by_day %}
-
-                    {% for ticket in tickets_by_day|get_item:day %}
-
-                        <a
-    href="{% url 'ticket_detail' ticket.id %}"
-    class="event-link"
->
-
-    <div
-        class="event"
-        style="
-            background:{{ ticket.status.color }}20;
-            color:{{ ticket.status.color }};
-        "
-    >
-        {{ ticket.customer.name }}
-    </div>
-
-</a>
-
-                    {% endfor %}
-
-                {% endif %}
-
+                </div>
             </div>
 
-        {% endif %}
+            <a class="month-btn" href="?month={{ next_month }}&year={{ next_year }}">&#8250;</a>
 
-    {% endfor %}
+        </div>
 
-{% endfor %}
+        <div class="weekdays">
+            <div>SUN</div><div>MON</div><div>TUE</div><div>WED</div>
+            <div>THU</div><div>FRI</div><div>SAT</div>
+        </div>
 
-</div>
+        <div class="calendar-grid">
+            {% for week in calendar_weeks %}
+                {% for day in week %}
+                    {% if day == 0 %}
+                        <div class="day" data-day="{{ day }}"></div>
+                    {% else %}
+                        <div class="day" data-day="{{ day }}">
+                            {% if is_current_month and day == today %}
+                            <span class="today-circle">{{ day }}</span>
+                            {% else %}
+                            <span class="day-number">{{ day }}</span>
+                            {% endif %}
+                            {% if day in tickets_by_day %}
+                                {% for ticket in tickets_by_day|get_item:day %}
+                                        <div class="event" style="background:{{ ticket.status.color }}20; color:{{ ticket.status.color }};">
+                                            {{ ticket.customer.name }}
+                                        </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        </div>
 
     </div>
 
     <!-- Sidebar -->
-
     <div class="due-panel">
 
-        <div class="due-header">
-            <p>DUE ON</p>
-            <h3>June 11, 2026</h3>
-        </div>
+    <div class="due-header">
+
+        <p>DUE ON</p>
+
+        <h3 id="selectedDate">
+            Select a day
+        </h3>
+
+    </div>
+
+    <div
+        id="jobList"
+        class="job-list"
+    >
 
         <div class="empty-state">
-            <h4>No jobs due</h4>
-            <p>Nothing scheduled for this day.</p>
+
+            <h4>No jobs</h4>
+
+            <p>
+                Click a day on the calendar.
+            </p>
+
         </div>
 
     </div>
@@ -193,75 +130,31 @@
 </div>
 
 </div>
+</div>
 
 <style>
 
-.calendar-page{
-    width:100%;
-}
+.calendar-page{ width:100%; }
 
-.page-tag{
-    color:#c79c3d;
-    letter-spacing:2px;
-    font-size:13px;
-    margin-bottom:10px;
-}
+.page-tag{ color:#c79c3d; letter-spacing:2px; font-size:13px; margin-bottom:10px; }
+.page-header{ margin-bottom:25px; }
+.page-header h1{ font-size:48px; }
 
-.page-header{
-    margin-bottom:25px;
-}
+.legend{ display:flex; gap:25px; margin-bottom:25px; }
+.legend-item{ display:flex; align-items:center; gap:8px; color:#666; }
+.dot{ width:10px; height:10px; border-radius:50%; }
+.progress{ background:#d4a017; }
+.pickup{ background:#22c55e; }
+.received{ background:#a8a29e; }
+.overdue{ background:#ef4444; }
 
-.page-header h1{
-    font-size:48px;
-}
+.calendar-layout{ display:grid; grid-template-columns:3fr 1.4fr; gap:25px; }
 
-.legend{
-    display:flex;
-    gap:25px;
-    margin-bottom:25px;
-}
-
-.legend-item{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    color:#666;
-}
-
-.dot{
-    width:10px;
-    height:10px;
-    border-radius:50%;
-}
-
-.progress{
-    background:#d4a017;
-}
-
-.pickup{
-    background:#22c55e;
-}
-
-.received{
-    background:#a8a29e;
-}
-
-.overdue{
-    background:#ef4444;
-}
-
-.calendar-layout{
-    display:grid;
-    grid-template-columns:3fr 1.4fr;
-    gap:25px;
-}
-
-.calendar-card,
-.due-panel{
+.calendar-card, .due-panel{
     background:white;
     border-radius:16px;
     border:1px solid #eee;
-    overflow:hidden;
+    overflow:visible;
 }
 
 .calendar-header{
@@ -269,48 +162,47 @@
     justify-content:space-between;
     align-items:center;
     padding:20px;
-}
-
-.month-selector{
-    display:flex;
-    gap:10px;
-}
-
-.month-selector select{
-
-    padding:10px 15px;
-
-    border:1px solid #ddd;
-
-    border-radius:10px;
-
-    font-size:16px;
-
-    cursor:pointer;
+    position:relative;
 }
 
 .month-btn{
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    text-decoration:none;
-
-    color:black;
-
-    border:none;
-
+    width:44px;
+    height:44px;
     background:#f6f4ee;
-
-    width:40px;
-
-    height:40px;
-
-    border-radius:10px;
+    border-radius:12px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-decoration:none;
+    color:#333;
+    transition:.2s;
+    flex-shrink:0;
 }
+
+.month-btn:hover{ background:#eee6d5; }
+
+.month-picker{ position:relative; }
+
+.month-title{
+    border:none;
+    background:none;
+    font-size:28px;
+    font-weight:500;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    color:#222;
+    font-family:inherit;
+}
+
+#arrow{
+    font-size:20px;
+    color:#c79c3d;
+    transition:transform .2s;
+}
+
+.month-title.open #arrow{ transform:rotate(180deg); }
 
 .weekdays{
     display:grid;
@@ -338,9 +230,7 @@
     padding:10px;
 }
 
-.day-number{
-    font-size:14px;
-}
+.day-number{ font-size:14px; }
 
 .today-circle{
     background:#c79c3d;
@@ -351,53 +241,7 @@
     justify-content:center;
     align-items:center;
     border-radius:50%;
-}
-
-.event{
-    margin-top:6px;
-    padding:4px 8px;
-    border-radius:6px;
-    font-size:12px;
-}
-
-.progress-event{
-    background:#fff4d8;
-}
-
-.pickup-event{
-    background:#dcfce7;
-}
-
-.received-event{
-    background:#efefef;
-}
-
-.overdue-event{
-    background:#ffe5e5;
-}
-
-.due-header{
-    padding:20px;
-    border-bottom:1px solid #eee;
-}
-
-.due-header p{
-    color:#777;
-    font-size:12px;
-}
-
-.empty-state{
-    text-align:center;
-    margin-top:80px;
-}
-
-.empty-state p{
-    color:#777;
-}
-
-.event-link{
-    text-decoration:none;
-    display:block;
+    font-size:14px;
 }
 
 .event{
@@ -409,16 +253,199 @@
     transition:.2s;
 }
 
-.event:hover{
-    transform:scale(1.03);
-    opacity:.9;
-}
+.event:hover{ transform:scale(1.03); opacity:.9; }
+
+.event-link{ text-decoration:none; display:block; }
+
+.due-header{ padding:20px; border-bottom:1px solid #eee; }
+.due-header p{ color:#777; font-size:12px; letter-spacing:1px; }
+.due-header h3{ font-family: 'Georgia', serif; margin-top:6px; }
+
+.empty-state{ text-align:center; margin-top:80px; }
+.empty-state h4{ margin-bottom:6px; }
+.empty-state p{ color:#777; }
 
 @media(max-width:1200px){
+    .calendar-layout{ grid-template-columns:1fr; }
+}
 
-    .calendar-layout{
-        grid-template-columns:1fr;
-    }
+/* Picker popup */
+
+.picker-popup{
+    display:none;
+    position:absolute;
+    top:65px;
+    left:50%;
+    transform:translateX(-50%);
+    width:280px;
+    background:white;
+    border-radius:18px;
+    padding:18px;
+    border:1px solid #ececec;
+    box-shadow:0 15px 35px rgba(0,0,0,.12);
+    z-index:1000;
+}
+
+.picker-popup.show{ display:block; }
+
+.picker-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:14px;
+}
+
+.picker-header h3{
+    font-family:'Georgia', serif;
+    font-size:20px;
+    margin:0;
+}
+
+.picker-header button{
+    width:32px;
+    height:32px;
+    border-radius:8px;
+    border:none;
+    background:#f6f4ee;
+    cursor:pointer;
+    font-size:16px;
+    color:#333;
+}
+
+.picker-header button:hover{ background:#eee6d5; }
+
+.month-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:8px;
+    margin-bottom:14px;
+}
+
+.month-item{
+    padding:10px 0;
+    border-radius:10px;
+    border:none;
+    background:#f6f4ee;
+    color:#333;
+    font-size:14px;
+    cursor:pointer;
+    transition:.15s;
+}
+
+.month-item:hover{ background:#eee6d5; }
+
+.month-item.active{
+    background:#c79c3d;
+    color:white;
+    font-weight:600;
+}
+
+.today-btn{
+    width:100%;
+    text-align:center;
+    background:none;
+    border:none;
+    border-top:1px solid #eee;
+    padding-top:12px;
+    color:#c79c3d;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+}
+
+.today-btn:hover{ text-decoration:underline; }
+
+.day{
+
+    cursor:pointer;
+
+    transition:.2s;
+
+}
+
+.day:hover{
+
+    background:#faf8f2;
+
+}
+
+.day.active{
+
+    background:#f8f3e8;
+
+}
+
+.job-list{
+
+    padding:18px;
+
+}
+
+.job-card{
+
+    display:block;
+
+    text-decoration:none;
+
+    color:inherit;
+
+    border:1px solid #ececec;
+
+    border-radius:14px;
+
+    padding:15px;
+
+    margin-bottom:15px;
+
+    transition:.2s;
+
+}
+
+.job-card:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:0 6px 18px rgba(0,0,0,.08);
+
+}
+
+.job-status{
+
+    float:right;
+
+    font-size:12px;
+
+    padding:4px 10px;
+
+    border-radius:30px;
+
+}
+
+.job-number{
+
+    color:#c79c3d;
+
+    font-size:12px;
+
+    font-weight:600;
+
+    margin-bottom:10px;
+
+}
+
+.job-name{
+
+    font-size:18px;
+
+    font-weight:600;
+
+    margin:6px 0;
+
+}
+
+.job-type{
+
+    color:#777;
 
 }
 
@@ -426,33 +453,159 @@
 
 <script>
 
-const monthSelect =
-    document.getElementById(
-        "monthSelect"
-    );
+(function(){
 
-const yearSelect =
-    document.getElementById(
-        "yearSelect"
-    );
+    const title = document.getElementById("monthTitle");
+    const popup = document.getElementById("pickerPopup");
+    const popupYearEl = document.getElementById("popupYear");
+    const prevYearBtn = document.getElementById("prevYear");
+    const nextYearBtn = document.getElementById("nextYear");
+    const todayBtn = document.getElementById("todayBtn");
+    const monthItems = document.querySelectorAll(".month-item");
 
-function changeMonthYear(){
+    let popupYear = parseInt(popupYearEl.textContent.trim(), 10);
 
-    window.location.href =
+    function goTo(month, year){
+        window.location = `?month=${month}&year=${year}`;
+    }
 
-        `?month=${monthSelect.value}&year=${yearSelect.value}`;
+    title.addEventListener("click", function(e){
+        e.stopPropagation();
+        popup.classList.toggle("show");
+        title.classList.toggle("open");
+    });
 
-}
+    prevYearBtn.addEventListener("click", function(){
+        popupYear -= 1;
+        popupYearEl.textContent = popupYear;
+    });
 
-monthSelect.addEventListener(
-    "change",
-    changeMonthYear
-);
+    nextYearBtn.addEventListener("click", function(){
+        popupYear += 1;
+        popupYearEl.textContent = popupYear;
+    });
 
-yearSelect.addEventListener(
-    "change",
-    changeMonthYear
-);
+    monthItems.forEach(function(btn){
+        btn.addEventListener("click", function(){
+            const month = btn.getAttribute("data-month");
+            goTo(month, popupYear);
+        });
+    });
+
+    todayBtn.addEventListener("click", function(){
+        const now = new Date();
+        goTo(now.getMonth() + 1, now.getFullYear());
+    });
+
+    document.addEventListener("click", function(e){
+        if(!popup.contains(e.target) && e.target !== title){
+            popup.classList.remove("show");
+            title.classList.remove("open");
+        }
+    });
+
+})();
+
+
+const jobs =
+    JSON.parse('{{ tickets_json|escapejs }}');
+
+const monthName =
+    "{{ month_name }}";
+
+const year =
+    "{{ year }}";
+
+document.querySelectorAll(".day").forEach(day=>{
+
+    day.onclick=function(){
+
+        document
+        .querySelectorAll(".day")
+        .forEach(d=>d.classList.remove("active"));
+
+        this.classList.add("active");
+
+        const number=this.dataset.day;
+
+        if(!number) return;
+
+        document.getElementById(
+            "selectedDate"
+        ).innerHTML=
+            `${monthName} ${number}, ${year}`;
+
+        const list=
+            document.getElementById("jobList");
+
+        list.innerHTML="";
+
+        if(!(number in jobs)){
+
+            list.innerHTML=`
+
+<div class="empty-state">
+
+<h4>No jobs</h4>
+
+<p>Nothing due this day.</p>
+
+</div>
+
+`;
+
+            return;
+
+        }
+
+        jobs[number].forEach(ticket=>{
+
+            list.innerHTML+=`
+
+<a
+class="job-card"
+href="/ticket/${ticket.id}/"
+>
+
+<div class="job-number">
+
+${ticket.ticket_number}
+
+<span
+class="job-status"
+style="
+background:${ticket.color}20;
+color:${ticket.color};
+"
+>
+
+${ticket.status}
+
+</span>
+
+</div>
+
+<div class="job-name">
+
+${ticket.customer}
+
+</div>
+
+<div class="job-type">
+
+${ticket.job_type}
+
+</div>
+
+</a>
+
+`;
+
+        });
+
+    };
+
+});
 
 </script>
 

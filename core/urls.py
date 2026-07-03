@@ -17,4 +17,28 @@ urlpatterns = [
     ),
     path('calendar/', views.calendar, name='calendar'),
     path('customers/', views.customers, name='customers'),
+
+    path(
+        'api/customers/search/',
+        views.customer_search,
+        name='customer_search'
+    ),
+
+    path(
+        'api/customers/<int:pk>/',
+        views.customer_detail,
+        name='customer_detail_api'
+    ),
+
+    path(
+        'api/jobtypes/<int:pk>/',
+        views.jobtype_detail,
+        name='jobtype_detail'
+    ),
+
+    path(
+        'api/ticket-number/',
+        views.generate_ticket,
+        name='generate_ticket'
+    ),
 ]

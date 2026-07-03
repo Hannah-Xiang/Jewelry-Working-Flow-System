@@ -8,6 +8,27 @@ import calendar as pycalendar
 from datetime import date
 from django.shortcuts import get_object_or_404
 import json
+from datetime import date
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
+from django.db.models import Q
+
+from .models import (
+    Ticket,
+    Customer,
+    JobType,
+    Status,
+    TicketPhoto,
+)
+
+from .forms import TicketForm
+
+from .utils import (
+    generate_ticket_number,
+    calculate_due_date,
+    get_or_create_customer,
+)
 
 
 
@@ -27,6 +48,7 @@ def dashboard(request):
     recent_tickets = Ticket.objects.filter(
         created_date__gte=three_months_ago
     ).order_by('-created_date')[:10]
+    
 
     # OPEN JOBS
     # Everything not completed
@@ -36,9 +58,12 @@ def dashboard(request):
 
     # DUE THIS WEEK
     due_this_week = Ticket.objects.filter(
-        due_date__range=(start_of_week, end_of_week)
+        due_date__lte=end_of_week
     ).exclude(
-        status__status="Completed"
+        status__status__in=[
+            "Completed",
+            "Ready for Pickup"
+        ]
     ).count()
 
     # READY FOR PICKUP
@@ -50,7 +75,10 @@ def dashboard(request):
     overdue = Ticket.objects.filter(
         due_date__lt=today
     ).exclude(
-        status__status="Completed"
+        status__status__in=[
+            "Completed",
+            "Ready for Pickup"
+        ]
     ).count()
 
     status_summary = []
@@ -91,9 +119,130 @@ def dashboard(request):
     return render(request, "core/dashboard.html", context)
 
 def new_ticket(request):
-    return render(request, 'core/new_ticket.html')
+
+    if request.method == "POST":
+
+        form = TicketForm(request.POST, request.FILES)
+
+        if form.is_valid():
+
+            customer = get_or_create_customer(
+                form.cleaned_data["customer_name"],
+                form.cleaned_data["phone"],
+                form.cleaned_data["email"]
+            )
+
+            ticket = form.save(commit=False)
+
+            ticket.customer = customer
+
+            ticket.save()
+
+            # 保存图片
+            photos = request.FILES.getlist("photos")
+
+            for photo in photos:
+                TicketPhoto.objects.create(
+                    ticket=ticket,
+                    image=photo
+                )
+
+            return redirect("all_tickets")
+
+    else:
+
+        form = TicketForm(
+            initial={
+                "ticket_number": generate_ticket_number(),
+                "due_date": date.today()
+            }
+        )
+
+    return render(
+        request,
+        "core/new_ticket.html",
+        {
+            "form": form
+        }
+    )
+
+def customer_search(request):
+
+    keyword = request.GET.get("q", "").strip()
+
+    customers = Customer.objects.filter(
+
+        Q(name__icontains=keyword) |
+        Q(phone__icontains=keyword)
+
+    )[:10]
+
+    data = []
+
+    for customer in customers:
+
+        data.append({
+
+    "id": customer.id,
+
+    "name": customer.name,
+
+    "phone": customer.phone,
+
+    "email": customer.email,
+
+    "ticket_count": customer.tickets.count(),
+
+})
+
+    return JsonResponse(data, safe=False)
+
+def customer_detail(request, pk):
+
+    customer = get_object_or_404(
+        Customer,
+        pk=pk
+    )
+
+    return JsonResponse({
+
+        "id": customer.id,
+
+        "name": customer.name,
+
+        "phone": customer.phone,
+
+        "email": customer.email,
+
+    })
+
+def jobtype_detail(request, pk):
+
+    job_type = get_object_or_404(
+        JobType,
+        pk=pk
+    )
+
+    due_date = calculate_due_date(job_type)
+
+    return JsonResponse({
+
+        "duration": job_type.duration,
+
+        "due_date": due_date.strftime("%Y-%m-%d")
+
+    })
+
+def generate_ticket(request):
+
+    return JsonResponse({
+
+        "ticket_number": generate_ticket_number()
+
+    })
 
 def all_tickets(request):
+    
 
     tickets = Ticket.objects.select_related(
         'customer',
@@ -104,6 +253,11 @@ def all_tickets(request):
     search = request.GET.get('search')
     status_id = request.GET.get('status')
     job_type_id = request.GET.get('job_type')
+    open_jobs = request.GET.get("open")
+    due = request.GET.get("due")
+    pickup = request.GET.get("pickup")
+    overdue = request.GET.get("overdue")
+    
 
     if search:
 
@@ -131,6 +285,48 @@ def all_tickets(request):
 
         tickets = tickets.filter(
             job_type_id=job_type_id
+        )
+    if open_jobs:
+
+        tickets = tickets.exclude(
+            status__status="Completed"
+        )
+    if due == "thisweek":
+
+        today = timezone.now().date()
+
+        start_of_week = today - timedelta(
+            days=today.weekday()
+        )
+
+        end_of_week = start_of_week + timedelta(days=6)
+
+        tickets = tickets.filter(
+            due_date__lte=end_of_week
+        ).exclude(
+            status__status__in=[
+                "Completed",
+                "Ready for Pickup"
+            ]
+        )
+    
+    if pickup:
+
+        tickets = tickets.filter(
+            status__status="Ready for Pickup"
+        )
+    
+    if overdue:
+
+        today = timezone.now().date()
+
+        tickets = tickets.filter(
+            due_date__lt=today
+        ).exclude(
+            status__status__in=[
+                "Completed",
+                "Ready for Pickup"
+            ]
         )
 
     context = {
@@ -412,3 +608,4 @@ def customers(request):
 
 def base(request):
     return render(request, 'core/base.html')
+

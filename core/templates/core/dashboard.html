@@ -14,31 +14,81 @@
     <!-- Statistics -->
     <div class="stats-grid">
 
-        <div
+    <div
     class="stat-card jobs clickable-card"
-    onclick="window.location='{% url 'all_tickets' %}'"
+    onclick="window.location='{% url 'all_tickets' %}?open=1'"
 >
-            <h4>OPEN JOBS</h4>
-            <h2>{{ open_jobs }}</h2>
+
+    <div class="stat-top">
+
+        <h4>OPEN<br>JOBS</h4>
+
+        <div class="stat-icon">
+            <i class="fa-solid fa-screwdriver-wrench"></i>
         </div>
 
-        <div class="stat-card due">
-            <h4>DUE THIS WEEK</h4>
-            <h2>{{ due_this_week }}</h2>
+    </div>
+
+    <h2>{{ open_jobs }}</h2>
+
+</div>
+
+        <div
+    class="stat-card due clickable-card"
+    onclick="window.location='{% url 'all_tickets' %}?due=thisweek'"
+>
+
+    <div class="stat-top">
+
+        <h4>DUE THIS<br>WEEK</h4>
+
+        <div class="stat-icon due-icon">
+            <i class="fa-solid fa-calendar-days"></i>
         </div>
+
+    </div>
+
+    <h2>{{ due_this_week }}</h2>
+
+</div>
 
         <div
     class="stat-card pickup clickable-card"
-    onclick="window.location='{% url 'all_tickets' %}?status=Ready for Pickup'"
+    onclick="window.location='{% url 'all_tickets' %}?pickup=1'"
 >
-            <h4>READY FOR PICKUP</h4>
-            <h2>{{ ready_for_pickup }}</h2>
+
+    <div class="stat-top">
+
+        <h4>READY FOR<br>PICKUP</h4>
+
+        <div class="stat-icon pickup-icon">
+            <i class="fa-solid fa-circle-check"></i>
         </div>
 
-        <div class="stat-card overdue">
-            <h4>OVERDUE</h4>
-            <h2>{{ overdue }}</h2>
+    </div>
+
+    <h2>{{ ready_for_pickup }}</h2>
+
+</div>
+
+        <div
+    class="stat-card overdue clickable-card"
+    onclick="window.location='{% url 'all_tickets' %}?overdue=1'"
+>
+
+    <div class="stat-top">
+
+        <h4>OVERDUE</h4>
+
+        <div class="stat-icon overdue-icon">
+            <i class="fa-solid fa-triangle-exclamation"></i>
         </div>
+
+    </div>
+
+    <h2>{{ overdue }}</h2>
+
+</div>
 
     </div>
 
@@ -72,7 +122,9 @@
     onclick="window.location='{% url 'ticket_detail' ticket.id %}'"
 >
 
-    <td>{{ ticket.ticket_number }}</td>
+    <td class="ticket-number">
+    {{ ticket.ticket_number }}
+</td>
 
     <td>{{ ticket.customer.name }}</td>
 
@@ -428,6 +480,90 @@
 
 .clickable-card:hover{
     background:#faf8f2;
+}
+
+.stat-card{
+    position:relative;
+    overflow:hidden;
+}
+
+.stat-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+}
+
+.stat-top h4{
+    line-height:1.4;
+}
+
+.stat-icon{
+
+    width:58px;
+    height:58px;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    border-radius:16px;
+
+    background:#f8f3e8;
+
+    color:#c79c3d;
+
+    font-size:24px;
+
+    opacity:0;
+
+    transform:translateX(15px);
+
+    transition:.25s;
+}
+
+.stat-card:hover .stat-icon{
+
+    opacity:1;
+
+    transform:translateX(0);
+
+}
+
+.clickable-card{
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+.clickable-card:hover{
+
+    transform:translateY(-4px);
+
+    box-shadow:0 12px 25px rgba(0,0,0,.08);
+
+}
+
+.due-icon{
+    background:#eef8fb;
+    color:#4c92a8;
+}
+
+.pickup-icon{
+    background:#ecfdf3;
+    color:#22c55e;
+}
+
+.overdue-icon{
+    background:#fef2f2;
+    color:#ef4444;
+}
+
+.ticket-number{
+    color:#c79c3d;
+    font-weight:600;
+    letter-spacing:.2px;
 }
 
 /* Responsive */

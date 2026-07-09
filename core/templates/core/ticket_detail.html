@@ -1,0 +1,322 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+
+<div class="ticket-detail-page">
+
+    <div class="back-link">
+        <a href="{% url 'all_tickets' %}">
+            ← All Tickets
+        </a>
+    </div>
+
+    <div class="ticket-header">
+
+        <div>
+
+            <div class="ticket-top">
+
+                <span class="ticket-number">
+                    {{ ticket.ticket_number }}
+                </span>
+
+                <span
+                    class="status-badge"
+                    style="
+                        background:{{ ticket.status.color }}20;
+                        color:{{ ticket.status.color }};
+                    "
+                >
+                    {{ ticket.status.status }}
+                </span>
+
+            </div>
+
+            <h1>
+                {{ ticket.job_type.type }}
+            </h1>
+
+            <p class="created-date">
+                Created {{ ticket.created_date|date:"M d, Y" }}
+            </p>
+
+        </div>
+
+        <div>
+
+            <label class="status-label">
+                UPDATE STATUS
+            </label>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <select
+                    name="status"
+                    class="status-select"
+                    onchange="this.form.submit()"
+                >
+
+                    {% for status in statuses %}
+
+                    <option
+                        value="{{ status.id }}"
+                        {% if ticket.status.id == status.id %}
+                        selected
+                        {% endif %}
+                    >
+                        {{ status.status }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <div class="detail-grid">
+
+        <!-- LEFT -->
+
+        <div>
+
+            <div class="card">
+
+                <h3>
+                    Customer Information
+                </h3>
+
+                <div class="customer-box">
+
+                    <div class="avatar">
+                        {{ ticket.customer.name|slice:":2"|upper }}
+                    </div>
+
+                    <div>
+
+                        <h4>
+                            {{ ticket.customer.name }}
+                        </h4>
+
+                        <p>
+                            {{ ticket.customer.phone }}
+                        </p>
+
+                        <p>
+                            {{ ticket.customer.email }}
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="card">
+
+                <h3>
+                    Job Description
+                </h3>
+
+                <p>
+                    {{ ticket.description }}
+                </p>
+
+            </div>
+
+            <div class="card">
+
+                <h3>
+                    Photos
+                </h3>
+
+                <div class="photo-placeholder">
+
+                    No photos attached
+
+                </div>
+
+            </div>
+
+            <div class="card">
+
+                <h3>
+                    Notes
+                </h3>
+
+                <p>
+                    {{ ticket.notes }}
+                </p>
+
+            </div>
+
+        </div>
+
+        <!-- RIGHT -->
+
+        <div>
+
+            <div class="card">
+
+                <h4>
+                    DUE DATE
+                </h4>
+
+                <h2>
+                    {{ ticket.due_date|date:"F d, Y" }}
+                </h2>
+
+            </div>
+
+            <div class="card">
+
+                <h3>
+                    Ticket Information
+                </h3>
+
+                <p>
+                    <strong>Job Type:</strong>
+                    {{ ticket.job_type.type }}
+                </p>
+
+                <p>
+                    <strong>Status:</strong>
+                    {{ ticket.status.status }}
+                </p>
+
+                <p>
+                    <strong>Created:</strong>
+                    {{ ticket.created_date|date:"M d, Y" }}
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<style>
+
+.ticket-detail-page{
+    max-width:1200px;
+    margin:auto;
+}
+
+.back-link{
+    margin-bottom:20px;
+}
+
+.back-link a{
+    text-decoration:none;
+    color:#666;
+}
+
+.ticket-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:30px;
+}
+
+.ticket-top{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    margin-bottom:10px;
+}
+
+.ticket-number{
+    color:#c79c3d;
+    font-weight:600;
+}
+
+.status-badge{
+    padding:6px 12px;
+    border-radius:20px;
+    font-size:12px;
+}
+
+.created-date{
+    color:#777;
+}
+
+.status-label{
+    display:block;
+    font-size:12px;
+    margin-bottom:10px;
+    color:#777;
+}
+
+.status-select{
+    padding:12px 18px;
+    border:none;
+    border-radius:12px;
+    background:#c79c3d;
+    color:white;
+    font-weight:600;
+}
+
+.detail-grid{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:25px;
+}
+
+.card{
+    background:white;
+    border:1px solid #eee;
+    border-radius:16px;
+    padding:25px;
+    margin-bottom:25px;
+}
+
+.customer-box{
+    display:flex;
+    gap:20px;
+    align-items:center;
+}
+
+.avatar{
+    width:60px;
+    height:60px;
+    border-radius:50%;
+    border:2px solid #c79c3d;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+    color:#c79c3d;
+}
+
+.photo-placeholder{
+    height:150px;
+    background:#f7f7f7;
+    border-radius:12px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    color:#999;
+}
+
+@media(max-width:1000px){
+
+    .detail-grid{
+        grid-template-columns:1fr;
+    }
+
+    .ticket-header{
+        flex-direction:column;
+        gap:20px;
+    }
+
+}
+
+</style>
+
+{% endblock %}

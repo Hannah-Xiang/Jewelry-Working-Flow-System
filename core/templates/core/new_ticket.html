@@ -36,9 +36,9 @@
 
     </div>
 
-    <div class="ticket-date">
+    <!-- <div class="ticket-date">
         {{ today|date:"F d, Y" }}
-    </div>
+    </div> -->
 
 </div>
 
@@ -58,7 +58,7 @@
         type="text"
         id="customer-search"
         autocomplete="off"
-        placeholder="Type customer name or phone...">
+        placeholder="Type name or phone number to find existing customer...">
 
     <div
         id="customer-results"
@@ -66,7 +66,25 @@
         style="display:none;">
     </div>
 
+    <!-- Shown once a customer has been picked from the dropdown -->
+    <div id="selected-customer-box" class="selected-customer" style="display:none;">
+        <div class="selected-customer-left">
+            <span class="selected-icon">&#10004;</span>
+            <div>
+                <div class="selected-name" id="selected-customer-name"></div>
+                <div class="selected-meta" id="selected-customer-meta"></div>
+            </div>
+        </div>
+        <button type="button" id="change-customer-btn" class="btn-change">
+            &times; Change
+        </button>
+    </div>
+
 </div>
+
+    <!-- Tracks which existing customer (if any) was picked, so the view can link the ticket
+         to that record instead of creating a duplicate customer -->
+    <input type="hidden" name="existing_customer_id" id="id_existing_customer_id" value="">
 
     <div class="form-group">
 
@@ -117,7 +135,20 @@
                 Job Type *
             </label>
 
-            {{ form.job_type }}
+            <!-- Rendered manually (not {{ form.job_type }}) so each option can carry
+                 data-duration, which the script below reads to compute the due date. -->
+            <select name="job_type" id="id_job_type">
+                <option value="" data-duration="">Select type...</option>
+                {% for jt in job_types %}
+                <option value="{{ jt.id }}" data-duration="{{ jt.duration }}">
+                    {{ jt.type }}
+                </option>
+                {% endfor %}
+            </select>
+
+            {% if form.job_type.errors %}
+                <small class="error">{{ form.job_type.errors.0 }}</small>
+            {% endif %}
 
         </div>
 
@@ -128,6 +159,8 @@
             </label>
 
             {{ form.due_date }}
+
+            <small class="hint" id="due-date-hint"></small>
 
         </div>
 
@@ -149,7 +182,17 @@
             Initial Status
         </label>
 
-        {{ form.status }}
+        <!-- Rendered manually so only "Received" and "In Progress" are selectable,
+             regardless of how many Status rows exist in the database. -->
+        <select name="status" id="id_status">
+            {% for st in statuses %}
+            <option value="{{ st.id }}">{{ st.status }}</option>
+            {% endfor %}
+        </select>
+
+        {% if form.status.errors %}
+            <small class="error">{{ form.status.errors.0 }}</small>
+        {% endif %}
 
     </div>
 
@@ -157,38 +200,50 @@
 
     <!-- Photos -->
 
-    <div class="card">
-
+<div class="card">
     <h3>Photos</h3>
 
-    <div class="upload-box">
+    <!-- Before upload -->
+    <div id="upload-box" class="upload-box">
 
         <input
-    type="file"
-    name="photos"
-    id="id_photos"
-    multiple
-    accept="image/*">
+            type="file"
+            id="id_photos"
+            name="photos"
+            accept="image/*"
+            multiple>
 
         <div class="upload-content">
-
-            <div class="upload-icon">
-                📷
-            </div>
-
-            <h4>
-                Upload Photos
-            </h4>
-
-            <p>
-                Click to select images
-            </p>
-
+            <div class="upload-icon">📷</div>
+            <h4>Upload Photos</h4>
+            <p>Click to select — JPG, PNG, HEIC supported</p>
         </div>
 
     </div>
 
-    <div id="photo-preview"></div>
+    <!-- After upload -->
+    <div id="photo-gallery" style="display:none;">
+
+        <div class="photo-row">
+
+            <div id="photo-preview"></div>
+
+            <label class="add-more">
+                <input type="file"
+                       id="more-photos"
+                       name="photos"
+                       accept="image/*"
+                       multiple
+                       hidden>
+                ↑
+                <span>Add more</span>
+            </label>
+
+        </div>
+
+        <p id="photo-count" class="photo-count">0 photos attached</p>
+
+    </div>
 
 </div>
 
@@ -309,6 +364,12 @@ textarea:focus{
     border-color:#c79c3d;
 }
 
+.hint{
+    color:#c79c3d;
+    margin-top:6px;
+    font-size:13px;
+}
+
 .upload-box{
     border:2px dashed #ddd;
     border-radius:16px;
@@ -357,47 +418,8 @@ textarea:focus{
     cursor:pointer;
 }
 
-.search-results{
-
-    position:absolute;
-
-    top:100%;
-
-    left:0;
-
-    right:0;
-
-    background:white;
-
-    border:1px solid #ddd;
-
-    border-radius:8px;
-
-    max-height:250px;
-
-    overflow-y:auto;
-
-    z-index:999;
-}
-
-.customer-item{
-
-    padding:12px;
-
-    cursor:pointer;
-
-}
-
-.customer-item:hover{
-
-    background:#f7f7f7;
-
-}
-
 .customer-search-wrapper{
-
     position:relative;
-
 }
 
 .customer-dropdown{
@@ -524,6 +546,48 @@ textarea:focus{
 
 }
 
+/* Selected customer confirmation box (replaces the search input once picked) */
+.selected-customer{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#f2f8f2;
+    border:1px solid #bfe3bf;
+    border-radius:12px;
+    padding:14px 18px;
+    margin-top:10px;
+}
+
+.selected-customer-left{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.selected-icon{
+    color:#3a9a3a;
+    font-size:18px;
+}
+
+.selected-name{
+    font-weight:600;
+}
+
+.selected-meta{
+    color:#666;
+    font-size:13px;
+    margin-top:2px;
+}
+
+.btn-change{
+    background:#eee;
+    border:none;
+    padding:8px 14px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:13px;
+}
+
 @media(max-width:768px){
 
     .form-row{
@@ -537,201 +601,323 @@ textarea:focus{
     }
 }
 
+
+.photo-upload-area{
+    display:flex;
+    gap:14px;
+    align-items:flex-start;
+    flex-wrap:wrap;
+}
+
+.photo-preview{
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+}
+
+.photo-item{
+    width:82px;
+    height:82px;
+    border-radius:10px;
+    overflow:hidden;
+    border:1px solid #e6dcc7;
+    position:relative;
+}
+
+.photo-item img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.upload-tile{
+    width:82px;
+    height:82px;
+    border:2px dashed #e4d5b8;
+    border-radius:10px;
+    background:#faf7ef;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    cursor:pointer;
+    color:#8b7d62;
+    font-size:13px;
+    transition:.2s;
+}
+
+.upload-tile:hover{
+    background:#f4ecd8;
+}
+
+.upload-icon{
+    font-size:22px;
+    margin-bottom:6px;
+}
+
+.photo-count{
+    margin-top:15px;
+    color:#777;
+    font-size:15px;
+}
+
+
+.photo-row{
+    display:flex;
+    gap:12px;
+}
+
+#photo-preview{
+    display:flex;
+    gap:12px;
+}
+
+.photo-item{
+    width:100px;
+    height:100px;
+    border-radius:10px;
+    overflow:hidden;
+    border:1px solid #ddd;
+}
+
+.photo-item img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.add-more{
+    width:100px;
+    height:100px;
+    border:2px dashed #d8b04b;
+    border-radius:10px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    cursor:pointer;
+    color:#8d7b58;
+    background:#faf6eb;
+}
 </style>
 
 <script>
-    const searchInput = document.getElementById("customer-search");
-const results = document.getElementById("customer-results");
+document.addEventListener("DOMContentLoaded", function () {
 
-searchInput.addEventListener("input", function () {
+    // ---------- element references ----------
+    const searchInput   = document.getElementById("customer-search");
+    const resultBox     = document.getElementById("customer-results");
+    const selectedBox   = document.getElementById("selected-customer-box");
+    const selectedName  = document.getElementById("selected-customer-name");
+    const selectedMeta  = document.getElementById("selected-customer-meta");
+    const changeBtn     = document.getElementById("change-customer-btn");
+    const existingIdInp = document.getElementById("id_existing_customer_id");
 
-    const keyword = this.value;
+    const nameInput  = document.getElementById("id_customer_name");
+    const phoneInput = document.getElementById("id_phone");
+    const emailInput = document.getElementById("id_email");
 
-    if (keyword.length === 0) {
-        results.innerHTML = "";
-        return;
-    }
+    const jobTypeSelect = document.getElementById("id_job_type");
+    const dueDateInput  = document.getElementById("id_due_date");
+    const dueDateHint   = document.getElementById("due-date-hint");
 
-    fetch(`/api/customers/search/?q=${keyword}`)
+    let debounceTimer = null;
 
-        .then(response => response.json())
+    // ---------- customer search ----------
+    searchInput.addEventListener("input", function () {
 
-        .then(data => {
+        clearTimeout(debounceTimer);
+        const keyword = this.value.trim();
 
-            results.innerHTML = "";
+        if (keyword === "") {
+            resultBox.style.display = "none";
+            resultBox.innerHTML = "";
+            return;
+        }
 
-            data.forEach(customer => {
+        debounceTimer = setTimeout(() => {
 
-                results.innerHTML += `
-                    <div class="customer-item"
-                        data-id="${customer.id}">
+            fetch(`/api/customers/search/?q=${encodeURIComponent(keyword)}`)
+                .then(res => res.json())
+                .then(customers => {
 
-                        <strong>${customer.name}</strong><br>
+                    resultBox.innerHTML = "";
+                    resultBox.style.display = "block";
 
-                        ${customer.phone}
+                    if (customers.length === 0) {
+                        resultBox.innerHTML = `
+                            <div class="customer-header">No Customer Found</div>
+                        `;
+                        return;
+                    }
 
-                    </div>
-                `;
+                    resultBox.innerHTML = `
+                        <div class="customer-header">ALL CUSTOMERS</div>
+                    `;
 
+                    customers.forEach(customer => {
+
+                        const initials = customer.name
+                            .split(" ")
+                            .map(n => n[0])
+                            .join("")
+                            .substring(0, 2)
+                            .toUpperCase();
+
+                        resultBox.innerHTML += `
+                            <div class="customer-item" data-id="${customer.id}">
+                                <div class="customer-left">
+                                    <div class="customer-avatar">${initials}</div>
+                                    <div>
+                                        <div class="customer-name">${customer.name}</div>
+                                        <div class="customer-phone">${customer.phone}</div>
+                                    </div>
+                                </div>
+                                <div class="customer-jobs">
+                                    ${customer.ticket_count ?? 0} Jobs
+                                </div>
+                            </div>
+                        `;
+                    });
+                });
+
+        }, 300);
+    });
+
+    // ---------- pick a customer from the dropdown ----------
+    resultBox.addEventListener("click", function (e) {
+
+        const item = e.target.closest(".customer-item");
+        if (!item) return;
+
+        const id = item.dataset.id;
+
+        fetch(`/api/customers/${id}/`)
+            .then(res => res.json())
+            .then(customer => {
+
+                // fill the (still-editable) form fields
+                nameInput.value  = customer.name;
+                phoneInput.value = customer.phone;
+                emailInput.value = customer.email || "";
+
+                // remember which existing customer this is
+                existingIdInp.value = customer.id;
+
+                // build the "customer since <year>" line from created_date
+                let sinceText = "";
+                if (customer.created_date) {
+                    const year = new Date(customer.created_date).getFullYear();
+                    sinceText = `Customer since ${year}`;
+                }
+
+                selectedName.textContent = customer.name;
+                selectedMeta.textContent = sinceText
+                    ? `${customer.phone} · ${sinceText}`
+                    : customer.phone;
+
+                // swap search input for the confirmation box
+                searchInput.value = "";
+                searchInput.style.display = "none";
+                resultBox.style.display = "none";
+                selectedBox.style.display = "flex";
             });
+    });
 
-        });
+    // ---------- "Change" button: go back to search mode ----------
+    changeBtn.addEventListener("click", function () {
 
-});
+        existingIdInp.value = "";
 
-<script>
+        nameInput.value  = "";
+        phoneInput.value = "";
+        emailInput.value = "";
 
-const searchInput=document.getElementById("customer-search");
+        selectedBox.style.display = "none";
+        searchInput.style.display = "block";
+        searchInput.focus();
+    });
 
-const resultBox=document.getElementById("customer-results");
+    // close the dropdown when clicking elsewhere
+    document.addEventListener("click", function (e) {
+        if (!e.target.closest(".customer-search-wrapper")) {
+            resultBox.style.display = "none";
+        }
+    });
 
-const nameInput=document.getElementById("id_customer_name");
+    // ---------- job type -> auto-calculate due date ----------
+    jobTypeSelect.addEventListener("change", function () {
 
-const phoneInput=document.getElementById("id_phone");
+        const selectedOption = this.options[this.selectedIndex];
+        const duration = parseInt(selectedOption.dataset.duration, 10);
 
-const emailInput=document.getElementById("id_email");
+        if (!duration || isNaN(duration)) {
+            dueDateHint.textContent = "";
+            return;
+        }
 
-let timer=null;
+        const due = new Date();
+        due.setDate(due.getDate() + duration);
 
-searchInput.addEventListener("input",function(){
+        const yyyy = due.getFullYear();
+        const mm   = String(due.getMonth() + 1).padStart(2, "0");
+        const dd   = String(due.getDate()).padStart(2, "0");
 
-    clearTimeout(timer);
-
-    const keyword=this.value.trim();
-
-    if(keyword===""){
-
-        resultBox.style.display="none";
-
-        return;
-
-    }
-
-    timer=setTimeout(()=>{
-
-        fetch(`/api/customers/search/?q=${keyword}`)
-
-        .then(res=>res.json())
-
-        .then(customers=>{
-
-            resultBox.innerHTML="";
-
-            resultBox.style.display="block";
-
-            if(customers.length===0){
-
-                resultBox.innerHTML=`
-                    <div class="customer-header">
-                        No Customer Found
-                    </div>
-                `;
-
-                return;
-
-            }
-
-            resultBox.innerHTML=`
-                <div class="customer-header">
-                    ALL CUSTOMERS
-                </div>
-            `;
-
-            customers.forEach(customer=>{
-
-                const initials=customer.name
-                    .split(" ")
-                    .map(n=>n[0])
-                    .join("")
-                    .substring(0,2)
-                    .toUpperCase();
-
-                resultBox.innerHTML+=`
-
-<div class="customer-item"
-     data-id="${customer.id}">
-
-<div class="customer-left">
-
-<div class="customer-avatar">
-
-${initials}
-
-</div>
-
-<div>
-
-<div class="customer-name">
-
-${customer.name}
-
-</div>
-
-<div class="customer-phone">
-
-${customer.phone}
-
-</div>
-
-</div>
-
-</div>
-
-<div class="customer-jobs">
-
-${customer.ticket_count ?? 0} Jobs
-
-</div>
-
-</div>
-
-`;
-
-            });
-
-        });
-
-    },300);
-
-});
-
-resultBox.addEventListener("click",function(e){
-
-    const item=e.target.closest(".customer-item");
-
-    if(!item) return;
-
-    const id=item.dataset.id;
-
-    fetch(`/api/customers/${id}/`)
-
-    .then(res=>res.json())
-
-    .then(customer=>{
-
-        nameInput.value=customer.name;
-
-        phoneInput.value=customer.phone;
-
-        emailInput.value=customer.email;
-
-        searchInput.value=customer.name;
-
-        resultBox.style.display="none";
-
+        dueDateInput.value = `${yyyy}-${mm}-${dd}`;
+        dueDateHint.textContent = `Auto-filled: ${duration} day${duration === 1 ? "" : "s"} from today (you can still change it)`;
     });
 
 });
 
 
-document.addEventListener("click",function(e){
+const uploadBox = document.getElementById("upload-box");
+const gallery = document.getElementById("photo-gallery");
 
-    if(!e.target.closest(".customer-search-wrapper")){
+const firstInput = document.getElementById("id_photos");
+const moreInput = document.getElementById("more-photos");
 
-        resultBox.style.display="none";
+const preview = document.getElementById("photo-preview");
+const count = document.getElementById("photo-count");
 
-    }
+let files = [];
 
+function addFiles(selected){
+
+    files.push(...selected);
+
+    preview.innerHTML = "";
+
+    files.forEach(file=>{
+
+        const reader = new FileReader();
+
+        reader.onload=function(e){
+
+            const div=document.createElement("div");
+            div.className="photo-item";
+
+            div.innerHTML=`<img src="${e.target.result}">`;
+
+            preview.appendChild(div);
+
+        };
+
+        reader.readAsDataURL(file);
+
+    });
+
+    uploadBox.style.display="none";
+    gallery.style.display="block";
+
+    count.textContent=`${files.length} photo${files.length>1?"s":""} attached`;
+}
+
+firstInput.addEventListener("change",function(){
+    addFiles(Array.from(this.files));
+});
+
+moreInput.addEventListener("change",function(){
+    addFiles(Array.from(this.files));
 });
 </script>
 

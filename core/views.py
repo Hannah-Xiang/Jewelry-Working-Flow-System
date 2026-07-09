@@ -126,11 +126,18 @@ def new_ticket(request):
 
         if form.is_valid():
 
-            customer = get_or_create_customer(
-                form.cleaned_data["customer_name"],
-                form.cleaned_data["phone"],
-                form.cleaned_data["email"]
-            )
+            existing_customer_id = request.POST.get("existing_customer_id")
+
+            if existing_customer_id:
+                # a customer was picked from the search dropdown -> reuse that record
+                customer = Customer.objects.get(pk=existing_customer_id)
+            else:
+                # no customer picked -> fall back to your existing lookup/create logic
+                customer = get_or_create_customer(
+                    form.cleaned_data["customer_name"],
+                    form.cleaned_data["phone"],
+                    form.cleaned_data["email"]
+                )
 
             ticket = form.save(commit=False)
 
@@ -162,10 +169,12 @@ def new_ticket(request):
         request,
         "core/new_ticket.html",
         {
-            "form": form
+            "form": form,
+            "today": date.today(),
+            "job_types": JobType.objects.all(),
+            "statuses": Status.objects.filter(status__in=["Received", "In Progress"]),
         }
     )
-
 def customer_search(request):
 
     keyword = request.GET.get("q", "").strip()

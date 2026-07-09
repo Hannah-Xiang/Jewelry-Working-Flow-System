@@ -98,3 +98,17 @@ class TicketPhoto(models.Model):
 
     def __str__(self):
         return self.ticket.ticket_number
+
+class Note(models.Model):
+    ticket = models.ForeignKey(
+        Ticket,
+        on_delete=models.CASCADE,
+        related_name="notes"
+    )
+
+    content = models.TextField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Note for {self.ticket.ticket_number}"

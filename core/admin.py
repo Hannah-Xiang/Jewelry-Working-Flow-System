@@ -1,12 +1,13 @@
 from django.contrib import admin
 
-from .models import Customer, JobType, Status, Ticket, TicketPhoto
+from .models import Customer, JobType, Note, Status, Ticket, TicketPhoto
 
 # Register your models here.
 
 admin.site.register(Customer)
 admin.site.register(JobType)
 admin.site.register(Status)
+admin.site.register(Note)
 
 class TicketPhotoInline(admin.TabularInline):
     model = TicketPhoto

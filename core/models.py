@@ -112,3 +112,37 @@ class Note(models.Model):
 
     def __str__(self):
         return f"Note for {self.ticket.ticket_number}"
+    
+
+
+
+class StatusHistory(models.Model):
+    """
+    One row per status change on a ticket.
+    Powers the 'Status Timeline' card on the ticket detail page.
+    """
+
+    ticket = models.ForeignKey(
+        Ticket,
+        on_delete=models.CASCADE,
+        related_name="status_history"
+    )
+
+    status = models.ForeignKey(
+        Status,
+        on_delete=models.CASCADE
+    )
+
+    note = models.CharField(
+        max_length=255,
+        blank=True
+    )
+
+    created_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_date"]
+        verbose_name_plural = "Status histories"
+
+    def __str__(self):
+        return f"{self.ticket.ticket_number} -> {self.status.status}"

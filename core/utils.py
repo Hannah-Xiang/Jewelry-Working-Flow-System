@@ -57,7 +57,6 @@ def get_or_create_customer(name, phone, email=""):
     """
 
     customer = Customer.objects.filter(
-        name__iexact=name.strip(),
         phone__iexact=phone.strip()
     ).first()
 

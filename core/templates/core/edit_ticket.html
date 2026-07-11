@@ -43,14 +43,22 @@
 
         </div>
 
-        <div>
+        <div class="header-actions">
 
-            <a href="{% url 'edit_ticket' ticket.id %}" class="edit-ticket-btn">
-                ✎ Edit Ticket
+            <a href="{% url 'ticket_detail' ticket.id %}" class="cancel-btn">
+                <i class="fa-solid fa-times" style="font-size: 1.2em;"></i> Cancel
             </a>
+
+            <button type="submit" form="edit-ticket-form" class="save-btn">
+                <i class="fa-solid fa-save" style="font-size: 1.2em;"></i> Save Changes
+            </button>
 
         </div>
 
+    </div>
+
+    <div class="edit-banner">
+        ✎ Edit mode — modify fields below and click Save Changes when done.
     </div>
 
     <div class="detail-grid">
@@ -64,13 +72,13 @@
                 <h3>
                     Customer Information
                 </h3>
-                </br>
+                <br>
                 <div class="customer-box">
 
                     <div class="avatar">
                         {{ ticket.customer.name|slice:":2"|upper }}
                     </div>
-                    
+
                     <div>
 
                         <h4>
@@ -95,29 +103,101 @@
 
             </div>
 
-            <div class="card">
+            <form method="POST" id="edit-ticket-form" action="{% url 'edit_ticket' ticket.id %}">
+                {% csrf_token %}
 
-                <h3>
-                    Job Description
-                </h3>
-                <br>
-                <p>
-                    {{ ticket.description }}
-                </p>
+                <div class="card">
 
-                {% if ticket.price %}
-                <div class="price-badge">
-                    Value / Price:&nbsp;<span>${{ ticket.price }}</span>
+                    <h3>
+                        Ticket Details
+                    </h3>
+
+                    <div class="form-grid">
+
+                        <div class="form-field">
+                            <label>TICKET NUMBER</label>
+                            <div class="readonly-field">
+                                <span class="ticket-number-inline">{{ ticket.ticket_number }}</span>
+                                <span class="auto-assigned">(auto-assigned)</span>
+                            </div>
+                        </div>
+
+                        <div class="form-field">
+                            <label>JOB TYPE</label>
+                            <select name="job_type" class="form-input">
+                                {% for jt in job_types %}
+                                <option value="{{ jt.id }}" {% if ticket.job_type.id == jt.id %}selected{% endif %}>
+                                    {{ jt.type }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-field">
+                            <label>DUE DATE</label>
+                            <input type="date" name="due_date" class="form-input" value="{{ ticket.due_date|date:'Y-m-d' }}">
+                        </div>
+
+                        <div class="form-field">
+                            <label>$ FINAL PRICE / ESTIMATE</label>
+                            <input type="number" step="0.01" name="price" class="form-input" value="{{ ticket.price|default_if_none:'' }}">
+                        </div>
+
+                        <div class="form-field">
+                            <label>STATUS</label>
+                            <select name="status" class="form-input">
+                                {% for status in statuses %}
+                                <option value="{{ status.id }}" {% if ticket.status.id == status.id %}selected{% endif %}>
+                                    {{ status.status }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                    </div>
+
                 </div>
-                {% endif %}
 
-            </div>
+                <div class="card">
+
+                    <h3>
+                        Job Description
+                    </h3>
+                    <br>
+                    <textarea name="description" class="form-textarea" rows="4">{{ ticket.description }}</textarea>
+
+                </div>
+
+            </form>
 
             <div class="card">
 
-                <h3>
-                    Photos
-                </h3>
+                <div class="card-header-row">
+                    <h3>Photos</h3>
+
+                    <label for="photo-upload-input" class="add-photos-btn">
+                        + Add Photos
+                    </label>
+                </div>
+
+                <form
+                    method="POST"
+                    action="{% url 'add_photo' ticket.id %}"
+                    enctype="multipart/form-data"
+                    id="photo-upload-form"
+                >
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.path }}">
+                    <input
+                        type="file"
+                        id="photo-upload-input"
+                        name="photos"
+                        accept="image/*"
+                        multiple
+                        class="hidden-file-input"
+                        onchange="document.getElementById('photo-upload-form').submit()"
+                    >
+                </form>
 
                 {% if ticket.photos.all %}
                     <div class="photo-grid">
@@ -127,7 +207,7 @@
                     </div>
                 {% else %}
                     <div class="photo-placeholder">
-                        No photos attached
+                        No photos yet — click Add Photos to upload
                     </div>
                 {% endif %}
 
@@ -157,25 +237,10 @@
 
                 {% if ticket.notes.all %}
                     {% for note in ticket.notes.all %}
-                        <div class="note-card">
-
-    <div class="note-header">
-
-        <div class="note-content">
-            {{ note.content }}
-        </div>
-
-        <button class="delete-note-btn" type="button">
-            <i class="fa-solid fa-trash-can"></i>
-        </button>
-
-    </div>
-
-    <div class="note-meta">
-        Marie · {{ note.created_at|date:"M d, Y" }}
-    </div>
-
-</div>
+                        <div class="note-item">
+                            <p>{{ note.content }}</p>
+                            <span class="note-date">{{ note.created_at|date:"M d, Y" }}</span>
+                        </div>
                     {% endfor %}
                 {% else %}
                     <p class="empty-note">No notes yet.</p>
@@ -192,9 +257,10 @@
             <div class="card">
 
                 <h4>
-                    <i class="fa-solid fa-calendar-days" style="color:#999; font-size: 1.2em;"></i> &nbsp; DUE DATE
+                    <i class="fa-solid fa-calendar-days" style="color:#999; font-size: 1.2em;"></i> &nbsp;  DUE DATE
                 </h4>
-                </br>
+                <br>
+
                 <h2>
                     {{ ticket.due_date|date:"F d, Y" }}
                 </h2>
@@ -208,65 +274,9 @@
             <div class="card">
 
                 <h3>
-                    Quick Actions
-                </h3>
-            </br>
-            {% for status in statuses %}
-                <form method="POST" action="{% url 'set_status' ticket.id status.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="quick-action-btn {% if ticket.status.id == status.id %}active{% endif %}" style="background:{{ status.color }}20; color:{{ status.color }};">
-                        Mark {{ status.status }}
-                    </button>
-                </form>
-            {% endfor %}
-
-                <!-- {% if completed_status and ticket.status.id != completed_status.id %}
-                <form method="POST" action="{% url 'set_status' ticket.id completed_status.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="quick-action-btn completed-btn">
-                        Mark Completed
-                    </button>
-                </form>
-                {% endif %} -->
-
-                <!-- <label class="status-label">
-                    SET STATUS
-                </label>
-
-                <form method="POST" action="{% url 'ticket_detail' ticket.id %}">
-                    {% csrf_token %}
-
-                    <select
-                        name="status"
-                        class="status-select"
-                        onchange="this.form.submit()"
-                    >
-
-                        {% for status in statuses %}
-
-                        <option
-                            value="{{ status.id }}"
-                            {% if ticket.status.id == status.id %}
-                            selected
-                            {% endif %}
-                        >
-                            {{ status.status }}
-                        </option>
-
-                        {% endfor %}
-
-                    </select>
-
-                </form> -->
-
-            </div>
-
-            <div class="card">
-
-                <h3>
                     Status Timeline
                 </h3>
-            </br>
+                <br>
                 {% for event in ticket.status_history.all %}
                     <div class="timeline-item">
                         {% if event.status.status == "Ready for Pickup" %}
@@ -300,14 +310,6 @@
 
 <style>
 
-
-.note-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-    gap:20px;
-}
-
 .ticket-detail-page{
     max-width:1200px;
     margin:auto;
@@ -326,7 +328,7 @@
     display:flex;
     justify-content:space-between;
     align-items:flex-start;
-    margin-bottom:30px;
+    margin-bottom:20px;
 }
 
 .ticket-top{
@@ -351,36 +353,47 @@
     color:#777;
 }
 
-.edit-ticket-btn{
+.header-actions{
+    display:flex;
+    gap:12px;
+}
+
+.cancel-btn{
     display:inline-flex;
     align-items:center;
     gap:6px;
     padding:10px 18px;
-    border:1px solid #c79c3d;
+    border:1px solid #ddd;
     border-radius:10px;
-    color:#c79c3d;
+    color:#555;
     text-decoration:none;
     font-weight:600;
     font-size:14px;
-    background:white;
+    background:#f2efe9;
 }
 
-.status-label{
-    display:block;
-    font-size:12px;
-    margin:16px 0 10px;
-    color:#777;
-    letter-spacing:0.5px;
-}
-
-.status-select{
-    width:100%;
-    padding:12px 18px;
+.save-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:10px 20px;
     border:none;
-    border-radius:12px;
-    background:#c79c3d;
+    border-radius:10px;
     color:white;
     font-weight:600;
+    font-size:14px;
+    background:#c79c3d;
+    cursor:pointer;
+}
+
+.edit-banner{
+    background:#faf3e0;
+    border:1px solid #eddcae;
+    color:#a3792f;
+    padding:14px 20px;
+    border-radius:12px;
+    margin-bottom:25px;
+    font-size:14px;
 }
 
 .detail-grid{
@@ -436,19 +449,54 @@
     font-size:14px;
 }
 
-.price-badge{
-    display:inline-block;
-    margin-top:16px;
-    padding:8px 16px;
-    background:#f7f1e3;
-    border-radius:10px;
-    font-size:14px;
-    color:#555;
+.form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
 }
 
-.price-badge span{
+.form-field label{
+    display:block;
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.5px;
+    color:#777;
+    margin-bottom:8px;
+}
+
+.form-input,
+.form-textarea{
+    width:100%;
+    padding:12px 14px;
+    border:1px solid #e5e0d5;
+    border-radius:10px;
+    background:#faf8f3;
+    font-size:14px;
+    color:#333;
+    font-family:inherit;
+}
+
+.form-textarea{
+    resize:vertical;
+}
+
+.readonly-field{
+    padding:12px 14px;
+    border:1px solid #e5e0d5;
+    border-radius:10px;
+    background:#faf8f3;
+    font-size:14px;
+}
+
+.ticket-number-inline{
     color:#c79c3d;
-    font-weight:700;
+    font-weight:600;
+}
+
+.auto-assigned{
+    color:#999;
+    font-size:13px;
+    margin-left:4px;
 }
 
 .photo-placeholder{
@@ -459,6 +507,8 @@
     justify-content:center;
     align-items:center;
     color:#999;
+    text-align:center;
+    padding:0 20px;
 }
 
 .photo-grid{
@@ -472,6 +522,24 @@
     height:120px;
     object-fit:cover;
     border-radius:10px;
+}
+
+.add-photos-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:8px 16px;
+    border:1px solid #c79c3d;
+    border-radius:10px;
+    background:#fbf6ea;
+    color:#c79c3d;
+    font-weight:600;
+    font-size:13px;
+    cursor:pointer;
+}
+
+.hidden-file-input{
+    display:none;
 }
 
 .add-note-btn{
@@ -519,73 +587,17 @@
     color:#999;
 }
 
-.note-card{
-    position:relative;
-
-    padding:18px 16px;
-
-    margin-bottom:14px;
-
-    background:#faf7ef;
-
-    border:1px solid #eadfc9;
-
-    border-radius:12px;
-
-    transition:.25s;
+.note-item{
+    padding:10px 0;
+    border-bottom:1px solid #f0f0f0;
 }
 
-
-
-.delete-note-btn{
-
-    width:30px;
-    height:30px;
-
-    border:none;
-    border-radius:8px;
-
-    background:#fde8e8;
-
-    color:#d94b4b;
-
-    cursor:pointer;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    opacity:0;
-    transition:.2s;
+.note-item:last-child{
+    border-bottom:none;
 }
 
-.note-card:hover .delete-note-btn{
-    opacity:1;
-}
-
-.delete-note-btn:hover{
-    background:#ffdcdc;
-    color:#c62828;
-}
-.note-content{
-
-    padding-right:40px;
-
-    font-size:15px;
-
-    color:#222;
-
-    line-height:1.6;
-
-    white-space:pre-wrap;
-}
-.note-meta{
-
-    margin-top:10px;
-
-    color:#8b8b8b;
-
-    font-size:13px;
+.note-item p{
+    margin:0 0 4px;
 }
 
 .note-date{
@@ -598,19 +610,6 @@
     font-weight:600;
     margin-top:6px;
 }
-
-.quick-action-btn{
-    display:block;
-    width:100%;
-    padding:12px;
-    margin-bottom:10px;
-    border:none;
-    border-radius:10px;
-    font-weight:600;
-    cursor:pointer;
-    font-size:14px;
-}
-
 
 .timeline-item{
     display:flex;
@@ -653,6 +652,10 @@
 @media(max-width:1000px){
 
     .detail-grid{
+        grid-template-columns:1fr;
+    }
+
+    .form-grid{
         grid-template-columns:1fr;
     }
 

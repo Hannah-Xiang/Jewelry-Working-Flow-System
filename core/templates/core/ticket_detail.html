@@ -159,20 +159,20 @@
                     {% for note in ticket.notes.all %}
                         <div class="note-card">
 
-    <div class="note-header">
+                            <div class="note-header">
 
-        <div class="note-content">
-            {{ note.content }}
-        </div>
+                                <div class="note-content">
+                                    {{ note.content }}
+                                </div>
 
-        <button class="delete-note-btn" type="button">
-            <i class="fa-solid fa-trash-can"></i>
-        </button>
+                                <button class="delete-note-btn" type="button">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
 
-    </div>
+     </div>
 
     <div class="note-meta">
-        Marie · {{ note.created_at|date:"M d, Y" }}
+        {{ note.created_at|date:"M d, Y" }}
     </div>
 
 </div>

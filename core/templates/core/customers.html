@@ -432,9 +432,11 @@ style="color:#ef4444;font-weight:600;"
 </td>
 
 <td>
-
+{% if ticket.price %}
 ${{ ticket.price }}
-
+{% else %}
+N/A
+{% endif %}
 </td>
 
 </tr>

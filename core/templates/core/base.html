@@ -109,6 +109,17 @@
         <div class="logo">
             <h2>💎 Zareh's</h2>
             <p>Jewelry Workflow</p>
+            <form method="post" action="{% url 'logout' %}">
+
+    {% csrf_token %}
+
+    <button class="logout-btn">
+
+        Logout
+
+    </button>
+
+</form>
         </div>
 
         <div class="menu">

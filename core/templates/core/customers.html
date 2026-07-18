@@ -7,8 +7,26 @@
 <!-- Header -->
 
 <div class="page-header">
-    <p class="page-tag">CLIENT RECORDS</p>
-    <h1>Customer History</h1>
+
+    <div>
+
+        <p class="page-tag">CLIENT RECORDS</p>
+
+        <h1>Customer History</h1>
+
+    </div>
+    <div style="padding-top:50px;">
+<a href="{% url 'customers' %}?new=1"
+       class="new-customer-btn">
+
+        <i class="fa-solid fa-user-plus"></i>
+
+        <span>New Customer</span>
+
+    </a>
+    </div>
+    
+
 </div>
 
 <div class="customers-layout">
@@ -18,10 +36,14 @@
     <div class="customer-list-card">
 
         <div class="search-box">
-            <input type="text" placeholder="Search customers...">
-        </div>
+    <input
+        type="text"
+        id="customer-search"
+        placeholder="Search customers..."
+    >
+</div>
 
-        <div class="customer-list">
+        <div class="customer-list" id="customer-list">
 
             {% for c in customers %}
 
@@ -64,6 +86,166 @@ class="customer-link"
 
     <div class="customer-details">
 
+        {% if show_form %}
+
+        <div class="profile-card">
+           <div class="form-header">
+    {% if is_edit %}
+    
+    <h2>Edit Customer</h2>
+    {% else %}
+    <h2>Add New Customer</h2>
+    {% endif %}
+
+    <a href="{% url 'customers' %}" class="close-btn">
+        &times;
+    </a>
+</div>
+
+<form method="POST"
+
+{% if is_edit %}
+
+action="{% url 'edit_customer' customer.id %}"
+
+{% else %}
+
+action="{% url 'add_customer' %}"
+
+{% endif %}
+
+>
+
+    {% csrf_token %}
+
+    <!-- <div class="form-header">
+
+        <h2>Add New Customer</h2>
+
+        <a href="{% url 'customers' %}" class="close-btn">
+            &times;
+        </a>
+
+    </div> -->
+
+    {% if customer_form.non_field_errors %}
+
+        <div class="error-box">
+
+            {{ customer_form.non_field_errors }}
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- Name -->
+
+    <div class="form-group">
+
+        <label>FULL NAME *</label>
+
+        {{ customer_form.name }}
+
+        {% if customer_form.name.errors %}
+
+            <div class="field-error">
+
+                {{ customer_form.name.errors.0 }}
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- Phone + Email -->
+
+    <div class="two-column">
+
+        <div class="form-group">
+
+            <label>PHONE NUMBER *</label>
+
+            {{ customer_form.phone }}
+
+            {% if customer_form.phone.errors %}
+
+                <div class="field-error">
+
+                    {{ customer_form.phone.errors.0 }}
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+        <div class="form-group">
+
+            <label>EMAIL ADDRESS</label>
+
+            {{ customer_form.email }}
+
+            {% if customer_form.email.errors %}
+
+                <div class="field-error">
+
+                    {{ customer_form.email.errors.0 }}
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- Notes -->
+
+    <div class="form-group">
+
+        <label>INTERNAL NOTES</label>
+
+        {{ customer_form.note }}
+
+        {% if customer_form.note.errors %}
+
+            <div class="field-error">
+
+                {{ customer_form.note.errors.0 }}
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <div class="form-buttons">
+
+        <a href="{% url 'customers' %}" class="cancel-btn">
+
+            <i class="fa-solid fa-times" style="font-size: 1.2em;"></i> Cancel
+
+        </a>
+
+        <button type="submit" class="save-btn">
+
+            <i class="fa-solid fa-save" style="font-size: 1.2em;"></i>  Save Customer
+
+        </button>
+
+    </div>
+
+</form>
+
+        </div>
+
+        {% else %}
+
         <!-- Profile Card -->
 
         <div class="profile-card">
@@ -81,46 +263,65 @@ class="customer-link"
                         <h2>{{ customer.name }}</h2>
 
                         <div class="profile-info">
-
-                            <span>{{ customer.phone }}</span>
-                            <span>{{ customer.email }}</span>
-                            <span>{{ customer.address }}</span>
+                            <span><i class="fa-solid fa-phone" style="color:#999; font-size: 0.8em;"></i>  {{ customer.phone }}</span>
+                            {% if customer.email %}
+                            <span><i class="fa-solid fa-envelope" style="color:#999; font-size: 0.8em;"></i> {{ customer.email }}</span>
+                            {% endif %}
+                            {% if customer.address %}
+                            <span><i class="fa-solid fa-map-marker-alt" style="color:#999; font-size: 0.8em;"></i> {{ customer.address }}</span>
+                            {% endif %}
 
                         </div>
+                        
+                        {% if customer.created_date %}
 
                         <p class="since">
+                            <i class="fa-solid fa-calendar" style="color:#999; font-size: 0.8em;"></i>
                             Customer since {{ customer.created_date|date:"M d, Y" }}
                         </p>
+                        
+                        {% endif %}
 
                     </div>
 
                 </div>
 
-                <div class="profile-stats">
+                <div class="profile-right">
 
-                    <div>
-                        <h3>{{ job_count }}</h3>
-                        <p>Jobs</p>
-                    </div>
+    <a href="{% url 'edit_customer' customer.id %}"
+       class="edit-btn">
+        <i class="fa-regular fa-pen-to-square"></i>
+        Edit
+    </a>
 
-                    <div>
-                        <h3>${{ total_value }}</h3>
-                        <p>Total Value</p>
-                    </div>
+    <div class="profile-stats">
 
-                </div>
+        <div>
+            <h3>{{ job_count }}</h3>
+            <p>Jobs</p>
+        </div>
+
+        <div>
+            <h3>${{ total_value }}</h3>
+            <p>Total Value</p>
+        </div>
+
+    </div>
+
+</div>
 
             </div>
-
+            {% if customer.note %}
             <div class="notes">
 
                 <h4>NOTES</h4>
 
                 <p>
-                    {{ customer.notes }}
+                    {{ customer.note }}
                 </p>
 
             </div>
+            {% endif %}
 
         </div>
 
@@ -128,25 +329,27 @@ class="customer-link"
 
         <div class="jobs-card">
 
-            <div class="tabs">
+<div class="tabs">
 
-                <button class="tab active">
-                    All Jobs (2)
-                </button>
+    <a
+        href="?customer={{ customer.id }}"
+        class="tab {% if selected_type == 'all' %}active{% endif %}"
+    >
+        All Jobs ({{ all_count }})
+    </a>
 
-                <button class="tab">
-                    Repairs & Resizing (2)
-                </button>
+    {% for job_type in job_types %}
 
-                <button class="tab">
-                    Custom Design (0)
-                </button>
+        <a
+            href="?customer={{ customer.id }}&type={{ job_type.id }}"
+            class="tab {% if selected_type == job_type.id|stringformat:'s' %}active{% endif %}"
+        >
+            {{ job_type.type }} ({{ job_type.ticket_count }})
+        </a>
 
-                <button class="tab">
-                    Purchases (0)
-                </button>
+    {% endfor %}
 
-            </div>
+</div>
 
             <table class="jobs-table">
 
@@ -256,6 +459,8 @@ No jobs found.
 
         </div>
 
+        {% endif %}
+
     </div>
 
 </div>
@@ -279,13 +484,43 @@ No jobs found.
 }
 
 .page-header{
-    margin-bottom:30px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:28px;
 }
 
 .page-header h1{
     font-size:48px;
 }
 
+.new-customer-btn{
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+    padding:12px 22px;
+
+    background:#d4af37;
+    color:#222;
+
+    border-radius:10px;
+
+    text-decoration:none;
+    font-weight:600;
+    font-size:15px;
+
+    transition:.2s;
+}
+
+.new-customer-btn:hover{
+    background:#c59a1f;
+    color:#222;
+}
+
+.new-customer-btn i{
+    font-size:15px;
+}
 .customer-list-card,
 .profile-card,
 .jobs-card{
@@ -393,6 +628,8 @@ No jobs found.
     display:flex;
     gap:40px;
     text-align:center;
+
+    align-items:flex-start;
 }
 
 .profile-stats h3{
@@ -414,10 +651,15 @@ No jobs found.
 }
 
 .tab{
-    border:none;
-    background:none;
+    text-decoration:none;
+    color:#444;
     padding-bottom:10px;
+    display:inline-block;
     cursor:pointer;
+}
+
+.tab:hover{
+    color:#c79c3d;
 }
 
 .tab.active{
@@ -494,6 +736,197 @@ No jobs found.
 
 }
 
+/* ---------- Add Customer ---------- */
+
+.form-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+}
+
+.close-btn{
+    text-decoration:none;
+    font-size:28px;
+    color:#777;
+}
+
+.close-btn:hover{
+    color:#333;
+}
+
+.form-group{
+    margin-bottom:22px;
+}
+
+.form-group label{
+    display:block;
+    margin-bottom:8px;
+    font-size:13px;
+    font-weight:700;
+    color:#666;
+    letter-spacing:.6px;
+}
+
+.form-input{
+    width:100%;
+    padding:14px 16px;
+    border:1px solid #e5d7b2;
+    border-radius:10px;
+    background:#faf7ef;
+    font-size:15px;
+    box-sizing:border-box;
+}
+
+.form-input:focus{
+    outline:none;
+    border-color:#c79c3d;
+    background:white;
+}
+
+textarea.form-input{
+    resize:vertical;
+    min-height:120px;
+}
+
+.two-column{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+}
+
+.form-buttons{
+    margin-top:30px;
+    display:flex;
+    justify-content:flex-end;
+    gap:15px;
+}
+
+.cancel-btn{
+    padding:12px 24px;
+    border:1px solid #ddd;
+    border-radius:10px;
+    background:white;
+    color:#444;
+    text-decoration:none;
+}
+
+.cancel-btn:hover{
+    background:#f5f5f5;
+}
+
+.save-btn{
+    padding:12px 24px;
+    border:none;
+    border-radius:10px;
+    background:#c79c3d;
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+}
+
+.save-btn:hover{
+    background:#b58b2f;
+}
+
+.field-error{
+    color:#dc2626;
+    font-size:13px;
+    margin-top:6px;
+    font-weight:500;
+}
+
+.error-box{
+    background:#fee2e2;
+    color:#b91c1c;
+    border:1px solid #fecaca;
+    border-radius:8px;
+    padding:12px;
+    margin-bottom:20px;
+} 
+
+.profile-right{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:20px;
+}
+
+.edit-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+
+    padding:10px 18px;
+
+    background:#fffaf0;
+    border:1px solid #e5d7b2;
+    border-radius:10px;
+
+    color:#c79c3d;
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+
+    transition:.2s;
+}
+
+.edit-btn:hover{
+    background:#c79c3d;
+    color:white;
+    border-color:#c79c3d;
+}
+
+.edit-btn i{
+    font-size:14px;
+}
+
 </style>
+
+<script>
+
+const searchInput = document.getElementById("customer-search");
+const customerList = document.getElementById("customer-list");
+
+searchInput.addEventListener("input", function(){
+
+    const keyword = this.value.trim();
+
+    const searchUrl = "{% url 'customer_search' %}";
+
+    fetch(`${searchUrl}?q=${encodeURIComponent(keyword)}`)
+        .then(response => response.json())
+        .then(customers => {
+
+            customerList.innerHTML = "";
+
+            customers.forEach(customer => {
+
+                customerList.innerHTML += `
+                    <a href="?customer=${customer.id}" class="customer-link">
+
+                        <div class="customer-item">
+
+                            <div class="avatar">
+                                ${customer.name.substring(0,1).toUpperCase()}
+                            </div>
+
+                            <div>
+                                <strong>${customer.name}</strong>
+                                <p>${customer.ticket_count} jobs</p>
+                            </div>
+
+                        </div>
+
+                    </a>
+                `;
+
+            });
+
+        });
+
+});
+
+</script>
 
 {% endblock %}

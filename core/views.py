@@ -5,7 +5,8 @@ from datetime import timedelta, date
 from django.utils import timezone
 import calendar as pycalendar
 import json
-
+from django.urls import reverse
+from django.contrib.auth.decorators import login_required
 from .models import (
     Ticket,
     Customer,
@@ -16,7 +17,7 @@ from .models import (
     StatusHistory,
 )
 
-from .forms import TicketForm
+from .forms import CustomerForm, TicketForm
 
 from .utils import (
     generate_ticket_number,
@@ -24,7 +25,7 @@ from .utils import (
     get_or_create_customer,
 )
 
-
+@login_required
 def dashboard(request):
 
     today = timezone.now().date()
@@ -100,7 +101,7 @@ def dashboard(request):
 
     return render(request, "core/dashboard.html", context)
 
-
+@login_required
 def new_ticket(request):
 
     if request.method == "POST":
@@ -160,7 +161,7 @@ def new_ticket(request):
         }
     )
 
-
+@login_required
 def customer_search(request):
 
     keyword = request.GET.get("q", "").strip()
@@ -180,7 +181,73 @@ def customer_search(request):
         })
 
     return JsonResponse(data, safe=False)
+@login_required
+def add_customer(request):
 
+    if request.method == "POST":
+
+        form = CustomerForm(request.POST)
+
+        if form.is_valid():
+
+            customer = form.save()
+
+            return redirect(f"/customers/?customer={customer.id}")
+
+        # Form is invalid → show the page again
+        customers = Customer.objects.annotate(
+            job_count=Count("tickets")
+        ).order_by("name")
+
+        context = {
+            "customers": customers,
+            "customer_form": form,      # IMPORTANT: use the invalid form
+            "show_form": True,
+        }
+
+        return render(request, "core/customers.html", context)
+
+    return redirect("customers")
+@login_required
+def edit_customer(request, pk):
+
+    customer = get_object_or_404(Customer, pk=pk)
+
+    if request.method == "POST":
+
+        form = CustomerForm(
+            request.POST,
+            instance=customer
+        )
+
+        if form.is_valid():
+
+            form.save()
+
+            return redirect(
+                f"{reverse('customers')}?customer={customer.id}"
+            )
+
+    else:
+
+        form = CustomerForm(instance=customer)
+
+    customers = Customer.objects.all().order_by("name")
+
+    context = {
+        "customers": customers,
+        "customer": customer,
+        "customer_form": form,
+        "show_form": True,
+        "is_edit": True,
+    }
+
+    return render(
+        request,
+        "core/customers.html",
+        context,
+    )
+@login_required
 def delete_note(request, note_id):
 
     if request.method == "POST":
@@ -192,7 +259,7 @@ def delete_note(request, note_id):
         note.delete()
 
         return redirect("ticket_detail", ticket_id)
-
+@login_required
 def customer_detail(request, pk):
 
     customer = get_object_or_404(Customer, pk=pk)
@@ -204,7 +271,7 @@ def customer_detail(request, pk):
         "email": customer.email,
     })
 
-
+@login_required
 def jobtype_detail(request, pk):
 
     job_type = get_object_or_404(JobType, pk=pk)
@@ -215,11 +282,11 @@ def jobtype_detail(request, pk):
         "due_date": due_date.strftime("%Y-%m-%d")
     })
 
-
+@login_required
 def generate_ticket(request):
     return JsonResponse({"ticket_number": generate_ticket_number()})
 
-
+@login_required
 def all_tickets(request):
 
     tickets = Ticket.objects.select_related(
@@ -285,7 +352,7 @@ def all_tickets(request):
 
     return render(request, "core/all_tickets.html", context)
 
-
+@login_required
 def ticket_search(request):
 
     search = request.GET.get('search', '')
@@ -325,7 +392,7 @@ def ticket_search(request):
 
     return JsonResponse({"tickets": data, "count": len(data)})
 
-
+@login_required
 def calendar(request):
 
     today = timezone.now().date()
@@ -395,7 +462,7 @@ def calendar(request):
 
     return render(request, "core/calendar.html", context)
 
-
+@login_required
 def ticket_detail(request, ticket_id):
 
     ticket = get_object_or_404(Ticket, id=ticket_id)
@@ -409,7 +476,7 @@ def ticket_detail(request, ticket_id):
 
     return render(request, "core/ticket_detail.html", context)
 
-
+@login_required
 def customers(request):
 
     customers = Customer.objects.annotate(
@@ -423,23 +490,60 @@ def customers(request):
     else:
         customer = customers.first()
 
+    # All job types
+    job_types = JobType.objects.all().order_by("type")
+
+    # Selected tab
+    selected_type = request.GET.get("type", "all")
+
     tickets = Ticket.objects.filter(
         customer=customer
-    ).select_related("status", "job_type").order_by("-created_date")
+    ).select_related(
+        "status",
+        "job_type"
+    )
 
-    total_value = tickets.aggregate(Sum("price"))["price__sum"] or 0
+    # Filter by JobType id
+    if selected_type != "all":
+        tickets = tickets.filter(job_type_id=selected_type)
 
+    tickets = tickets.order_by("-created_date")
+
+    total_value = tickets.aggregate(
+        Sum("price")
+    )["price__sum"] or 0
+
+    # Count for "All Jobs"
+    all_count = Ticket.objects.filter(
+        customer=customer
+    ).count()
+
+    # Add a count to every job type
+    for job_type in job_types:
+        job_type.ticket_count = Ticket.objects.filter(
+            customer=customer,
+            job_type=job_type
+        ).count()
+
+    show_form = request.GET.get("new")
     context = {
         "customers": customers,
         "customer": customer,
         "tickets": tickets,
         "job_count": tickets.count(),
         "total_value": total_value,
+
+        "job_types": job_types,
+        "selected_type": selected_type,
+        "all_count": all_count,
+
+        "show_form": show_form,
+        "customer_form": CustomerForm(),
     }
 
     return render(request, "core/customers.html", context)
 
-
+@login_required
 def edit_ticket(request, ticket_id):
 
     ticket = get_object_or_404(Ticket, id=ticket_id)
@@ -498,7 +602,7 @@ def edit_ticket(request, ticket_id):
         'job_types': JobType.objects.all(),
         'statuses': Status.objects.all(),
     })
-
+@login_required
 def add_note(request, ticket_id):
 
     ticket = get_object_or_404(Ticket, id=ticket_id)
@@ -513,7 +617,7 @@ def add_note(request, ticket_id):
         return redirect(next_path)
     return redirect('ticket_detail', ticket_id=ticket.id)
 
-
+@login_required
 def add_photo(request, ticket_id):
 
     ticket = get_object_or_404(Ticket, id=ticket_id)
@@ -528,7 +632,7 @@ def add_photo(request, ticket_id):
         return redirect(next_path)
     return redirect('ticket_detail', ticket_id=ticket.id)
 
-
+@login_required
 def set_status(request, ticket_id, status_id):
 
     ticket = get_object_or_404(Ticket, id=ticket_id)
@@ -545,7 +649,7 @@ def set_status(request, ticket_id, status_id):
 
     return redirect('ticket_detail', ticket_id=ticket.id)
 
-
+@login_required
 def delete_note(request, note_id):
     note = get_object_or_404(Note, id=note_id)
 
@@ -555,6 +659,6 @@ def delete_note(request, note_id):
 
     return redirect("ticket_detail", ticket_id)
 
-
+@login_required
 def base(request):
     return render(request, 'core/base.html')

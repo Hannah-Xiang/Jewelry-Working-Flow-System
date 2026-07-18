@@ -1,8 +1,9 @@
-from django.urls import path
+from django.urls import include, path
 from . import views
 
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('', views.dashboard, name='dashboard'),
@@ -59,6 +60,31 @@ urlpatterns = [
     views.delete_note,
     name="delete_note",
 ),
+path(
+    "customers/add/",
+    views.add_customer,
+    name="add_customer",
+),
+path(
+    "customers/<int:pk>/edit/",
+    views.edit_customer,
+    name="edit_customer",
+),
+path(
+        "login/",
+        auth_views.LoginView.as_view(
+            template_name="registration/login.html",
+            redirect_authenticated_user=True,
+        ),
+        name="login",
+    ),
+
+    path(
+        "logout/",
+        auth_views.LogoutView.as_view(),
+        name="logout",
+    ),
+
 ]
 
 # Media files (uploaded ticket photos) are only served this way in development.

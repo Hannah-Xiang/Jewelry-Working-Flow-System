@@ -76,14 +76,16 @@
                         <h4>
                             {{ ticket.customer.name }}
                         </h4>
-
-                        <p>
-                            <i class="fa-solid fa-phone" style="color:#999; font-size: 0.8em;"></i> {{ ticket.customer.phone }}
-                        </p>
-
-                        <p>
-                            <i class="fa-solid fa-envelope" style="color:#999; font-size: 0.8em;"></i> {{ ticket.customer.email }}
-                        </p>
+                        {% if ticket.customer.phone %}
+                            <p>
+                                <i class="fa-solid fa-phone" style="color:#999; font-size: 0.8em;"></i> {{ ticket.customer.phone }}
+                            </p>
+                        {% endif %}
+                        {% if ticket.customer.email %}
+                            <p>
+                                <i class="fa-solid fa-envelope" style="color:#999; font-size: 0.8em;"></i> {{ ticket.customer.email }}
+                            </p>
+                        {% endif %}
 
                         <a href="{% url 'customers' %}?customer={{ ticket.customer.id }}" class="history-link">
                             View customer history →
@@ -102,7 +104,7 @@
                 </h3>
                 <br>
                 <p>
-                    {{ ticket.description }}
+                    {{ ticket.description|linebreaksbr }}
                 </p>
 
                 {% if ticket.price %}
@@ -207,9 +209,9 @@
                     {{ ticket.due_date|date:"F d, Y" }}
                 </h2>
 
-                <p class="days-remaining">
+                <!-- <p class="days-remaining">
                     {{ ticket.due_date|days_remaining }} days remaining
-                </p>
+                </p> -->
 
             </div>
 

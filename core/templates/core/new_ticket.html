@@ -138,13 +138,20 @@
             <!-- Rendered manually (not {{ form.job_type }}) so each option can carry
                  data-duration, which the script below reads to compute the due date. -->
             <select name="job_type" id="id_job_type">
-                <option value="" data-duration="">Select type...</option>
-                {% for jt in job_types %}
-                <option value="{{ jt.id }}" data-duration="{{ jt.duration }}">
-                    {{ jt.type }}
-                </option>
-                {% endfor %}
-            </select>
+
+    {% for jt in job_types %}
+
+        <option
+            value="{{ jt.id }}"
+            data-duration="{{ jt.duration }}"
+            {% if jt.type == "Repair" %}selected{% endif %}
+        >
+            {{ jt.type }}
+        </option>
+
+    {% endfor %}
+
+</select>
 
             {% if form.job_type.errors %}
                 <small class="error">{{ form.job_type.errors.0 }}</small>
@@ -938,26 +945,34 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // ---------- job type -> auto-calculate due date ----------
-    jobTypeSelect.addEventListener("change", function () {
+    function updateDueDate() {
 
-        const selectedOption = this.options[this.selectedIndex];
-        const duration = parseInt(selectedOption.dataset.duration, 10);
+    const selectedOption = jobTypeSelect.options[jobTypeSelect.selectedIndex];
+    const duration = parseInt(selectedOption.dataset.duration, 10);
 
-        if (!duration || isNaN(duration)) {
-            dueDateHint.textContent = "";
-            return;
-        }
+    if (!duration || isNaN(duration)) {
+        dueDateHint.textContent = "";
+        return;
+    }
 
-        const due = new Date();
-        due.setDate(due.getDate() + duration);
+    const due = new Date();
+    due.setDate(due.getDate() + duration);
 
-        const yyyy = due.getFullYear();
-        const mm   = String(due.getMonth() + 1).padStart(2, "0");
-        const dd   = String(due.getDate()).padStart(2, "0");
+    const yyyy = due.getFullYear();
+    const mm = String(due.getMonth() + 1).padStart(2, "0");
+    const dd = String(due.getDate()).padStart(2, "0");
 
-        dueDateInput.value = `${yyyy}-${mm}-${dd}`;
-        dueDateHint.textContent = `Auto-filled: ${duration} day${duration === 1 ? "" : "s"} from today (you can still change it)`;
-    });
+    dueDateInput.value = `${yyyy}-${mm}-${dd}`;
+
+    dueDateHint.textContent =
+        `Auto-filled: ${duration} day${duration === 1 ? "" : "s"} from today (you can still change it)`;
+}
+
+// When user changes the job type
+jobTypeSelect.addEventListener("change", updateDueDate);
+
+// Run once when the page first loads
+updateDueDate();
 
 });
 

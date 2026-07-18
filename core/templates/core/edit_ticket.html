@@ -69,39 +69,129 @@
 
             <div class="card">
 
-                <h3>
-                    Customer Information
-                </h3>
-                <br>
-                <div class="customer-box">
+    <h3>Customer Information</h3>
 
-                    <div class="avatar">
-                        {{ ticket.customer.name|slice:":2"|upper }}
+    <div class="form-group customer-search-wrapper">
+
+        <label>Search Existing Customer</label>
+
+        <input
+            type="text"
+            id="customer-search"
+            autocomplete="off"
+            placeholder="Type name or phone number..."
+            style="display:none;"
+            class="form-input customer-search-input"
+        >
+        <br>
+
+        <div
+            id="customer-results"
+            class="customer-dropdown"
+            style="display:none;">
+        </div>
+
+        <div
+            id="selected-customer-box"
+            class="selected-customer">
+
+            <div class="selected-customer-left">
+
+                <span class="selected-icon">
+
+                    ✓
+
+                </span>
+
+                <div>
+
+                    <div
+                        class="selected-name"
+                        id="selected-customer-name">
+
+                        {{ ticket.customer.name }}
+
                     </div>
 
-                    <div>
+                    <div
+                        class="selected-meta"
+                        id="selected-customer-meta">
 
-                        <h4>
-                            {{ ticket.customer.name }}
-                        </h4>
-
-                        <p>
-                            <i class="fa-solid fa-phone" style="color:#999; font-size: 0.8em;"></i> {{ ticket.customer.phone }}
-                        </p>
-
-                        <p>
-                            <i class="fa-solid fa-envelope" style="color:#999; font-size: 0.8em;"></i> {{ ticket.customer.email }}
-                        </p>
-
-                        <a href="{% url 'customers' %}?customer={{ ticket.customer.id }}" class="history-link">
-                            View customer history →
-                        </a>
+                        {{ ticket.customer.phone }}
 
                     </div>
 
                 </div>
 
             </div>
+
+            <button
+                type="button"
+                id="change-customer-btn"
+                class="btn-change">
+
+                Change Customer
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <input
+        type="hidden"
+        id="id_existing_customer_id"
+        name="existing_customer_id"
+        value="{{ ticket.customer.id }}"
+    >
+
+    <div class="form-grid">
+
+        <div class="form-field">
+
+            <label>Customer Name</label>
+
+            <input
+                type="text"
+                id="id_customer_name"
+                name="customer_name"
+                class="form-input"
+                value="{{ ticket.customer.name }}"
+            >
+
+        </div>
+
+        <div class="form-field">
+
+            <label>Phone Number</label>
+
+            <input
+                type="text"
+                id="id_phone"
+                name="phone"
+                class="form-input"
+                value="{{ ticket.customer.phone }}"
+            >
+
+        </div>
+
+        <div class="form-field">
+
+            <label>Email</label>
+
+            <input
+                type="email"
+                id="id_email"
+                name="email"
+                class="form-input"
+                value="{{ ticket.customer.email }}"
+            >
+
+        </div>
+
+    </div>
+
+</div>
 
             <form method="POST" id="edit-ticket-form" action="{% url 'edit_ticket' ticket.id %}">
                 {% csrf_token %}
@@ -165,7 +255,7 @@
                         Job Description
                     </h3>
                     <br>
-                    <textarea name="description" class="form-textarea" rows="4">{{ ticket.description }}</textarea>
+                    <textarea name="description" class="form-textarea" rows="15">{{ ticket.description }}</textarea>
 
                 </div>
 
@@ -251,15 +341,55 @@
                 </form>
 
                 {% if ticket.notes.all %}
-                    {% for note in ticket.notes.all %}
-                        <div class="note-item">
-                            <p>{{ note.content }}</p>
-                            <span class="note-date">{{ note.created_at|date:"M d, Y" }}</span>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <p class="empty-note">No notes yet.</p>
-                {% endif %}
+
+    {% for note in ticket.notes.all %}
+
+        <div class="note-card">
+
+            <div class="note-header">
+
+                <div class="note-content">{{ note.content }}</div>
+
+                <form
+                    method="POST"
+                    action="{% url 'delete_note' note.id %}"
+                    style="display:inline;"
+                    onsubmit="return confirm('Delete this note?');"
+                >
+
+                    {% csrf_token %}
+
+                    <button
+                        type="submit"
+                        class="delete-note-btn">
+
+                        <i class="fa-solid fa-trash-can"></i>
+
+                    </button>
+
+                </form>
+
+            </div>
+
+            <div class="note-meta">
+
+                {{ note.created_at|date:"M d, Y" }}
+
+            </div>
+
+        </div>
+
+    {% endfor %}
+
+{% else %}
+
+    <p class="empty-note">
+
+        No notes yet.
+
+    </p>
+
+{% endif %}
 
             </div>
 
@@ -280,9 +410,9 @@
                     {{ ticket.due_date|date:"F d, Y" }}
                 </h2>
 
-                <p class="days-remaining">
+                <!-- <p class="days-remaining">
                     {{ ticket.due_date|days_remaining }} days remaining
-                </p>
+                </p> -->
 
             </div>
 
@@ -536,7 +666,7 @@
     border:1px solid #e5e0d5;
     border-radius:10px;
     background:#faf8f3;
-    font-size:14px;
+    font-size:18px;
     color:#333;
     font-family:inherit;
 }
@@ -717,23 +847,70 @@
 .empty-note{
     color:#999;
 }
-
-.note-item{
-    padding:10px 0;
-    border-bottom:1px solid #f0f0f0;
+.note-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
 }
 
-.note-item:last-child{
-    border-bottom:none;
+.note-card{
+    background:#faf7ef;
+    border:1px solid #eadfc9;
+    border-radius:12px;
+    padding:12px 18px;
+    margin-bottom:12px;
+    transition:.25s;
 }
 
-.note-item p{
-    margin:0 0 4px;
+.note-content{
+    flex:1;
+    font-size:15px;
+    line-height:1.5;
+    color:#333;
+    white-space:pre-wrap;
 }
 
-.note-date{
+.note-meta{
     color:#999;
     font-size:12px;
+    margin-top:8px;
+}
+
+.delete-note-btn{
+
+    width:30px;
+    height:30px;
+
+    border:none;
+    border-radius:8px;
+
+    background:#fde8e8;
+
+    color:#d94b4b;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    cursor:pointer;
+
+    opacity:0;
+
+    transition:.2s;
+}
+
+.note-card:hover .delete-note-btn{
+
+    opacity:1;
+
+}
+
+.delete-note-btn:hover{
+
+    background:#ffdcdc;
+
+    color:#c62828;
+
 }
 
 .days-remaining{
@@ -778,6 +955,105 @@
     color:#666;
     font-size:14px;
     margin:0;
+}
+
+
+.customer-search-wrapper{
+    position:relative;
+}
+
+.customer-dropdown{
+    position:absolute;
+    top:100%;
+    left:0;
+    right:0;
+    margin-top:6px;
+    background:white;
+    border:1px solid #ddd;
+    border-radius:14px;
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+    z-index:999;
+    overflow:hidden;
+    max-height:350px;
+    overflow-y:auto;
+}
+
+.customer-header{
+    padding:12px 20px;
+    font-size:13px;
+    color:#777;
+    font-weight:600;
+    background:#fafafa;
+}
+
+.customer-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:18px 20px;
+    cursor:pointer;
+    border-top:1px solid #f2f2f2;
+}
+
+.customer-item:hover{
+    background:#faf7ef;
+}
+
+.customer-left{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.customer-avatar{
+    width:46px;
+    height:46px;
+    border-radius:50%;
+    border:1px solid #d4b15a;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    color:#c79c3d;
+    font-weight:bold;
+}
+
+.selected-customer{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#f2f8f2;
+    border:1px solid #bfe3bf;
+    border-radius:12px;
+    padding:14px 18px;
+    margin:15px 0;
+}
+
+.selected-customer-left{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.selected-icon{
+    color:#2e9d45;
+    font-size:18px;
+}
+
+.selected-name{
+    font-weight:600;
+}
+
+.selected-meta{
+    color:#666;
+    font-size:13px;
+}
+
+.btn-change{
+    padding:8px 16px;
+    border:none;
+    border-radius:8px;
+    background:#eee;
+    cursor:pointer;
 }
 
 @media(max-width:1000px){
@@ -870,6 +1146,175 @@ newFiles.forEach(file=>{
 document
 .getElementById("photo-upload-input")
 .files = dt.files;
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    // ---------- element references ----------
+    const searchInput   = document.getElementById("customer-search");
+    const resultBox     = document.getElementById("customer-results");
+    const selectedBox   = document.getElementById("selected-customer-box");
+    const selectedName  = document.getElementById("selected-customer-name");
+    const selectedMeta  = document.getElementById("selected-customer-meta");
+    const changeBtn     = document.getElementById("change-customer-btn");
+    const existingIdInp = document.getElementById("id_existing_customer_id");
+
+    const nameInput  = document.getElementById("id_customer_name");
+    const phoneInput = document.getElementById("id_phone");
+    const emailInput = document.getElementById("id_email");
+
+    const jobTypeSelect = document.getElementById("id_job_type");
+    const dueDateInput  = document.getElementById("id_due_date");
+    const dueDateHint   = document.getElementById("due-date-hint");
+
+    let debounceTimer = null;
+
+    // ---------- customer search ----------
+    searchInput.addEventListener("input", function () {
+
+        clearTimeout(debounceTimer);
+        const keyword = this.value.trim();
+
+        if (keyword === "") {
+            resultBox.style.display = "none";
+            resultBox.innerHTML = "";
+            return;
+        }
+
+        debounceTimer = setTimeout(() => {
+
+            fetch(`/api/customers/search/?q=${encodeURIComponent(keyword)}`)
+                .then(res => res.json())
+                .then(customers => {
+
+                    resultBox.innerHTML = "";
+                    resultBox.style.display = "block";
+
+                    if (customers.length === 0) {
+                        resultBox.innerHTML = `
+                            <div class="customer-header">No Customer Found</div>
+                        `;
+                        return;
+                    }
+
+                    resultBox.innerHTML = `
+                        <div class="customer-header">ALL CUSTOMERS</div>
+                    `;
+
+                    customers.forEach(customer => {
+
+                        const initials = customer.name
+                            .split(" ")
+                            .map(n => n[0])
+                            .join("")
+                            .substring(0, 2)
+                            .toUpperCase();
+
+                        resultBox.innerHTML += `
+                            <div class="customer-item" data-id="${customer.id}">
+                                <div class="customer-left">
+                                    <div class="customer-avatar">${initials}</div>
+                                    <div>
+                                        <div class="customer-name">${customer.name}</div>
+                                        <div class="customer-phone">${customer.phone}</div>
+                                    </div>
+                                </div>
+                                <div class="customer-jobs">
+                                    ${customer.ticket_count ?? 0} Jobs
+                                </div>
+                            </div>
+                        `;
+                    });
+                });
+
+        }, 300);
+    });
+
+    // ---------- pick a customer from the dropdown ----------
+    resultBox.addEventListener("click", function (e) {
+
+        const item = e.target.closest(".customer-item");
+        if (!item) return;
+
+        const id = item.dataset.id;
+
+        fetch(`/api/customers/${id}/`)
+            .then(res => res.json())
+            .then(customer => {
+
+                // fill the (still-editable) form fields
+                nameInput.value  = customer.name;
+                phoneInput.value = customer.phone;
+                emailInput.value = customer.email || "";
+
+                // remember which existing customer this is
+                existingIdInp.value = customer.id;
+
+                // build the "customer since <year>" line from created_date
+                let sinceText = "";
+                if (customer.created_date) {
+                    const year = new Date(customer.created_date).getFullYear();
+                    sinceText = `Customer since ${year}`;
+                }
+
+                selectedName.textContent = customer.name;
+                selectedMeta.textContent = sinceText
+                    ? `${customer.phone} · ${sinceText}`
+                    : customer.phone;
+
+                // swap search input for the confirmation box
+                searchInput.value = "";
+                searchInput.style.display = "none";
+                resultBox.style.display = "none";
+                selectedBox.style.display = "flex";
+            });
+    });
+
+    // ---------- "Change" button: go back to search mode ----------
+    changeBtn.addEventListener("click", function () {
+
+        existingIdInp.value = "";
+
+        nameInput.value  = "";
+        phoneInput.value = "";
+        emailInput.value = "";
+
+        selectedBox.style.display = "none";
+        searchInput.style.display = "block";
+        searchInput.focus();
+    });
+
+    // close the dropdown when clicking elsewhere
+    document.addEventListener("click", function (e) {
+        if (!e.target.closest(".customer-search-wrapper")) {
+            resultBox.style.display = "none";
+        }
+    });
+
+    // ---------- job type -> auto-calculate due date ----------
+    jobTypeSelect.addEventListener("change", function () {
+
+        const selectedOption = this.options[this.selectedIndex];
+        const duration = parseInt(selectedOption.dataset.duration, 10);
+
+        if (!duration || isNaN(duration)) {
+            dueDateHint.textContent = "";
+            return;
+        }
+
+        const due = new Date();
+        due.setDate(due.getDate() + duration);
+
+        const yyyy = due.getFullYear();
+        const mm   = String(due.getMonth() + 1).padStart(2, "0");
+        const dd   = String(due.getDate()).padStart(2, "0");
+
+        dueDateInput.value = `${yyyy}-${mm}-${dd}`;
+        dueDateHint.textContent = `Auto-filled: ${duration} day${duration === 1 ? "" : "s"} from today (you can still change it)`;
+    });
+
+});
 </script>
 
 {% endblock %}

@@ -181,6 +181,17 @@ def customer_search(request):
 
     return JsonResponse(data, safe=False)
 
+def delete_note(request, note_id):
+
+    if request.method == "POST":
+
+        note = get_object_or_404(Note, pk=note_id)
+
+        ticket_id = note.ticket.id
+
+        note.delete()
+
+        return redirect("ticket_detail", ticket_id)
 
 def customer_detail(request, pk):
 
@@ -434,22 +445,51 @@ def edit_ticket(request, ticket_id):
     ticket = get_object_or_404(Ticket, id=ticket_id)
 
     if request.method == 'POST':
+
         ticket.description = request.POST.get('description', ticket.description)
         ticket.due_date = request.POST.get('due_date', ticket.due_date)
         ticket.price = request.POST.get('price') or None
         ticket.job_type_id = request.POST.get('job_type', ticket.job_type_id)
 
         new_status_id = request.POST.get('status')
+
         if new_status_id and int(new_status_id) != ticket.status_id:
             ticket.status_id = new_status_id
             ticket.save()
+
             StatusHistory.objects.create(
                 ticket=ticket,
                 status=ticket.status,
                 note="Status updated during edit."
             )
+
         else:
             ticket.save()
+
+        # ===========================
+        # 删除用户标记删除的照片
+        # ===========================
+
+        deleted = request.POST.get("deleted_photo_ids", "")
+
+        if deleted:
+            ids = [int(x) for x in deleted.split(",") if x]
+
+            TicketPhoto.objects.filter(
+                ticket=ticket,
+                id__in=ids
+            ).delete()
+
+        # ===========================
+        # 保存新增照片
+        # ===========================
+
+        for image in request.FILES.getlist("photos"):
+
+            TicketPhoto.objects.create(
+                ticket=ticket,
+                image=image
+            )
 
         return redirect('ticket_detail', ticket_id=ticket.id)
 
@@ -458,7 +498,6 @@ def edit_ticket(request, ticket_id):
         'job_types': JobType.objects.all(),
         'statuses': Status.objects.all(),
     })
-
 
 def add_note(request, ticket_id):
 

@@ -105,6 +105,7 @@
 
             <form method="POST" id="edit-ticket-form" action="{% url 'edit_ticket' ticket.id %}">
                 {% csrf_token %}
+                <input type="hidden" name="deleted_photo_ids" id="deleted_photo_ids">
 
                 <div class="card">
 
@@ -202,8 +203,22 @@
                 {% if ticket.photos.all %}
                     <div class="photo-grid">
                         {% for photo in ticket.photos.all %}
-                            <img src="{{ photo.image.url }}" alt="Ticket photo">
-                        {% endfor %}
+
+<div class="photo-item" data-photo-id="{{ photo.id }}">
+
+    <img
+        src="{{ photo.image.url }}"
+        class="ticket-photo">
+
+    <button
+        type="button"
+        class="delete-photo-btn">
+        ×
+    </button>
+
+</div>
+
+{% endfor %}
                     </div>
                 {% else %}
                     <div class="photo-placeholder">
@@ -308,7 +323,57 @@
 
 </div>
 
+<div id="image-modal">
+
+    <span id="close-image">&times;</span>
+
+    <img id="large-image">
+
+</div>
+
 <style>
+
+#image-modal{
+
+    position:fixed;
+
+    inset:0;
+
+    display:none;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:rgba(0,0,0,.8);
+
+    z-index:9999;
+
+}
+
+#large-image{
+
+    max-width:90%;
+
+    max-height:90%;
+
+}
+
+#close-image{
+
+    position:absolute;
+
+    right:40px;
+
+    top:30px;
+
+    color:white;
+
+    font-size:40px;
+
+    cursor:pointer;
+
+}
 
 .ticket-detail-page{
     max-width:1200px;
@@ -404,7 +469,7 @@
 
 .card{
     background:white;
-    border:1px solid #eee;
+    border:1px solid #c79c3d;
     border-radius:16px;
     padding:25px;
     margin-bottom:25px;
@@ -517,11 +582,77 @@
     gap:12px;
 }
 
-.photo-grid img{
-    width:100%;
-    height:120px;
-    object-fit:cover;
+.photo-item{
+
+    position:relative;
+
+    overflow:hidden;
+
     border-radius:10px;
+
+}
+
+.photo-item img{
+
+    width:100%;
+
+    height:120px;
+
+    object-fit:cover;
+
+    cursor:pointer;
+
+    transition:.25s;
+    display:block;
+
+}
+
+.photo-item:hover img{
+
+    transform:scale(1.03);
+
+    filter:brightness(.82);
+
+}
+
+.delete-photo-btn{
+
+    position:absolute;
+
+    top:8px;
+
+    right:8px;
+
+    width:28px;
+
+    height:28px;
+
+    border:none;
+
+    border-radius:50%;
+
+    background:white;
+
+    color:#d93b3b;
+
+    cursor:pointer;
+
+    opacity:0;
+
+    transition:.2s;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+}
+
+.photo-item:hover .delete-photo-btn{
+
+    opacity:1;
+
 }
 
 .add-photos-btn{
@@ -667,5 +798,78 @@
 }
 
 </style>
+<script>
+    document.querySelectorAll(".ticket-photo").forEach(function(img){
+
+    img.onclick=function(){
+
+        document.getElementById("large-image").src=this.src;
+
+        document.getElementById("image-modal").style.display="flex";
+
+    };
+
+});
+
+document.getElementById("close-image").onclick=function(){
+
+    document.getElementById("image-modal").style.display="none";
+
+};
+
+document.getElementById("image-modal").onclick=function(e){
+
+    if(e.target===this){
+
+        this.style.display="none";
+
+    }
+
+};
+
+let deletedPhotos = [];
+document.querySelectorAll(".delete-photo-btn").forEach(btn=>{
+
+    btn.onclick=function(){
+
+        const photo=this.closest(".photo-item");
+
+        const id=photo.dataset.photoId;
+
+        deletedPhotos.push(id);
+
+        document.getElementById("deleted_photo_ids").value=
+            deletedPhotos.join(",");
+
+        photo.remove();
+
+    };
+
+});
+
+let newFiles=[];
+
+document
+.getElementById("photo-upload-input")
+.addEventListener("change",function(){
+
+    newFiles.push(...Array.from(this.files));
+
+    refreshGallery();
+
+});
+
+const dt = new DataTransfer();
+
+newFiles.forEach(file=>{
+
+    dt.items.add(file);
+
+});
+
+document
+.getElementById("photo-upload-input")
+.files = dt.files;
+</script>
 
 {% endblock %}

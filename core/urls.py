@@ -54,6 +54,11 @@ urlpatterns = [
     views.delete_note,
     name="delete_note",
     ),
+    path(
+    "notes/<int:note_id>/delete/",
+    views.delete_note,
+    name="delete_note",
+),
 ]
 
 # Media files (uploaded ticket photos) are only served this way in development.

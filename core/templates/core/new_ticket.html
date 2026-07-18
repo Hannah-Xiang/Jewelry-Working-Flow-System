@@ -273,7 +273,53 @@
 
 </div>
 
+<div id="image-modal">
+
+    <span id="close-image">&times;</span>
+
+    <img id="large-image">
+
+</div>
+
 <style>
+
+#image-modal{
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(0,0,0,.75);
+
+    display:none;
+
+    justify-content:center;
+    align-items:center;
+
+    z-index:9999;
+}
+
+#large-image{
+
+    max-width:90%;
+    max-height:90%;
+
+    border-radius:12px;
+}
+
+#close-image{
+
+    position:absolute;
+
+    top:30px;
+    right:40px;
+
+    color:white;
+
+    font-size:40px;
+
+    cursor:pointer;
+}
 
 .ticket-page{
     max-width:900px;
@@ -630,6 +676,45 @@ textarea:focus{
     width:100%;
     height:100%;
     object-fit:cover;
+    cursor:pointer;
+    transition:.25s;
+}
+.photo-item:hover img{
+    filter:brightness(.8);
+}
+
+.delete-photo{
+
+    position:absolute;
+
+    top:6px;
+    right:6px;
+
+    width:24px;
+    height:24px;
+
+    border:none;
+    border-radius:50%;
+
+    background:rgba(255,255,255,.9);
+
+    color:#e53935;
+
+    font-size:18px;
+
+    cursor:pointer;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    opacity:0;
+
+    transition:.2s;
+}
+
+.photo-item:hover .delete-photo{
+    opacity:1;
 }
 
 .upload-tile{
@@ -700,6 +785,11 @@ textarea:focus{
     cursor:pointer;
     color:#8d7b58;
     background:#faf6eb;
+}
+.error{
+    color:#c7423d;
+    font-size:13px;
+    margin-top:6px;
 }
 </style>
 
@@ -886,10 +976,18 @@ let files = [];
 function addFiles(selected){
 
     files.push(...selected);
+    refreshGallery();
 
     preview.innerHTML = "";
 
-    files.forEach(file=>{
+    files.forEach((file,index)=>{
+        div.querySelector(".delete-photo").onclick=function(){
+
+            files.splice(index,1);
+
+            refreshGallery();
+
+        };
 
         const reader = new FileReader();
 
@@ -898,7 +996,21 @@ function addFiles(selected){
             const div=document.createElement("div");
             div.className="photo-item";
 
-            div.innerHTML=`<img src="${e.target.result}">`;
+            div.innerHTML = `
+    <img src="${e.target.result}" class="preview-image">
+
+    <button class="delete-photo" type="button">
+        ×
+    </button>
+`;
+
+div.querySelector(".delete-photo").onclick = function(){
+
+    files.splice(index,1);
+
+    refreshGallery();
+
+};
 
             preview.appendChild(div);
 
@@ -914,6 +1026,61 @@ function addFiles(selected){
     count.textContent=`${files.length} photo${files.length>1?"s":""} attached`;
 }
 
+function refreshGallery(){
+
+    preview.innerHTML="";
+
+    files.forEach((file,index)=>{
+
+        const reader=new FileReader();
+
+        reader.onload=function(e){
+
+            const div=document.createElement("div");
+
+            div.className="photo-item";
+
+            div.innerHTML=`
+                <img src="${e.target.result}">
+                <button class="delete-photo">×</button>
+            `;
+
+            // 放大
+            div.querySelector("img").onclick=function(){
+
+                document.getElementById("large-image").src=this.src;
+
+                document.getElementById("image-modal").style.display="flex";
+
+            };
+
+            // 删除
+            div.querySelector(".delete-photo").onclick=function(event){
+
+                event.stopPropagation();
+
+                files.splice(index,1);
+
+                refreshGallery();
+
+            };
+
+            preview.appendChild(div);
+
+        };
+
+        reader.readAsDataURL(file);
+
+    });
+
+    uploadBox.style.display="none";
+
+    gallery.style.display="block";
+
+    count.textContent=`${files.length} photo${files.length>1?"s":""} attached`;
+
+}
+
 firstInput.addEventListener("change",function(){
     addFiles(Array.from(this.files));
 });
@@ -921,6 +1088,21 @@ firstInput.addEventListener("change",function(){
 moreInput.addEventListener("change",function(){
     addFiles(Array.from(this.files));
 });
+
+
+
+document.getElementById("close-image").onclick=function(){
+
+    document.getElementById("image-modal").style.display="none";
+}
+
+document.getElementById("image-modal").onclick=function(e){
+
+    if(e.target===this){
+        this.style.display="none";
+    }
+
+}
 </script>
 
 {% endblock %}

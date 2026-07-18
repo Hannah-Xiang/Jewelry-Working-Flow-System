@@ -118,11 +118,12 @@
                 <h3>
                     Photos
                 </h3>
+                </br>
 
                 {% if ticket.photos.all %}
                     <div class="photo-grid">
                         {% for photo in ticket.photos.all %}
-                            <img src="{{ photo.image.url }}" alt="Ticket photo">
+                            <img src="{{ photo.image.url }}" alt="Ticket photo" class="ticket-photo">
                         {% endfor %}
                     </div>
                 {% else %}
@@ -161,13 +162,20 @@
 
                             <div class="note-header">
 
-                                <div class="note-content">
-                                    {{ note.content }}
-                                </div>
+                                <div class="note-content">{{ note.content }}</div>
 
-                                <button class="delete-note-btn" type="button">
-                                    <i class="fa-solid fa-trash-can"></i>
-                                </button>
+                                <form
+    method="POST"
+    action="{% url 'delete_note' note.id %}"
+    style="display:inline;"
+    onsubmit="return confirm('Delete this note?');"
+>
+    {% csrf_token %}
+
+    <button class="delete-note-btn" type="submit">
+        <i class="fa-solid fa-trash-can"></i>
+    </button>
+</form>
 
      </div>
 
@@ -298,14 +306,59 @@
 
 </div>
 
+<div id="image-modal">
+
+    <span id="close-image">&times;</span>
+
+    <img id="large-image">
+
+</div>
+
 <style>
+
+#image-modal{
+
+    position:fixed;
+    inset:0;
+
+    display:none;
+
+    justify-content:center;
+    align-items:center;
+
+    background:rgba(0,0,0,.8);
+
+    z-index:9999;
+}
+
+#large-image{
+
+    max-width:90%;
+    max-height:90%;
+
+    border-radius:12px;
+}
+
+#close-image{
+
+    position:absolute;
+
+    top:30px;
+    right:40px;
+
+    font-size:42px;
+
+    color:white;
+
+    cursor:pointer;
+}
 
 
 .note-header{
     display:flex;
     justify-content:space-between;
-    align-items:flex-start;
-    gap:20px;
+    align-items:center;
+    /* gap:12px; */
 }
 
 .ticket-detail-page{
@@ -391,10 +444,11 @@
 
 .card{
     background:white;
-    border:1px solid #eee;
+    border:1px solid #c79c3d;
     border-radius:16px;
     padding:25px;
     margin-bottom:25px;
+
 }
 
 .card-header-row{
@@ -472,6 +526,13 @@
     height:120px;
     object-fit:cover;
     border-radius:10px;
+    cursor:pointer;
+    transition:.25s;
+}
+
+.photo-grid img:hover{
+    transform:scale(1.03);
+    opacity:.9;
 }
 
 .add-note-btn{
@@ -520,17 +581,12 @@
 }
 
 .note-card{
-    position:relative;
-
-    padding:18px 16px;
-
-    margin-bottom:14px;
-
     background:#faf7ef;
-
     border:1px solid #eadfc9;
-
     border-radius:12px;
+
+    padding:12px 18px;
+    margin-bottom:12px;
 
     transition:.25s;
 }
@@ -568,24 +624,20 @@
     color:#c62828;
 }
 .note-content{
+    flex:1;
 
-    padding-right:40px;
+    text-align:left;
 
     font-size:15px;
+    line-height:1.45;
 
-    color:#222;
-
-    line-height:1.6;
+    color:#333;
 
     white-space:pre-wrap;
 }
 .note-meta{
-
-    margin-top:10px;
-
-    color:#8b8b8b;
-
-    font-size:13px;
+    font-size:12px;
+    color:#999;
 }
 
 .note-date{
@@ -664,5 +716,37 @@
 }
 
 </style>
+
+<script>
+
+document.querySelectorAll(".ticket-photo").forEach(function(img){
+
+    img.addEventListener("click",function(){
+
+        document.getElementById("large-image").src=this.src;
+
+        document.getElementById("image-modal").style.display="flex";
+
+    });
+
+});
+
+document.getElementById("close-image").addEventListener("click",function(){
+
+    document.getElementById("image-modal").style.display="none";
+
+});
+
+document.getElementById("image-modal").addEventListener("click",function(e){
+
+    if(e.target===this){
+
+        this.style.display="none";
+
+    }
+
+});
+
+</script>
 
 {% endblock %}

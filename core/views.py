@@ -5,6 +5,10 @@ from datetime import timedelta, date
 from django.utils import timezone
 import calendar as pycalendar
 import json
+from django.contrib import messages
+from django.contrib.auth.views import PasswordResetConfirmView
+from django.urls import reverse_lazy
+from django.contrib.auth.views import PasswordResetConfirmView
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from .models import (

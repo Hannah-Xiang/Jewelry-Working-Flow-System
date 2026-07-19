@@ -9,11 +9,9 @@
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-    <!-- Font Awesome Icons -->
+    <!-- Font Awesome -->
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-          
 
     <style>
 
@@ -25,139 +23,346 @@
         }
 
         body{
-            display:flex;
-            min-height:100vh;
-            background: #FCFAF5;
-            font-family: Inter, sans-serif;
-            line-height:1.6;
-        }
+    display:flex;
+    height:100vh;
+    overflow:hidden;
+    background:#FCFAF5;
+}
 
         /* =========================
-           Sidebar
-        ========================== */
+            Sidebar
+        ========================= */
+
         .sidebar{
-            width:260px;
-            background:#111111;
-            color:white;
-            display:flex;
-            flex-direction:column;
-            padding-top:30px;
-        }
+    width:270px;
+    height:100vh;
+
+    background:#171411;
+    color:white;
+
+    display:flex;
+    flex-direction:column;
+
+    border-right:1px solid #2d2d2d;
+
+    flex-shrink:0;
+}
+
+        /* Logo */
 
         .logo{
-            padding:0 25px 30px;
-            border-bottom:1px solid #222;
+            padding:35px 30px;
+            border-bottom:1px solid #2d2d2d;
         }
 
         .logo h2{
-            font-size:22px;
             color:#d4af37;
+            font-size:24px;
             margin-bottom:5px;
         }
 
         .logo p{
-            color:#999;
-            font-size:13px;
+            color:#9b9b9b;
+            font-size:14px;
         }
 
+        /* Menu */
+
         .menu{
-            margin-top:20px;
+            padding:20px;
         }
 
         .menu a{
+
             display:flex;
             align-items:center;
             gap:15px;
-            padding:15px 25px;
-            color:#ddd;
+
+            padding:16px 18px;
+            margin-bottom:8px;
+
+            border-radius:14px;
+
             text-decoration:none;
-            transition:.3s;
+
+            color:#d8d8d8;
+
+            transition:.25s;
+        }
+
+        .menu a i{
+            width:22px;
+            font-size:20px;
         }
 
         .menu a:hover{
-            background:#1e1e1e;
+
+            background:#2a2418;
             color:#d4af37;
+
         }
 
         .menu a.active{
-            background:#1e1e1e;
-            border-left:4px solid #d4af37;
+
+            background:#2a2418;
             color:#d4af37;
+
+            position:relative;
+
         }
 
-        .menu i{
-            width:20px;
+        .menu a.active::after{
+
+            content:"";
+
+            position:absolute;
+
+            right:18px;
+
+            width:5px;
+            height:28px;
+
+            border-radius:10px;
+
+            background:#d4af37;
+
         }
 
         /* =========================
-           Main Content
-        ========================== */
+            Footer
+        ========================= */
+
+        .sidebar-footer{
+
+    margin-top:auto;
+
+    padding:25px;
+
+    border-top:1px solid #2d2d2d;
+
+}
+
+        .user-info{
+
+            display:flex;
+            align-items:center;
+            gap:15px;
+
+            margin-bottom:20px;
+
+        }
+
+        .base-avatar{
+
+            width:52px;
+            height:52px;
+
+            border-radius:50%;
+
+            display:flex;
+            justify-content:center;
+            align-items:center;
+
+            background:#30291d;
+
+            border:1px solid #d4af37;
+
+            color:#d4af37;
+
+            font-weight:700;
+            font-size:18px;
+
+        }
+
+        .user-details h4{
+
+            color:white;
+
+            font-size:18px;
+
+            margin-bottom:3px;
+
+        }
+
+        .user-details p{
+
+            color:#8e8e8e;
+
+            font-size:14px;
+
+        }
+
+        /* Logout */
+
+        .logout-form{
+            margin:0;
+        }
+
+        .logout-btn{
+
+            width:100%;
+
+            display:flex;
+
+            align-items:center;
+
+            gap:10px;
+
+            padding:14px 18px;
+
+            border:none;
+
+            border-radius:12px;
+
+            background:transparent;
+
+            color:#bdbdbd;
+
+            cursor:pointer;
+
+            font-size:16px;
+
+            transition:.25s;
+
+        }
+
+        .logout-btn:hover{
+
+            background:#6c2d2d;
+
+            color:white;
+
+        }
+
+        /* =========================
+            Main
+        ========================= */
 
         .main-content{
-            flex:1;
-            padding:40px;
-        }
+    flex:1;
+
+    padding:40px;
+
+    overflow-y:auto;
+}
 
     </style>
 
 </head>
+
 <body>
 
-    <!-- Sidebar -->
-    <div class="sidebar">
+<div class="sidebar">
 
-        <div class="logo">
-            <h2>💎 Zareh's</h2>
-            <p>Jewelry Workflow</p>
-            <form method="post" action="{% url 'logout' %}">
+    <!-- Logo -->
 
-    {% csrf_token %}
+    <div class="logo">
 
-    <button class="logout-btn">
+        <h2>Zareh's Jewellery</h2>
 
-        Logout
-
-    </button>
-
-</form>
-        </div>
-
-        <div class="menu">
-
-            <a href="/" class="{% if request.path == '/' %}active{% endif %}">
-                <i class="fas fa-chart-line"></i>
-                Dashboard
-            </a>
-
-            <a href="/new-ticket/" class="{% if request.path == '/new-ticket/' %}active{% endif %}">
-                <i class="fas fa-plus-circle"></i>
-                New Ticket
-            </a>
-
-            <a href="/tickets/" class="{% if request.path == '/tickets/' %}active{% endif %}">
-                <i class="fas fa-file-alt"></i>
-                All Tickets
-            </a>
-
-            <a href="/calendar/" class="{% if request.path == '/calendar/' %}active{% endif %}">
-                <i class="fas fa-calendar"></i>
-                Calendar
-            </a>
-
-            <a href="/customers/" class="{% if request.path == '/customers/' %}active{% endif %}">
-                <i class="fas fa-users"></i>
-                Customers
-            </a>
-
-        </div>
+        <p>Operations System</p>
 
     </div>
 
-    <!-- Content -->
-    <div class="main-content">
-        {% block content %}
-        {% endblock %}
+    <!-- Menu -->
+
+    <div class="menu">
+
+        <a href="/" class="{% if request.path == '/' %}active{% endif %}">
+            <i class="fa-solid fa-chart-line"></i>
+            Dashboard
+        </a>
+
+        <a href="/new-ticket/" class="{% if request.path == '/new-ticket/' %}active{% endif %}">
+            <i class="fa-solid fa-circle-plus"></i>
+            New Ticket
+        </a>
+
+        <a href="/tickets/" class="{% if request.path == '/tickets/' %}active{% endif %}">
+            <i class="fa-solid fa-clipboard-list"></i>
+            All Tickets
+        </a>
+
+        <a href="/calendar/" class="{% if request.path == '/calendar/' %}active{% endif %}">
+            <i class="fa-regular fa-calendar"></i>
+            Calendar
+        </a>
+
+        <a href="/customers/" class="{% if request.path == '/customers/' %}active{% endif %}">
+            <i class="fa-solid fa-users"></i>
+            Customers
+        </a>
+
     </div>
+
+    <!-- Footer -->
+
+    {% if user.is_authenticated %}
+
+    <div class="sidebar-footer">
+
+        <div class="user-info">
+
+            <div class="base-avatar">
+
+                {{ user.first_name|first }}{{ user.last_name|first }}
+
+            </div>
+
+            <div class="user-details">
+
+                <h4>
+
+                    {{ user.first_name }} {{ user.last_name }}
+
+                </h4>
+
+                <p>
+
+                    {% if user.groups.first %}
+
+                        {{ user.groups.first.name }}
+
+                    {% else %}
+
+                        No Group
+
+                    {% endif %}
+
+                </p>
+
+            </div>
+
+        </div>
+
+        <form method="post"
+              action="{% url 'logout' %}"
+              class="logout-form">
+
+            {% csrf_token %}
+
+            <button type="submit" class="logout-btn">
+
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+
+                Log Out
+
+            </button>
+
+        </form>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+<div class="main-content">
+
+    {% block content %}
+    {% endblock %}
+
+</div>
 
 </body>
 </html>

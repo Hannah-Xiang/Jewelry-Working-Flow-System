@@ -643,6 +643,15 @@ def set_status(request, ticket_id, status_id):
     status = get_object_or_404(Status, id=status_id)
 
     ticket.status = status
+
+    # 如果状态是 Completed，则记录完成日期
+    if status.status.lower() == "completed":
+        ticket.completed_date = timezone.localdate()
+    else:
+        # 如果改成其他状态，则清空完成日期
+        if ticket.completed_date is not None:
+            ticket.completed_date = None
+
     ticket.save()
 
     StatusHistory.objects.create(

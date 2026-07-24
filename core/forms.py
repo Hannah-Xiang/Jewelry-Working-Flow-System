@@ -107,8 +107,44 @@ class TicketForm(forms.ModelForm):
         return name
 
     def clean_phone(self):
-
-        return self.cleaned_data["phone"].strip()
+    
+            phone = self.cleaned_data["phone"].strip()
+    
+            # Remove everything except digits
+            digits = re.sub(r"\D", "", phone)
+    
+            # Remove leading 1 (Canada/US country code)
+            if len(digits) == 11 and digits.startswith("1"):
+                digits = digits[1:]
+    
+            # Must be exactly 10 digits
+            if len(digits) != 10:
+                raise forms.ValidationError(
+                    "Please enter a valid Canadian phone number."
+                )
+    
+            # Canadian area code and central office code cannot start with 0 or 1
+            if digits[0] in "01" or digits[3] in "01":
+                raise forms.ValidationError(
+                    "Please enter a valid Canadian phone number."
+                )
+    
+            # Check duplicate phone number
+            customers = Customer.objects.filter(
+                phone=f"({digits[:3]}) {digits[3:6]}-{digits[6:]}"
+            )
+    
+            # If editing, ignore the current customer
+            if self.instance.pk:
+                customers = customers.exclude(pk=self.instance.pk)
+    
+            if customers.exists():
+                raise forms.ValidationError(
+                    "A customer with this phone number already exists."
+                )
+    
+            # Store in a consistent format
+            return f"({digits[:3]}) {digits[3:6]}-{digits[6:]}"
 
     def clean_email(self):
 

@@ -1,4 +1,5 @@
 from django.db import models
+from core.utils import compress_image
 
 class Customer(models.Model):
     name = models.CharField(max_length=100)
@@ -95,6 +96,15 @@ class TicketPhoto(models.Model):
     uploaded_at = models.DateTimeField(
         auto_now_add=True
     )
+
+    def save(self, *args, **kwargs):
+
+        # 先保存图片
+        super().save(*args, **kwargs)
+
+        # 再压缩
+        if self.image:
+            compress_image(self.image.path)
 
     def __str__(self):
         return self.ticket.ticket_number

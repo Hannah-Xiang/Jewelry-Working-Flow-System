@@ -93,6 +93,11 @@
         </label>
 
         {{ form.customer_name }}
+        {% if form.customer_name.errors %}
+    <small class="error">
+        {{ form.customer_name.errors.0 }}
+    </small>
+{% endif %}
 
     </div>
 
@@ -105,6 +110,11 @@
             </label>
 
             {{ form.phone }}
+            {% if form.phone.errors %}
+    <small class="error">
+        {{ form.phone.errors.0 }}
+    </small>
+{% endif %}
 
         </div>
 
@@ -115,6 +125,11 @@
             </label>
 
             {{ form.email }}
+            {% if form.email.errors %}
+    <small class="error">
+        {{ form.email.errors.0 }}
+    </small>
+{% endif %}
 
         </div>
 
@@ -168,6 +183,11 @@
             {{ form.due_date }}
 
             <small class="hint" id="due-date-hint"></small>
+            {% if form.due_date.errors %}
+    <small class="error">
+        {{ form.due_date.errors.0 }}
+    </small>
+{% endif %}
 
         </div>
 
@@ -180,6 +200,11 @@
         </label>
 
         {{ form.description }}
+        {% if form.description.errors %}
+    <small class="error">
+        {{ form.description.errors.0 }}
+    </small>
+{% endif %}
 
     </div>
 

@@ -115,6 +115,12 @@ path(
     name="password_reset_complete",
 ),
 
+path(
+    "ticket/<int:ticket_id>/delete/",
+    views.delete_ticket,
+    name="delete_ticket",
+),
+
 ]
 
 # Media files (uploaded ticket photos) are only served this way in development.

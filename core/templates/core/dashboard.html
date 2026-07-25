@@ -180,17 +180,23 @@
 
     <div class="bar-item">
 
-        <div
-            class="bar"
-            style="
-                height:{{ item.count|add:'1' }}0px;
-                background:{{ item.color }};
-            "
-        ></div>
+    
 
-        <span>{{ item.name }}</span>
+    <div
+        class="bar"
+        style="
+            height:{{ item.height }}px;
+            background:{{ item.color }};
+        "
+    >
+    <span class="bar-count">
+        {{ item.count }}
+    </span>
+</div>
 
-    </div>
+    <span>{{ item.name }}</span>
+
+</div>
 
     {% endfor %}
 
@@ -403,6 +409,19 @@
     width:30px;
     border-radius:6px 6px 0 0;
     margin-bottom:10px;
+
+    display:flex;
+    justify-content:center;   /* Horizontal center */
+    align-items:center;       /* Vertical center */
+
+    color:white;
+    font-size:12px;
+    font-weight:600;
+}
+
+.bar-count{
+    color:white;
+    line-height:1;
 }
 
 .received-bar{

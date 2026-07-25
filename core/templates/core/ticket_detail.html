@@ -301,6 +301,17 @@
                 {% endfor %}
 
             </div>
+            <form method="post"
+      action="{% url 'delete_ticket' ticket.id %}"
+      onsubmit="return confirm('Delete this ticket permanently?');">
+
+    {% csrf_token %}
+
+    <button type="submit" class="quick-action delete-btn">
+        Delete Ticket
+    </button>
+
+</form>
 
         </div>
 
@@ -704,6 +715,47 @@
     margin:0;
 }
 
+.delete-btn{
+    width:100%;
+    padding:14px 18px;
+
+    background:#fdeaea;
+    color:#d32f2f;
+
+    border:none;
+    border-radius:12px;
+
+    font-size:15px;
+    font-weight:600;
+
+    cursor:pointer;
+    transition:all .2s ease;
+}
+
+.delete-btn:hover{
+    background:#f8d7da;
+    color:#b71c1c;
+}.delete-btn{
+    width:100%;
+    padding:14px 18px;
+
+    background:#fdeaea;
+    color:#d32f2f;
+
+    border:none;
+    border-radius:12px;
+
+    font-size:15px;
+    font-weight:600;
+
+    cursor:pointer;
+    transition:all .2s ease;
+}
+
+.delete-btn:hover{
+    background:#f8d7da;
+    color:#b71c1c;
+}
 @media(max-width:1000px){
 
     .detail-grid{

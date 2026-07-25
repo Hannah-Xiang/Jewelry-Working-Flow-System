@@ -81,11 +81,25 @@ def dashboard(request):
 
     for status in Status.objects.all():
         count = Ticket.objects.filter(status=status).count()
+
         status_summary.append({
             "name": status.status,
             "count": count,
-            "color": status.color
+            "color": status.color,
         })
+
+    # Find the largest count
+    max_count = max(
+        [item["count"] for item in status_summary],
+        default=1
+    )
+
+    # Calculate proportional height for each bar
+    for item in status_summary:
+        item["height"] = max(
+            20,
+            int(item["count"] / max_count * 160)
+        )
 
     upcoming_due_dates = Ticket.objects.filter(
         due_date__gte=today
@@ -164,6 +178,17 @@ def new_ticket(request):
             "statuses": Status.objects.filter(status__in=["Received", "In Progress"]),
         }
     )
+
+@login_required
+def delete_ticket(request, ticket_id):
+    ticket = get_object_or_404(Ticket, id=ticket_id)
+
+    if request.method == "POST":
+        ticket.delete()
+        messages.success(request, "Ticket deleted successfully.")
+        return redirect("all_tickets")
+
+    return redirect("ticket_detail", ticket_id=ticket.id)
 
 @login_required
 def customer_search(request):
@@ -554,6 +579,28 @@ def edit_ticket(request, ticket_id):
 
     if request.method == 'POST':
 
+        # -------------------------
+        # Ticket number
+        # -------------------------
+        ticket_number = request.POST.get("ticket_number", "").strip()
+
+        if Ticket.objects.filter(
+            ticket_number__iexact=ticket_number
+        ).exclude(id=ticket.id).exists():
+
+            messages.error(request, "Ticket number already exists.")
+
+            return render(request, "core/edit_ticket.html", {
+                "ticket": ticket,
+                "job_types": JobType.objects.all(),
+                "statuses": Status.objects.all(),
+            })
+
+        ticket.ticket_number = ticket_number
+
+        # -------------------------
+        # Other fields (unchanged)
+        # -------------------------
         ticket.description = request.POST.get('description', ticket.description)
         ticket.due_date = request.POST.get('due_date', ticket.due_date)
         ticket.price = request.POST.get('price') or None
@@ -575,7 +622,7 @@ def edit_ticket(request, ticket_id):
             ticket.save()
 
         # ===========================
-        # 删除用户标记删除的照片
+        # Delete marked photos
         # ===========================
 
         deleted = request.POST.get("deleted_photo_ids", "")
@@ -589,7 +636,7 @@ def edit_ticket(request, ticket_id):
             ).delete()
 
         # ===========================
-        # 保存新增照片
+        # Save new photos
         # ===========================
 
         for image in request.FILES.getlist("photos"):

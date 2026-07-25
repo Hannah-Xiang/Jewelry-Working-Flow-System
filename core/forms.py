@@ -37,6 +37,7 @@ class TicketForm(forms.ModelForm):
             "description",
             "status",
             "due_date",
+            "price",
         ]
 
         widgets = {
@@ -72,7 +73,14 @@ class TicketForm(forms.ModelForm):
                     "type": "date",
                     "class": "form-control"
                 }
-            )
+            ),
+            "price": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "step": "0.01",
+                    "placeholder": "Enter price or estimate"
+                }
+            ),
 
         }
 
@@ -94,6 +102,25 @@ class TicketForm(forms.ModelForm):
 
         return ticket_number
 
+    # def clean_ticket_number(self):
+
+    #     ticket_number = self.cleaned_data["ticket_number"].strip()
+
+    #     tickets = Ticket.objects.filter(
+    #         ticket_number__iexact=ticket_number
+    #     )
+
+    #     # Ignore the current ticket when editing
+    #     if self.instance.pk:
+    #         tickets = tickets.exclude(pk=self.instance.pk)
+
+    #     if tickets.exists():
+    #         raise forms.ValidationError(
+    #             "Ticket Number already exists."
+    #         )
+
+    #     return ticket_number
+
     def clean_customer_name(self):
 
         name = self.cleaned_data["customer_name"].strip()
@@ -107,44 +134,29 @@ class TicketForm(forms.ModelForm):
         return name
 
     def clean_phone(self):
-    
-            phone = self.cleaned_data["phone"].strip()
-    
-            # Remove everything except digits
-            digits = re.sub(r"\D", "", phone)
-    
-            # Remove leading 1 (Canada/US country code)
-            if len(digits) == 11 and digits.startswith("1"):
-                digits = digits[1:]
-    
-            # Must be exactly 10 digits
-            if len(digits) != 10:
-                raise forms.ValidationError(
-                    "Please enter a valid Canadian phone number."
-                )
-    
-            # Canadian area code and central office code cannot start with 0 or 1
-            if digits[0] in "01" or digits[3] in "01":
-                raise forms.ValidationError(
-                    "Please enter a valid Canadian phone number."
-                )
-    
-            # Check duplicate phone number
-            customers = Customer.objects.filter(
-                phone=f"({digits[:3]}) {digits[3:6]}-{digits[6:]}"
+
+        phone = self.cleaned_data["phone"].strip()
+
+        # Remove everything except digits
+        digits = re.sub(r"\D", "", phone)
+
+        # Remove leading 1
+        if len(digits) == 11 and digits.startswith("1"):
+            digits = digits[1:]
+
+        # Must be exactly 10 digits
+        if len(digits) != 10:
+            raise forms.ValidationError(
+                "Please enter a valid Canadian phone number."
             )
-    
-            # If editing, ignore the current customer
-            if self.instance.pk:
-                customers = customers.exclude(pk=self.instance.pk)
-    
-            if customers.exists():
-                raise forms.ValidationError(
-                    "A customer with this phone number already exists."
-                )
-    
-            # Store in a consistent format
-            return f"({digits[:3]}) {digits[3:6]}-{digits[6:]}"
+
+        # Canadian numbering rules
+        if digits[0] in "01" or digits[3] in "01":
+            raise forms.ValidationError(
+                "Please enter a valid Canadian phone number."
+            )
+
+        return f"({digits[:3]}) {digits[3:6]}-{digits[6:]}"
 
     def clean_email(self):
 

@@ -563,15 +563,18 @@ function loadTickets(){
 
             tbody.innerHTML += `
 
-<tr>
+<tr
+    onclick="window.location='/ticket/${ticket.id}/'"
+    class="clickable-row">
 
-<td>
+<td class="ticket-number">
+    <a
+        href="/ticket/${ticket.id}/"
+        class="ticket-link"
+        onclick="event.stopPropagation();">
 
-<a
-    href="/ticket/${ticket.id}/"
-    class="ticket-link"
->
 ${ticket.ticket_number}
+
 </a>
 
 </td>

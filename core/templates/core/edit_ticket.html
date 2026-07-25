@@ -205,13 +205,30 @@
 
                     <div class="form-grid">
 
-                        <div class="form-field">
+                        <!-- <div class="form-field">
                             <label>TICKET NUMBER</label>
                             <div class="readonly-field">
                                 <span class="ticket-number-inline">{{ ticket.ticket_number }}</span>
                                 <span class="auto-assigned">(auto-assigned)</span>
                             </div>
-                        </div>
+                        </div> -->
+    <div class="form-field">
+    <label>TICKET NUMBER</label>
+
+    <input
+        type="text"
+        name="ticket_number"
+        class="form-input"
+        value="{{ ticket.ticket_number }}"
+        required
+    >
+
+    {% if messages %}
+        {% for message in messages %}
+            <small class="error">{{ message }}</small>
+        {% endfor %}
+    {% endif %}
+</div>
 
                         <div class="form-field">
                             <label>JOB TYPE</label>
@@ -1003,6 +1020,13 @@
     display:flex;
     align-items:center;
     gap:15px;
+}
+
+.error {
+    color: #dc3545;
+    font-size: 13px;
+    margin-top: 5px;
+    display: block;
 }
 
 .customer-avatar{

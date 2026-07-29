@@ -27,6 +27,11 @@ urlpatterns = [
         views.customer_search,
         name='customer_search'
     ),
+    path(
+    'api/customers/live-search/',
+    views.customer_live_search,
+    name='customer_live_search'
+),
 
     path(
         'api/customers/<int:pk>/',

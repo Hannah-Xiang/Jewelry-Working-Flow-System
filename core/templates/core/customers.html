@@ -915,7 +915,7 @@ searchInput.addEventListener("input", function(){
 
                             <div>
                                 <strong>${customer.name}</strong>
-                                <p>${customer.ticket_count} jobs</p>
+                                <p>${customer.phone}</p>
                             </div>
 
                         </div>
@@ -928,6 +928,34 @@ searchInput.addEventListener("input", function(){
         });
 
 });
+
+// ---------- Phone auto-format on the Add/Edit Customer form ----------
+// Formats raw digits into "(XXX) XXX-XXXX" as the user types, same behavior
+// as the New Ticket page. Only runs if the phone field is on this page
+// (i.e. the add/edit form is being shown).
+const customerPhoneInput = document.getElementById("id_phone");
+
+if (customerPhoneInput) {
+
+    function formatPhoneNumber(digits) {
+
+        const len = digits.length;
+
+        if (len === 0) return "";
+        if (len < 4)  return `(${digits}`;
+        if (len < 7)  return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+
+        return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+    }
+
+    customerPhoneInput.setAttribute("maxlength", "14"); // "(123) 456-7890" length
+    customerPhoneInput.setAttribute("inputmode", "numeric");
+
+    customerPhoneInput.addEventListener("input", function () {
+        const digits = this.value.replace(/\D/g, "").substring(0, 10);
+        this.value = formatPhoneNumber(digits);
+    });
+}
 
 </script>
 

@@ -36,10 +36,6 @@
 
     </div>
 
-    <!-- <div class="ticket-date">
-        {{ today|date:"F d, Y" }}
-    </div> -->
-
 </div>
 
     <!-- Customer Information -->
@@ -48,25 +44,9 @@
 
     <h3>Customer Information</h3>
 
-    <div class="form-group customer-search-wrapper">
-
-    <label>
-        Search Existing Customer
-    </label>
-
-    <input
-        type="text"
-        id="customer-search"
-        autocomplete="off"
-        placeholder="Type name or phone number to find existing customer...">
-
-    <div
-        id="customer-results"
-        class="customer-dropdown"
-        style="display:none;">
-    </div>
-
-    <!-- Shown once a customer has been picked from the dropdown -->
+    <!-- Shown once a customer has been picked from either dropdown.
+         Sits above the (now locked) fields, matching the confirmation
+         box style used elsewhere in the app. -->
     <div id="selected-customer-box" class="selected-customer" style="display:none;">
         <div class="selected-customer-left">
             <span class="selected-icon">&#10004;</span>
@@ -80,41 +60,45 @@
         </button>
     </div>
 
-</div>
-
     <!-- Tracks which existing customer (if any) was picked, so the view can link the ticket
          to that record instead of creating a duplicate customer -->
     <input type="hidden" name="existing_customer_id" id="id_existing_customer_id" value="">
 
-    <div class="form-group">
+    <div class="form-group customer-field-wrapper" id="name-wrapper">
 
         <label>
             Customer Name *
         </label>
 
         {{ form.customer_name }}
+
+        <div id="name-results" class="customer-dropdown" style="display:none;"></div>
+
         {% if form.customer_name.errors %}
-    <small class="error">
-        {{ form.customer_name.errors.0 }}
-    </small>
-{% endif %}
+            <small class="error">
+                {{ form.customer_name.errors.0 }}
+            </small>
+        {% endif %}
 
     </div>
 
     <div class="form-row">
 
-        <div class="form-group">
+        <div class="form-group customer-field-wrapper" id="phone-wrapper">
 
             <label>
                 Phone Number *
             </label>
 
             {{ form.phone }}
+
+            <div id="phone-results" class="customer-dropdown" style="display:none;"></div>
+
             {% if form.phone.errors %}
-    <small class="error">
-        {{ form.phone.errors.0 }}
-    </small>
-{% endif %}
+                <small class="error">
+                    {{ form.phone.errors.0 }}
+                </small>
+            {% endif %}
 
         </div>
 
@@ -466,6 +450,13 @@ textarea:focus{
     border-color:#c79c3d;
 }
 
+/* Locked state once a customer has been selected from a dropdown */
+input[readonly]{
+    background:#f7f7f7;
+    color:#555;
+    cursor:not-allowed;
+}
+
 .hint{
     color:#c79c3d;
     margin-top:6px;
@@ -520,7 +511,9 @@ textarea:focus{
     cursor:pointer;
 }
 
-.customer-search-wrapper{
+/* Wraps whichever input (name or phone) is driving the live search,
+   so its results dropdown can be positioned directly beneath it. */
+.customer-field-wrapper{
     position:relative;
 }
 
@@ -648,7 +641,7 @@ textarea:focus{
 
 }
 
-/* Selected customer confirmation box (replaces the search input once picked) */
+/* Selected customer confirmation box (sits above the locked fields) */
 .selected-customer{
     display:flex;
     justify-content:space-between;
@@ -657,7 +650,7 @@ textarea:focus{
     border:1px solid #bfe3bf;
     border-radius:12px;
     padding:14px 18px;
-    margin-top:10px;
+    margin-bottom:20px;
 }
 
 .selected-customer-left{
@@ -894,8 +887,6 @@ textarea:focus{
 document.addEventListener("DOMContentLoaded", function () {
 
     // ---------- element references ----------
-    const searchInput   = document.getElementById("customer-search");
-    const resultBox     = document.getElementById("customer-results");
     const selectedBox   = document.getElementById("selected-customer-box");
     const selectedName  = document.getElementById("selected-customer-name");
     const selectedMeta  = document.getElementById("selected-customer-meta");
@@ -906,94 +897,141 @@ document.addEventListener("DOMContentLoaded", function () {
     const phoneInput = document.getElementById("id_phone");
     const emailInput = document.getElementById("id_email");
 
+    const nameResults  = document.getElementById("name-results");
+    const phoneResults = document.getElementById("phone-results");
+
     const jobTypeSelect = document.getElementById("id_job_type");
     const dueDateInput  = document.getElementById("id_due_date");
     const dueDateHint   = document.getElementById("due-date-hint");
 
     let debounceTimer = null;
 
-    // ---------- customer search ----------
-    searchInput.addEventListener("input", function () {
+    // ---------- shared helpers ----------
+    function hideDropdowns() {
+        nameResults.style.display = "none";
+        nameResults.innerHTML = "";
+        phoneResults.style.display = "none";
+        phoneResults.innerHTML = "";
+    }
+
+    function renderResults(container, customers) {
+
+        container.innerHTML = "";
+        container.style.display = "block";
+
+        if (customers.length === 0) {
+            container.innerHTML = `<div class="customer-header">No Customer Found</div>`;
+            return;
+        }
+
+        container.innerHTML = `<div class="customer-header">ALL CUSTOMERS</div>`;
+
+        customers.forEach(customer => {
+
+            const initials = customer.name
+                .split(" ")
+                .map(n => n[0])
+                .join("")
+                .substring(0, 2)
+                .toUpperCase();
+
+            container.innerHTML += `
+                <div class="customer-item" data-id="${customer.id}">
+                    <div class="customer-left">
+                        <div class="customer-avatar">${initials}</div>
+                        <div>
+                            <div class="customer-name">${customer.name}</div>
+                            <div class="customer-phone">${customer.phone}</div>
+                        </div>
+                    </div>
+                    <div class="customer-jobs">
+                        ${customer.ticket_count ?? 0} Jobs
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    // Runs the live search using whichever of name/phone is currently filled.
+    // Results are rendered into `activeContainer` (the dropdown under the
+    // field the user is actively typing in).
+    function runSearch(activeContainer) {
 
         clearTimeout(debounceTimer);
-        const keyword = this.value.trim();
 
-        if (keyword === "") {
-            resultBox.style.display = "none";
-            resultBox.innerHTML = "";
+        const name  = nameInput.value.trim();
+        const phone = phoneInput.value.trim();
+
+        if (!name && !phone) {
+            hideDropdowns();
             return;
         }
 
         debounceTimer = setTimeout(() => {
 
-            fetch(`/api/customers/search/?q=${encodeURIComponent(keyword)}`)
+            const params = new URLSearchParams();
+            if (name)  params.set("name", name);
+            if (phone) params.set("phone", phone);
+
+            fetch(`/api/customers/live-search/?${params.toString()}`)
                 .then(res => res.json())
-                .then(customers => {
-
-                    resultBox.innerHTML = "";
-                    resultBox.style.display = "block";
-
-                    if (customers.length === 0) {
-                        resultBox.innerHTML = `
-                            <div class="customer-header">No Customer Found</div>
-                        `;
-                        return;
-                    }
-
-                    resultBox.innerHTML = `
-                        <div class="customer-header">ALL CUSTOMERS</div>
-                    `;
-
-                    customers.forEach(customer => {
-
-                        const initials = customer.name
-                            .split(" ")
-                            .map(n => n[0])
-                            .join("")
-                            .substring(0, 2)
-                            .toUpperCase();
-
-                        resultBox.innerHTML += `
-                            <div class="customer-item" data-id="${customer.id}">
-                                <div class="customer-left">
-                                    <div class="customer-avatar">${initials}</div>
-                                    <div>
-                                        <div class="customer-name">${customer.name}</div>
-                                        <div class="customer-phone">${customer.phone}</div>
-                                    </div>
-                                </div>
-                                <div class="customer-jobs">
-                                    ${customer.ticket_count ?? 0} Jobs
-                                </div>
-                            </div>
-                        `;
-                    });
-                });
+                .then(customers => renderResults(activeContainer, customers));
 
         }, 300);
+    }
+
+    // ---------- live search on Name / Phone fields ----------
+    nameInput.addEventListener("input", function () {
+        if (nameInput.readOnly) return;
+        phoneResults.style.display = "none";
+        runSearch(nameResults);
     });
 
-    // ---------- pick a customer from the dropdown ----------
-    resultBox.addEventListener("click", function (e) {
+    // Formats raw digits into "(XXX) XXX-XXXX" as the user types.
+    // Caps out at 10 digits (area code + 3 + 4), so nothing more can be typed
+    // once the last 4-digit group is complete.
+    function formatPhoneNumber(digits) {
 
-        const item = e.target.closest(".customer-item");
-        if (!item) return;
+        const len = digits.length;
 
-        const id = item.dataset.id;
+        if (len === 0) return "";
+        if (len < 4)  return `(${digits}`;
+        if (len < 7)  return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+
+        return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+    }
+
+    phoneInput.setAttribute("maxlength", "14"); // "(123) 456-7890" length
+    phoneInput.setAttribute("inputmode", "numeric");
+
+    phoneInput.addEventListener("input", function () {
+        if (phoneInput.readOnly) return;
+
+        const digits = phoneInput.value.replace(/\D/g, "").substring(0, 10);
+        phoneInput.value = formatPhoneNumber(digits);
+
+        nameResults.style.display = "none";
+        runSearch(phoneResults);
+    });
+
+    // ---------- pick a customer from either dropdown ----------
+    function selectCustomer(id) {
 
         fetch(`/api/customers/${id}/`)
             .then(res => res.json())
             .then(customer => {
 
-                // fill the (still-editable) form fields
                 nameInput.value  = customer.name;
                 phoneInput.value = customer.phone;
                 emailInput.value = customer.email || "";
 
-                // remember which existing customer this is
+                // lock the fields so the picked record can't be edited by accident
+                nameInput.readOnly  = true;
+                phoneInput.readOnly = true;
+                emailInput.readOnly = true;
+
                 existingIdInp.value = customer.id;
 
-                // build the "customer since <year>" line from created_date
                 let sinceText = "";
                 if (customer.created_date) {
                     const year = new Date(customer.created_date).getFullYear();
@@ -1005,15 +1043,24 @@ document.addEventListener("DOMContentLoaded", function () {
                     ? `${customer.phone} · ${sinceText}`
                     : customer.phone;
 
-                // swap search input for the confirmation box
-                searchInput.value = "";
-                searchInput.style.display = "none";
-                resultBox.style.display = "none";
                 selectedBox.style.display = "flex";
+                hideDropdowns();
             });
+    }
+
+    nameResults.addEventListener("click", function (e) {
+        const item = e.target.closest(".customer-item");
+        if (!item) return;
+        selectCustomer(item.dataset.id);
     });
 
-    // ---------- "Change" button: go back to search mode ----------
+    phoneResults.addEventListener("click", function (e) {
+        const item = e.target.closest(".customer-item");
+        if (!item) return;
+        selectCustomer(item.dataset.id);
+    });
+
+    // ---------- "Change" button: unlock fields, clear selection ----------
     changeBtn.addEventListener("click", function () {
 
         existingIdInp.value = "";
@@ -1022,15 +1069,18 @@ document.addEventListener("DOMContentLoaded", function () {
         phoneInput.value = "";
         emailInput.value = "";
 
+        nameInput.readOnly  = false;
+        phoneInput.readOnly = false;
+        emailInput.readOnly = false;
+
         selectedBox.style.display = "none";
-        searchInput.style.display = "block";
-        searchInput.focus();
+        nameInput.focus();
     });
 
-    // close the dropdown when clicking elsewhere
+    // close whichever dropdown is open when clicking elsewhere
     document.addEventListener("click", function (e) {
-        if (!e.target.closest(".customer-search-wrapper")) {
-            resultBox.style.display = "none";
+        if (!e.target.closest("#name-wrapper") && !e.target.closest("#phone-wrapper")) {
+            hideDropdowns();
         }
     });
 
@@ -1078,59 +1128,6 @@ const count = document.getElementById("photo-count");
 
 let files = [];
 
-function addFiles(selected){
-
-    files.push(...selected);
-    refreshGallery();
-
-    preview.innerHTML = "";
-
-    files.forEach((file,index)=>{
-        div.querySelector(".delete-photo").onclick=function(){
-
-            files.splice(index,1);
-
-            refreshGallery();
-
-        };
-
-        const reader = new FileReader();
-
-        reader.onload=function(e){
-
-            const div=document.createElement("div");
-            div.className="photo-item";
-
-            div.innerHTML = `
-    <img src="${e.target.result}" class="preview-image">
-
-    <button class="delete-photo" type="button">
-        ×
-    </button>
-`;
-
-div.querySelector(".delete-photo").onclick = function(){
-
-    files.splice(index,1);
-
-    refreshGallery();
-
-};
-
-            preview.appendChild(div);
-
-        };
-
-        reader.readAsDataURL(file);
-
-    });
-
-    uploadBox.style.display="none";
-    gallery.style.display="block";
-
-    count.textContent=`${files.length} photo${files.length>1?"s":""} attached`;
-}
-
 function refreshGallery(){
 
     preview.innerHTML="";
@@ -1150,7 +1147,6 @@ function refreshGallery(){
                 <button class="delete-photo">×</button>
             `;
 
-            // 放大
             div.querySelector("img").onclick=function(){
 
                 document.getElementById("large-image").src=this.src;
@@ -1159,7 +1155,6 @@ function refreshGallery(){
 
             };
 
-            // 删除
             div.querySelector(".delete-photo").onclick=function(event){
 
                 event.stopPropagation();
@@ -1184,6 +1179,12 @@ function refreshGallery(){
 
     count.textContent=`${files.length} photo${files.length>1?"s":""} attached`;
 
+}
+
+function addFiles(selected){
+
+    files.push(...selected);
+    refreshGallery();
 }
 
 firstInput.addEventListener("change",function(){

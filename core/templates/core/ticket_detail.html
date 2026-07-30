@@ -107,11 +107,13 @@
                     {{ ticket.description|linebreaksbr }}
                 </p>
 
-                {% if ticket.price %}
                 <div class="price-badge">
-                    Value / Price:&nbsp;<span>${{ ticket.price }}</span>
+                    Value / Price:&nbsp;<span>{% if ticket.price is not None %}
+            ${{ ticket.price }}
+        {% else %}
+            N/A
+        {% endif %}</span>
                 </div>
-                {% endif %}
 
             </div>
 

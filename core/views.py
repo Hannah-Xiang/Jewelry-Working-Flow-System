@@ -190,14 +190,18 @@ def delete_ticket(request, ticket_id):
 
     return redirect("ticket_detail", ticket_id=ticket.id)
 
+from django.db.models import Q
+
 @login_required
 def customer_search(request):
 
     keyword = request.GET.get("q", "").strip()
 
     customers = Customer.objects.filter(
-        Q(name__icontains=keyword) | Q(phone__icontains=keyword)
-    )[:10]
+        Q(name__icontains=keyword) |
+        Q(phone__icontains=keyword) |
+        Q(tickets__ticket_number__icontains=keyword)
+    ).distinct()[:10]
 
     data = []
     for customer in customers:
@@ -643,7 +647,7 @@ def edit_ticket(request, ticket_id):
         ticket.ticket_number = ticket_number
 
         # -------------------------
-        # Customer (new)
+        # Customer
         # -------------------------
         existing_customer_id = request.POST.get("existing_customer_id", "").strip()
         customer_name = request.POST.get("customer_name", "").strip()
@@ -651,18 +655,24 @@ def edit_ticket(request, ticket_id):
         email = request.POST.get("email", "").strip()
 
         if existing_customer_id:
-            # Either unchanged (same id as before) or the user picked a
-            # different existing customer from the live-search dropdown.
+            # User selected an existing customer
             ticket.customer = get_object_or_404(Customer, pk=existing_customer_id)
-        elif customer_name or phone or email:
-            # No existing customer selected (e.g. user clicked "Change
-            # Customer" and typed fresh details without picking a search
-            # result) -> update the currently linked customer's own record.
-            customer = ticket.customer
-            customer.name = customer_name or customer.name
-            customer.phone = phone or customer.phone
-            customer.email = email
-            customer.save()
+
+        else:
+            # Search customer by phone number
+            customer = Customer.objects.filter(phone=phone).first()
+
+            if customer:
+                # Customer exists, link this ticket to that customer
+                ticket.customer = customer
+            else:
+                # Customer does not exist, create a new one
+                customer = Customer.objects.create(
+                    name=customer_name,
+                    phone=phone,
+                    email=email,
+                )
+                ticket.customer = customer
 
         # -------------------------
         # Other fields (unchanged)
@@ -690,7 +700,6 @@ def edit_ticket(request, ticket_id):
         # ===========================
         # Delete marked photos
         # ===========================
-
         deleted = request.POST.get("deleted_photo_ids", "")
 
         if deleted:
@@ -704,7 +713,6 @@ def edit_ticket(request, ticket_id):
         # ===========================
         # Save new photos
         # ===========================
-
         for image in request.FILES.getlist("photos"):
 
             TicketPhoto.objects.create(

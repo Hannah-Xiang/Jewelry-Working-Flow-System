@@ -71,83 +71,46 @@
 
     <h3>Customer Information</h3>
 
-    <div class="form-group customer-search-wrapper">
+    <!-- Confirmation box for the currently-linked customer (or a newly
+         picked one). Sits above the fields, same style as New Ticket. -->
+    <div id="selected-customer-box" class="selected-customer" style="display:flex;">
 
-        <label>Search Existing Customer</label>
+        <div class="selected-customer-left">
 
-        <input
-            type="text"
-            id="customer-search"
-            autocomplete="off"
-            placeholder="Type name or phone number..."
-            style="display:none;"
-            class="form-input customer-search-input"
-        >
-        <br>
+            <span class="selected-icon">✓</span>
 
-        <div
-            id="customer-results"
-            class="customer-dropdown"
-            style="display:none;">
-        </div>
-
-        <div
-            id="selected-customer-box"
-            class="selected-customer">
-
-            <div class="selected-customer-left">
-
-                <span class="selected-icon">
-
-                    ✓
-
-                </span>
-
-                <div>
-
-                    <div
-                        class="selected-name"
-                        id="selected-customer-name">
-
-                        {{ ticket.customer.name }}
-
-                    </div>
-
-                    <div
-                        class="selected-meta"
-                        id="selected-customer-meta">
-
-                        {{ ticket.customer.phone }}
-
-                    </div>
-
-                </div>
-
+            <div>
+                <div class="selected-name" id="selected-customer-name">{{ ticket.customer.name }}</div>
+                <div class="selected-meta" id="selected-customer-meta">{{ ticket.customer.phone }}</div>
             </div>
 
-            <button
-                type="button"
-                id="change-customer-btn"
-                class="btn-change">
-
-                Change Customer
-
-            </button>
-
         </div>
+
+        <button
+            type="button"
+            id="change-customer-btn"
+            class="btn-change">
+
+            Change Customer
+
+        </button>
 
     </div>
 
+    <!-- These fields live outside <form id="edit-ticket-form">, so the
+         form="edit-ticket-form" attribute is what makes them submit along
+         with that form when the Save button is clicked. -->
     <input
         type="hidden"
         id="id_existing_customer_id"
         name="existing_customer_id"
+        form="edit-ticket-form"
         value="{{ ticket.customer.id }}"
     >
 
     <div class="form-grid">
 
-        <div class="form-field">
+        <div class="form-field customer-field-wrapper" id="name-wrapper">
 
             <label>Customer Name</label>
 
@@ -156,12 +119,16 @@
                 id="id_customer_name"
                 name="customer_name"
                 class="form-input"
+                form="edit-ticket-form"
                 value="{{ ticket.customer.name }}"
+                readonly
             >
+
+            <div id="name-results" class="customer-dropdown" style="display:none;"></div>
 
         </div>
 
-        <div class="form-field">
+        <div class="form-field customer-field-wrapper" id="phone-wrapper">
 
             <label>Phone Number</label>
 
@@ -170,8 +137,12 @@
                 id="id_phone"
                 name="phone"
                 class="form-input"
+                form="edit-ticket-form"
                 value="{{ ticket.customer.phone }}"
+                readonly
             >
+
+            <div id="phone-results" class="customer-dropdown" style="display:none;"></div>
 
         </div>
 
@@ -184,7 +155,9 @@
                 id="id_email"
                 name="email"
                 class="form-input"
+                form="edit-ticket-form"
                 value="{{ ticket.customer.email }}"
+                readonly
             >
 
         </div>
@@ -205,13 +178,6 @@
 
                     <div class="form-grid">
 
-                        <!-- <div class="form-field">
-                            <label>TICKET NUMBER</label>
-                            <div class="readonly-field">
-                                <span class="ticket-number-inline">{{ ticket.ticket_number }}</span>
-                                <span class="auto-assigned">(auto-assigned)</span>
-                            </div>
-                        </div> -->
     <div class="form-field">
     <label>TICKET NUMBER</label>
 
@@ -427,10 +393,6 @@
                     {{ ticket.due_date|date:"F d, Y" }}
                 </h2>
 
-                <!-- <p class="days-remaining">
-                    {{ ticket.due_date|days_remaining }} days remaining
-                </p> -->
-
             </div>
 
             <div class="card">
@@ -453,9 +415,6 @@
                         <div>
                             <h5>{{ event.status.status }}</h5>
                             <p class="timeline-date">{{ event.created_date|date:"M d, Y" }}</p>
-                            <!-- {% if event.note %}
-                            <p class="timeline-note">{{ event.note }}</p>
-                            {% endif %} -->
                         </div>
                     </div>
                 {% empty %}
@@ -690,6 +649,13 @@
 
 .form-textarea{
     resize:vertical;
+}
+
+/* Locked state once a customer is linked / selected */
+.form-input[readonly]{
+    background:#f0f0ee;
+    color:#555;
+    cursor:not-allowed;
 }
 
 .readonly-field{
@@ -974,8 +940,9 @@
     margin:0;
 }
 
-
-.customer-search-wrapper{
+/* Wraps whichever field (name or phone) is driving the live search, so its
+   results dropdown can be positioned directly beneath it. */
+.customer-field-wrapper{
     position:relative;
 }
 
@@ -1176,8 +1143,6 @@ document
 document.addEventListener("DOMContentLoaded", function () {
 
     // ---------- element references ----------
-    const searchInput   = document.getElementById("customer-search");
-    const resultBox     = document.getElementById("customer-results");
     const selectedBox   = document.getElementById("selected-customer-box");
     const selectedName  = document.getElementById("selected-customer-name");
     const selectedMeta  = document.getElementById("selected-customer-meta");
@@ -1188,94 +1153,135 @@ document.addEventListener("DOMContentLoaded", function () {
     const phoneInput = document.getElementById("id_phone");
     const emailInput = document.getElementById("id_email");
 
-    const jobTypeSelect = document.getElementById("id_job_type");
-    const dueDateInput  = document.getElementById("id_due_date");
-    const dueDateHint   = document.getElementById("due-date-hint");
+    const nameResults  = document.getElementById("name-results");
+    const phoneResults = document.getElementById("phone-results");
 
     let debounceTimer = null;
 
-    // ---------- customer search ----------
-    searchInput.addEventListener("input", function () {
+    // ---------- shared helpers ----------
+    function hideDropdowns() {
+        nameResults.style.display = "none";
+        nameResults.innerHTML = "";
+        phoneResults.style.display = "none";
+        phoneResults.innerHTML = "";
+    }
+
+    function renderResults(container, customers) {
+
+        container.innerHTML = "";
+        container.style.display = "block";
+
+        if (customers.length === 0) {
+            container.innerHTML = `<div class="customer-header">No Customer Found</div>`;
+            return;
+        }
+
+        container.innerHTML = `<div class="customer-header">ALL CUSTOMERS</div>`;
+
+        customers.forEach(customer => {
+
+            const initials = customer.name
+                .split(" ")
+                .map(n => n[0])
+                .join("")
+                .substring(0, 2)
+                .toUpperCase();
+
+            container.innerHTML += `
+                <div class="customer-item" data-id="${customer.id}">
+                    <div class="customer-left">
+                        <div class="customer-avatar">${initials}</div>
+                        <div>
+                            <div class="customer-name">${customer.name}</div>
+                            <div class="customer-phone">${customer.phone}</div>
+                        </div>
+                    </div>
+                    <div class="customer-jobs">
+                        ${customer.ticket_count ?? 0} Jobs
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    // Runs the live search using whichever of name/phone is currently
+    // filled, rendering results into `activeContainer` (the dropdown under
+    // whichever field the user is actively typing in).
+    function runSearch(activeContainer) {
 
         clearTimeout(debounceTimer);
-        const keyword = this.value.trim();
 
-        if (keyword === "") {
-            resultBox.style.display = "none";
-            resultBox.innerHTML = "";
+        const name  = nameInput.value.trim();
+        const phone = phoneInput.value.trim();
+
+        if (!name && !phone) {
+            hideDropdowns();
             return;
         }
 
         debounceTimer = setTimeout(() => {
 
-            fetch(`/api/customers/search/?q=${encodeURIComponent(keyword)}`)
+            const params = new URLSearchParams();
+            if (name)  params.set("name", name);
+            if (phone) params.set("phone", phone);
+
+            fetch(`/api/customers/live-search/?${params.toString()}`)
                 .then(res => res.json())
-                .then(customers => {
-
-                    resultBox.innerHTML = "";
-                    resultBox.style.display = "block";
-
-                    if (customers.length === 0) {
-                        resultBox.innerHTML = `
-                            <div class="customer-header">No Customer Found</div>
-                        `;
-                        return;
-                    }
-
-                    resultBox.innerHTML = `
-                        <div class="customer-header">ALL CUSTOMERS</div>
-                    `;
-
-                    customers.forEach(customer => {
-
-                        const initials = customer.name
-                            .split(" ")
-                            .map(n => n[0])
-                            .join("")
-                            .substring(0, 2)
-                            .toUpperCase();
-
-                        resultBox.innerHTML += `
-                            <div class="customer-item" data-id="${customer.id}">
-                                <div class="customer-left">
-                                    <div class="customer-avatar">${initials}</div>
-                                    <div>
-                                        <div class="customer-name">${customer.name}</div>
-                                        <div class="customer-phone">${customer.phone}</div>
-                                    </div>
-                                </div>
-                                <div class="customer-jobs">
-                                    ${customer.ticket_count ?? 0} Jobs
-                                </div>
-                            </div>
-                        `;
-                    });
-                });
+                .then(customers => renderResults(activeContainer, customers));
 
         }, 300);
+    }
+
+    // ---------- live search on Name / Phone fields ----------
+    nameInput.addEventListener("input", function () {
+        if (nameInput.readOnly) return;
+        phoneResults.style.display = "none";
+        runSearch(nameResults);
     });
 
-    // ---------- pick a customer from the dropdown ----------
-    resultBox.addEventListener("click", function (e) {
+    // Formats raw digits into "(XXX) XXX-XXXX" as the user types, same as
+    // the New Ticket / Add Customer pages. Caps out at 10 digits.
+    function formatPhoneNumber(digits) {
 
-        const item = e.target.closest(".customer-item");
-        if (!item) return;
+        const len = digits.length;
 
-        const id = item.dataset.id;
+        if (len === 0) return "";
+        if (len < 4)  return `(${digits}`;
+        if (len < 7)  return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+
+        return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+    }
+
+    phoneInput.setAttribute("maxlength", "14");
+    phoneInput.setAttribute("inputmode", "numeric");
+
+    phoneInput.addEventListener("input", function () {
+        if (phoneInput.readOnly) return;
+
+        const digits = phoneInput.value.replace(/\D/g, "").substring(0, 10);
+        phoneInput.value = formatPhoneNumber(digits);
+
+        nameResults.style.display = "none";
+        runSearch(phoneResults);
+    });
+
+    // ---------- pick a customer from either dropdown ----------
+    function selectCustomer(id) {
 
         fetch(`/api/customers/${id}/`)
             .then(res => res.json())
             .then(customer => {
 
-                // fill the (still-editable) form fields
                 nameInput.value  = customer.name;
                 phoneInput.value = customer.phone;
                 emailInput.value = customer.email || "";
 
-                // remember which existing customer this is
+                nameInput.readOnly  = true;
+                phoneInput.readOnly = true;
+                emailInput.readOnly = true;
+
                 existingIdInp.value = customer.id;
 
-                // build the "customer since <year>" line from created_date
                 let sinceText = "";
                 if (customer.created_date) {
                     const year = new Date(customer.created_date).getFullYear();
@@ -1287,15 +1293,24 @@ document.addEventListener("DOMContentLoaded", function () {
                     ? `${customer.phone} · ${sinceText}`
                     : customer.phone;
 
-                // swap search input for the confirmation box
-                searchInput.value = "";
-                searchInput.style.display = "none";
-                resultBox.style.display = "none";
                 selectedBox.style.display = "flex";
+                hideDropdowns();
             });
+    }
+
+    nameResults.addEventListener("click", function (e) {
+        const item = e.target.closest(".customer-item");
+        if (!item) return;
+        selectCustomer(item.dataset.id);
     });
 
-    // ---------- "Change" button: go back to search mode ----------
+    phoneResults.addEventListener("click", function (e) {
+        const item = e.target.closest(".customer-item");
+        if (!item) return;
+        selectCustomer(item.dataset.id);
+    });
+
+    // ---------- "Change Customer" button: unlock fields, clear selection ----------
     changeBtn.addEventListener("click", function () {
 
         existingIdInp.value = "";
@@ -1304,39 +1319,53 @@ document.addEventListener("DOMContentLoaded", function () {
         phoneInput.value = "";
         emailInput.value = "";
 
+        nameInput.readOnly  = false;
+        phoneInput.readOnly = false;
+        emailInput.readOnly = false;
+
         selectedBox.style.display = "none";
-        searchInput.style.display = "block";
-        searchInput.focus();
+        nameInput.focus();
     });
 
-    // close the dropdown when clicking elsewhere
+    // close whichever dropdown is open when clicking elsewhere
     document.addEventListener("click", function (e) {
-        if (!e.target.closest(".customer-search-wrapper")) {
-            resultBox.style.display = "none";
+        if (!e.target.closest("#name-wrapper") && !e.target.closest("#phone-wrapper")) {
+            hideDropdowns();
         }
     });
 
     // ---------- job type -> auto-calculate due date ----------
-    jobTypeSelect.addEventListener("change", function () {
+    // (Kept from the original script; guarded since this page doesn't
+    //  actually have #id_job_type / #id_due_date / #due-date-hint elements,
+    //  so it silently does nothing here instead of throwing an error.)
+    const jobTypeSelect = document.getElementById("id_job_type");
+    const dueDateInput  = document.getElementById("id_due_date");
+    const dueDateHint   = document.getElementById("due-date-hint");
 
-        const selectedOption = this.options[this.selectedIndex];
-        const duration = parseInt(selectedOption.dataset.duration, 10);
+    if (jobTypeSelect && dueDateInput) {
+        jobTypeSelect.addEventListener("change", function () {
 
-        if (!duration || isNaN(duration)) {
-            dueDateHint.textContent = "";
-            return;
-        }
+            const selectedOption = this.options[this.selectedIndex];
+            const duration = parseInt(selectedOption.dataset.duration, 10);
 
-        const due = new Date();
-        due.setDate(due.getDate() + duration);
+            if (!duration || isNaN(duration)) {
+                if (dueDateHint) dueDateHint.textContent = "";
+                return;
+            }
 
-        const yyyy = due.getFullYear();
-        const mm   = String(due.getMonth() + 1).padStart(2, "0");
-        const dd   = String(due.getDate()).padStart(2, "0");
+            const due = new Date();
+            due.setDate(due.getDate() + duration);
 
-        dueDateInput.value = `${yyyy}-${mm}-${dd}`;
-        dueDateHint.textContent = `Auto-filled: ${duration} day${duration === 1 ? "" : "s"} from today (you can still change it)`;
-    });
+            const yyyy = due.getFullYear();
+            const mm   = String(due.getMonth() + 1).padStart(2, "0");
+            const dd   = String(due.getDate()).padStart(2, "0");
+
+            dueDateInput.value = `${yyyy}-${mm}-${dd}`;
+            if (dueDateHint) {
+                dueDateHint.textContent = `Auto-filled: ${duration} day${duration === 1 ? "" : "s"} from today (you can still change it)`;
+            }
+        });
+    }
 
 });
 </script>

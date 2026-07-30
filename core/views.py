@@ -210,6 +210,50 @@ def customer_search(request):
         })
 
     return JsonResponse(data, safe=False)
+
+@login_required
+def customer_live_search(request):
+    """
+    Combined name + phone live search used by the New Ticket page.
+
+    - name and phone both given  -> AND match (must match both)
+    - only name given            -> filter by name only
+    - only phone given           -> filter by phone only
+    - neither given               -> return an empty list
+    """
+
+    name = request.GET.get("name", "").strip()
+    phone = request.GET.get("phone", "").strip()
+
+    if not name and not phone:
+        return JsonResponse([], safe=False)
+
+    customers = Customer.objects.all()
+
+    if name:
+        customers = customers.filter(name__icontains=name)
+
+    if phone:
+        customers = customers.filter(phone__icontains=phone)
+
+    customers = customers[:10]
+
+    data = []
+    for customer in customers:
+
+        created_date = getattr(customer, "created_date", None)
+
+        data.append({
+            "id": customer.id,
+            "name": customer.name,
+            "phone": customer.phone,
+            "email": customer.email,
+            "ticket_count": customer.tickets.count(),
+            "created_date": created_date.isoformat() if created_date else None,
+        })
+
+    return JsonResponse(data, safe=False)
+
 @login_required
 def add_customer(request):
 
@@ -597,6 +641,28 @@ def edit_ticket(request, ticket_id):
             })
 
         ticket.ticket_number = ticket_number
+
+        # -------------------------
+        # Customer (new)
+        # -------------------------
+        existing_customer_id = request.POST.get("existing_customer_id", "").strip()
+        customer_name = request.POST.get("customer_name", "").strip()
+        phone = request.POST.get("phone", "").strip()
+        email = request.POST.get("email", "").strip()
+
+        if existing_customer_id:
+            # Either unchanged (same id as before) or the user picked a
+            # different existing customer from the live-search dropdown.
+            ticket.customer = get_object_or_404(Customer, pk=existing_customer_id)
+        elif customer_name or phone or email:
+            # No existing customer selected (e.g. user clicked "Change
+            # Customer" and typed fresh details without picking a search
+            # result) -> update the currently linked customer's own record.
+            customer = ticket.customer
+            customer.name = customer_name or customer.name
+            customer.phone = phone or customer.phone
+            customer.email = email
+            customer.save()
 
         # -------------------------
         # Other fields (unchanged)

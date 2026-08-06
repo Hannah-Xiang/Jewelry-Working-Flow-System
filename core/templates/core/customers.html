@@ -957,6 +957,30 @@ if (customerPhoneInput) {
     });
 }
 
+const customerNameInput = document.getElementById("id_name");
+
+if (customerNameInput) {
+
+    function capitalizeName(value) {
+
+        return value
+            .toLowerCase()
+            .replace(/\b\w/g, letter => letter.toUpperCase());
+
+    }
+
+    customerNameInput.addEventListener("input", function () {
+
+        const cursor = this.selectionStart;
+
+        this.value = capitalizeName(this.value);
+
+        this.setSelectionRange(cursor, cursor);
+
+    });
+
+}
+
 </script>
 
 {% endblock %}

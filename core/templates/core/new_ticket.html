@@ -981,11 +981,24 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ---------- live search on Name / Phone fields ----------
-    nameInput.addEventListener("input", function () {
-        if (nameInput.readOnly) return;
-        phoneResults.style.display = "none";
-        runSearch(nameResults);
-    });
+ function capitalizeName(name) {
+    return name
+        .toLowerCase()
+        .replace(/\b\w/g, char => char.toUpperCase());
+}
+
+nameInput.addEventListener("input", function () {
+    if (nameInput.readOnly) return;
+
+    const cursor = this.selectionStart;
+
+    this.value = capitalizeName(this.value);
+
+    this.setSelectionRange(cursor, cursor);
+
+    phoneResults.style.display = "none";
+    runSearch(nameResults);
+});
 
     // Formats raw digits into "(XXX) XXX-XXXX" as the user types.
     // Caps out at 10 digits (area code + 3 + 4), so nothing more can be typed

@@ -25,7 +25,16 @@ SECRET_KEY = 'django-insecure-$9$m^o@s#==!h8mop%tubd!p+_8)mw*$5+xp=bijrmuvv)5m8c
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    "192.168.1.100",
+    "jewelry",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://jewelry",
+]
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"

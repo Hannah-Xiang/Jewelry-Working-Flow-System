@@ -1,0 +1,35 @@
+2026-08-08 14:54:28,815 [INFO] django.server: "GET / HTTP/1.1" 200 19695
+2026-08-08 14:54:29,341 [INFO] core.views: Jewelry system logging test
+2026-08-08 14:54:29,348 [INFO] django.server: "GET /new-ticket/ HTTP/1.1" 200 31887
+2026-08-08 14:55:42,467 [INFO] django.utils.autoreload: C:\data\git\Jewelry-Working-Flow-System\config\settings.py changed, reloading.
+2026-08-08 14:55:43,106 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-08 14:56:02,711 [INFO] django.utils.autoreload: C:\data\git\Jewelry-Working-Flow-System\core\views.py changed, reloading.
+2026-08-08 14:56:03,362 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-08 14:58:59,439 [INFO] django.utils.autoreload: C:\data\git\Jewelry-Working-Flow-System\core\views.py changed, reloading.
+2026-08-08 14:59:00,118 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-08 14:59:16,694 [INFO] django.utils.autoreload: C:\data\git\Jewelry-Working-Flow-System\core\urls.py changed, reloading.
+2026-08-08 14:59:17,317 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-08 14:59:25,207 [INFO] django.server: "GET /new-ticket/ HTTP/1.1" 200 31887
+2026-08-08 14:59:37,115 [INFO] django.server: "GET /new-ticket/ HTTP/1.1" 200 31887
+2026-08-08 14:59:38,969 [INFO] django.server: "GET / HTTP/1.1" 200 19695
+2026-08-08 14:59:39,506 [INFO] django.server: "GET /new-ticket/ HTTP/1.1" 200 31887
+2026-08-08 14:59:39,920 [INFO] django.server: "GET /calendar/ HTTP/1.1" 200 74791
+2026-08-08 15:00:04,661 [WARNING] django.request: Not Found: /test-error/
+2026-08-08 15:00:30,042 [INFO] django.utils.autoreload: C:\data\git\Jewelry-Working-Flow-System\core\urls.py changed, reloading.
+2026-08-08 15:00:30,769 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-08 15:00:32,120 [INFO] django.utils.autoreload: C:\data\git\Jewelry-Working-Flow-System\core\views.py changed, reloading.
+2026-08-08 15:00:32,746 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-08 15:01:59,242 [INFO] django.utils.autoreload: C:\data\git\Jewelry-Working-Flow-System\core\views.py changed, reloading.
+2026-08-08 15:01:59,788 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-08 15:02:16,310 [INFO] django.utils.autoreload: C:\data\git\Jewelry-Working-Flow-System\core\urls.py changed, reloading.
+2026-08-08 15:02:16,951 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-08 15:03:16,829 [ERROR] django.request: Internal Server Error: /test-error/
+Traceback (most recent call last):
+  File "C:\data\git\Jewelry-Working-Flow-System\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\data\git\Jewelry-Working-Flow-System\venv\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\data\git\Jewelry-Working-Flow-System\core\views.py", line 804, in test_error
+    raise Exception("TEST ERROR - Jewelry System")
+Exception: TEST ERROR - Jewelry System
+2026-08-08 15:03:16,830 [ERROR] django.server: "GET /test-error/ HTTP/1.1" 500 68335

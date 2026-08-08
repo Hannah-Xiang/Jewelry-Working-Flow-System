@@ -141,11 +141,11 @@ EMAIL_PORT = 587
 
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = "hannahxiang2002@gmail.com"
+EMAIL_HOST_USER = "zarehs2010@gmail.com"
 
-EMAIL_HOST_PASSWORD = "tkhwdtuzprrvmgng"
+EMAIL_HOST_PASSWORD = "homddyealvpqecuz"
 
-DEFAULT_FROM_EMAIL = "Bellamy Workflow <hannahxiang2002@gmail.com>"
+DEFAULT_FROM_EMAIL = "Zareh's Jewellery Workflow System <zarehs2010@gmail.com>"
 
 
 # Static files (CSS, JavaScript, Images)
@@ -161,3 +161,40 @@ STATICFILES_DIRS = [
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+
+    "formatters": {
+        "verbose": {
+            "format": "{asctime} [{levelname}] {name}: {message}",
+            "style": "{",
+        },
+    },
+
+    "handlers": {
+        "file": {
+            "level": "INFO",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": BASE_DIR / "logs" / "django.log",
+            "maxBytes": 5 * 1024 * 1024,
+            "backupCount": 5,
+            "formatter": "verbose",
+        },
+    },
+
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+
+        "core": {
+            "handlers": ["file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+},
+}

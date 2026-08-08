@@ -1,3 +1,5 @@
+from asyncio.log import logger
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.db.models import Q, Count, Sum
@@ -20,7 +22,7 @@ from .models import (
     Note,
     StatusHistory,
 )
-
+import logging
 from .forms import CustomerForm, TicketForm
 
 from .utils import (
@@ -121,6 +123,7 @@ def dashboard(request):
 
 @login_required
 def new_ticket(request):
+
 
     if request.method == "POST":
 
@@ -796,3 +799,6 @@ def delete_note(request, note_id):
 @login_required
 def base(request):
     return render(request, 'core/base.html')
+
+def test_error(request):
+    raise Exception("TEST ERROR - Jewelry System")

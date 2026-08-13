@@ -232,13 +232,50 @@ def customer_search(request):
 
     keyword = request.GET.get("q", "").strip()
 
-    customers = Customer.objects.filter(
+    # Remove all non-digit characters from the search input
+    # so phone searches work with any format:
+    # (226) 345-6789
+    # 2263456789
+    # 226-345-6789
+    # 226 345 6789
+    phone_digits = "".join(
+        character for character in keyword
+        if character.isdigit()
+    )
+
+    # Normalize stored phone number by removing formatting characters
+    from django.db.models import Value
+    from django.db.models.functions import Replace
+
+    normalized_phone = Replace(
+        Replace(
+            Replace(
+                Replace(
+                    "phone",
+                    Value(" "),
+                    Value("")
+                ),
+                Value("("),
+                Value("")
+            ),
+            Value(")"),
+            Value("")
+        ),
+        Value("-"),
+        Value("")
+    )
+
+    customers = Customer.objects.annotate(
+        normalized_phone=normalized_phone
+    ).filter(
         Q(name__icontains=keyword) |
         Q(phone__icontains=keyword) |
+        Q(normalized_phone__icontains=phone_digits) |
         Q(tickets__ticket_number__icontains=keyword)
     ).distinct()[:10]
 
     data = []
+
     for customer in customers:
         data.append({
             "id": customer.id,
@@ -481,10 +518,44 @@ def ticket_search(request):
     ).order_by('-created_date')
 
     if search:
-        tickets = tickets.filter(
+
+        # Remove all non-digit characters from the search input
+        # for phone-number searching.
+        phone_digits = "".join(
+            character for character in search
+            if character.isdigit()
+        )
+
+        # Normalize the phone number stored in the database
+        # by removing formatting characters.
+        from django.db.models import Value
+        from django.db.models.functions import Replace
+
+        normalized_phone = Replace(
+            Replace(
+                Replace(
+                    Replace(
+                        "customer__phone",
+                        Value(" "),
+                        Value("")
+                    ),
+                    Value("("),
+                    Value("")
+                ),
+                Value(")"),
+                Value("")
+            ),
+            Value("-"),
+            Value("")
+        )
+
+        tickets = tickets.annotate(
+            normalized_phone=normalized_phone
+        ).filter(
             Q(ticket_number__icontains=search) |
             Q(customer__name__icontains=search) |
-            Q(customer__phone__icontains=search)
+            Q(customer__phone__icontains=search) |
+            Q(normalized_phone__icontains=phone_digits)
         )
 
     if status:
@@ -494,6 +565,7 @@ def ticket_search(request):
         tickets = tickets.filter(job_type_id=job_type)
 
     data = []
+
     for ticket in tickets:
         data.append({
             "id": ticket.id,

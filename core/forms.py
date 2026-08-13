@@ -38,6 +38,8 @@ class TicketForm(forms.ModelForm):
             "status",
             "due_date",
             "price",
+            #finger ring
+            "ring_finger",
         ]
 
         widgets = {

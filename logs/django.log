@@ -33,3 +33,95 @@ Traceback (most recent call last):
     raise Exception("TEST ERROR - Jewelry System")
 Exception: TEST ERROR - Jewelry System
 2026-08-08 15:03:16,830 [ERROR] django.server: "GET /test-error/ HTTP/1.1" 500 68335
+2026-08-08 15:25:53,831 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-08 15:26:07,646 [INFO] django.server: "GET / HTTP/1.1" 200 19695
+2026-08-08 15:26:11,998 [INFO] django.server: "GET /admin HTTP/1.1" 301 0
+2026-08-08 15:26:12,033 [INFO] django.server: "GET /admin/ HTTP/1.1" 200 14102
+2026-08-08 15:26:12,192 [INFO] django.server: "GET /static/admin/js/theme.js HTTP/1.1" 200 1653
+2026-08-08 15:26:12,194 [INFO] django.server: "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2810
+2026-08-08 15:26:12,195 [INFO] django.server: "GET /static/admin/css/responsive.css HTTP/1.1" 200 16273
+2026-08-08 15:26:12,195 [INFO] django.server: "GET /static/admin/css/dark_mode.css HTTP/1.1" 200 3538
+2026-08-08 15:26:12,196 [INFO] django.server: "GET /static/admin/css/dashboard.css HTTP/1.1" 200 441
+2026-08-08 15:26:12,196 [INFO] django.server: "GET /static/admin/css/base.css HTTP/1.1" 200 23100
+2026-08-08 15:26:12,199 [INFO] django.server: "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+2026-08-08 15:26:12,206 [INFO] django.server: "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 200 593
+2026-08-08 15:26:12,207 [INFO] django.server: "GET /static/admin/img/icon-deletelink.svg HTTP/1.1" 200 689
+2026-08-08 15:26:12,207 [INFO] django.server: "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 200 978
+2026-08-08 15:26:17,666 [INFO] django.server: "GET /admin/ HTTP/1.1" 200 14102
+2026-08-08 15:26:18,678 [INFO] django.server: "GET /admin/ HTTP/1.1" 200 14102
+2026-08-08 15:27:33,960 [INFO] django.utils.autoreload: C:\data\git\Jewelry-Working-Flow-System\core\admin.py changed, reloading.
+2026-08-08 15:27:34,570 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-08 15:27:37,089 [INFO] django.server: "GET /admin/ HTTP/1.1" 200 14696
+2026-08-08 15:27:38,104 [INFO] django.server: "GET /admin/core/auditlog/ HTTP/1.1" 200 11406
+2026-08-08 15:27:38,118 [INFO] django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+2026-08-08 15:27:38,250 [INFO] django.server: "GET /static/admin/css/changelists.css HTTP/1.1" 200 7498
+2026-08-08 15:27:38,254 [INFO] django.server: "GET /static/admin/js/urlify.js HTTP/1.1" 200 7887
+2026-08-08 15:27:38,254 [INFO] django.server: "GET /static/admin/js/jquery.init.js HTTP/1.1" 200 347
+2026-08-08 15:27:38,257 [INFO] django.server: "GET /static/admin/js/prepopulate.js HTTP/1.1" 200 1531
+2026-08-08 15:27:38,258 [INFO] django.server: "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 200 9777
+2026-08-08 15:27:38,260 [INFO] django.server: "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 200 325171
+2026-08-08 15:27:38,261 [INFO] django.server: "GET /static/admin/js/actions.js HTTP/1.1" 200 8077
+2026-08-08 15:27:38,262 [INFO] django.server: "GET /static/admin/js/core.js HTTP/1.1" 200 6208
+2026-08-08 15:27:38,263 [INFO] django.server: "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 200 285314
+2026-08-08 15:27:38,266 [INFO] django.server: "GET /static/admin/js/filters.js HTTP/1.1" 200 978
+2026-08-08 15:27:38,289 [INFO] django.server: "GET /static/admin/img/tooltag-add.svg HTTP/1.1" 200 593
+2026-08-08 15:27:57,306 [INFO] django.utils.autoreload: C:\data\git\Jewelry-Working-Flow-System\core\admin.py changed, reloading.
+2026-08-08 15:27:57,893 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-08 15:29:53,928 [INFO] django.utils.autoreload: C:\data\git\Jewelry-Working-Flow-System\core\views.py changed, reloading.
+2026-08-08 15:29:54,594 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-08 15:31:23,225 [INFO] django.utils.autoreload: C:\data\git\Jewelry-Working-Flow-System\core\views.py changed, reloading.
+2026-08-08 15:31:23,811 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-08 15:31:55,615 [INFO] django.utils.autoreload: C:\data\git\Jewelry-Working-Flow-System\core\views.py changed, reloading.
+2026-08-08 15:31:56,232 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-08 15:32:34,173 [INFO] django.utils.autoreload: C:\data\git\Jewelry-Working-Flow-System\core\views.py changed, reloading.
+2026-08-08 15:32:34,849 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-08 15:34:53,388 [INFO] django.utils.autoreload: C:\data\git\Jewelry-Working-Flow-System\core\views.py changed, reloading.
+2026-08-08 15:34:54,041 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-08 15:34:56,380 [INFO] django.utils.autoreload: C:\data\git\Jewelry-Working-Flow-System\core\views.py changed, reloading.
+2026-08-08 15:34:57,048 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-08 15:35:43,136 [INFO] django.utils.autoreload: C:\data\git\Jewelry-Working-Flow-System\core\views.py changed, reloading.
+2026-08-08 15:35:43,773 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-08 15:35:48,072 [INFO] django.utils.autoreload: C:\data\git\Jewelry-Working-Flow-System\core\views.py changed, reloading.
+2026-08-08 15:35:48,630 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-08 15:36:00,158 [INFO] django.utils.autoreload: C:\data\git\Jewelry-Working-Flow-System\core\views.py changed, reloading.
+2026-08-08 15:36:00,845 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-08 15:37:55,043 [INFO] django.utils.autoreload: C:\data\git\Jewelry-Working-Flow-System\core\views.py changed, reloading.
+2026-08-08 15:37:55,624 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-08 15:38:21,339 [INFO] django.utils.autoreload: C:\data\git\Jewelry-Working-Flow-System\core\views.py changed, reloading.
+2026-08-08 15:38:21,977 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-08 15:38:33,246 [INFO] django.utils.autoreload: C:\data\git\Jewelry-Working-Flow-System\core\views.py changed, reloading.
+2026-08-08 15:38:33,802 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-08 15:42:55,228 [INFO] django.utils.autoreload: C:\data\git\Jewelry-Working-Flow-System\core\views.py changed, reloading.
+2026-08-08 15:42:55,958 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-08 15:45:49,768 [INFO] django.utils.autoreload: C:\data\git\Jewelry-Working-Flow-System\core\views.py changed, reloading.
+2026-08-08 15:45:50,438 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-08 15:45:54,910 [INFO] django.server: "GET / HTTP/1.1" 200 19695
+2026-08-08 15:45:56,850 [INFO] django.server: "POST /logout/ HTTP/1.1" 302 0
+2026-08-08 15:45:56,854 [INFO] django.server: "GET /login/ HTTP/1.1" 200 4883
+2026-08-08 15:45:56,899 [INFO] django.server: "GET /static/images/logo.png HTTP/1.1" 200 26667
+2026-08-08 15:46:02,263 [INFO] django.server: "POST /login/ HTTP/1.1" 302 0
+2026-08-08 15:46:02,295 [INFO] django.server: "GET / HTTP/1.1" 200 19695
+2026-08-08 15:46:06,850 [INFO] django.server: "GET /new-ticket/ HTTP/1.1" 200 31887
+2026-08-08 15:46:07,346 [INFO] django.server: "GET /tickets/ HTTP/1.1" 200 151282
+2026-08-08 15:46:07,801 [INFO] django.server: "GET /calendar/ HTTP/1.1" 200 74791
+2026-08-08 15:46:08,975 [INFO] django.server: "GET / HTTP/1.1" 200 19695
+2026-08-08 15:46:10,441 [INFO] django.server: "GET /ticket/219/ HTTP/1.1" 200 21990
+2026-08-08 15:46:11,595 [INFO] django.server: "POST /ticket/219/set-status/3/ HTTP/1.1" 302 0
+2026-08-08 15:46:11,611 [INFO] django.server: "GET /ticket/219/ HTTP/1.1" 200 22876
+2026-08-08 15:46:12,094 [INFO] django.server: "POST /ticket/219/set-status/4/ HTTP/1.1" 302 0
+2026-08-08 15:46:12,108 [INFO] django.server: "GET /ticket/219/ HTTP/1.1" 200 22938
+2026-08-08 15:46:18,556 [WARNING] django.request: Not Found: /favicon.ico
+2026-08-08 15:46:21,660 [INFO] django.server: "GET / HTTP/1.1" 200 19695
+2026-08-08 15:46:24,475 [INFO] django.server: "GET /admin/ HTTP/1.1" 200 14696
+2026-08-08 15:46:29,291 [INFO] django.server: "GET /admin/core/auditlog/ HTTP/1.1" 200 16264
+2026-08-08 15:46:29,304 [INFO] django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+2026-08-08 15:46:29,318 [INFO] django.server: "GET /static/admin/img/search.svg HTTP/1.1" 200 607
+2026-08-08 15:46:29,339 [INFO] django.server: "GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 200 928
+2026-08-08 15:54:10,662 [INFO] django.utils.autoreload: C:\data\git\Jewelry-Working-Flow-System\core\views.py changed, reloading.
+2026-08-08 15:54:11,286 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-08 15:54:20,233 [INFO] django.server: "GET /admin/core/auditlog/ HTTP/1.1" 200 16264
+2026-08-08 15:54:20,243 [INFO] django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+2026-08-08 15:55:38,172 [WARNING] django.request: Not Found: /favicon.ico
+2026-08-08 16:03:43,837 [WARNING] django.request: Not Found: /favicon.ico
+2026-08-12 13:51:55,054 [WARNING] django.request: Not Found: /favicon.ico
+2026-08-13 10:20:15,171 [WARNING] django.request: Not Found: /favicon.ico

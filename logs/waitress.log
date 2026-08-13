@@ -2,3 +2,5 @@ INFO:waitress:Serving on http://0.0.0.0:8001
 C:\data\git\Jewelry-Working-Flow-System\venv\Lib\site-packages\django\db\models\fields\__init__.py:1611: RuntimeWarning: DateTimeField Ticket.created_date received a naive datetime (2026-05-10 00:00:00) while time zone support is active.
   warnings.warn(
 ^C2026-08-08 15:13:52,643 [INFO] waitress: Serving on http://0.0.0.0:8001
+2026-08-08 15:55:25,912 [INFO] waitress: Serving on http://0.0.0.0:8000
+2026-08-12 10:30:07,514 [INFO] waitress: Serving on http://0.0.0.0:8000

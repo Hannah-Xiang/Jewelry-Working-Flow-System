@@ -21,6 +21,7 @@ from .models import (
     TicketPhoto,
     Note,
     StatusHistory,
+    AuditLog
 )
 import logging
 from .forms import CustomerForm, TicketForm
@@ -30,6 +31,15 @@ from .utils import (
     calculate_due_date,
     get_or_create_customer,
 )
+
+def create_audit_log(request, action, model_name, object_id="", description=""):
+    AuditLog.objects.create(
+        user=request.user if request.user.is_authenticated else None,
+        action=action,
+        model_name=model_name,
+        object_id=str(object_id),
+        description=description,
+    )
 
 @login_required
 def dashboard(request):
@@ -145,6 +155,13 @@ def new_ticket(request):
             ticket = form.save(commit=False)
             ticket.customer = customer
             ticket.save()
+            create_audit_log(
+                request,
+                "CREATE",
+                "Ticket",
+                ticket.ticket_number,
+                f"Created ticket {ticket.ticket_number}."
+            )
 
             # record the starting point on the timeline
             StatusHistory.objects.create(
@@ -155,9 +172,16 @@ def new_ticket(request):
 
             photos = request.FILES.getlist("photos")
             for photo in photos:
-                TicketPhoto.objects.create(
+                ticket_photo = TicketPhoto.objects.create(
                     ticket=ticket,
                     image=photo
+                )
+                create_audit_log(
+                    request,
+                    "CREATE",
+                    "TicketPhoto",
+                    ticket_photo.id,
+                    f"Created photo for ticket {ticket.ticket_number}."
                 )
 
             return redirect("all_tickets")
@@ -187,7 +211,15 @@ def delete_ticket(request, ticket_id):
     ticket = get_object_or_404(Ticket, id=ticket_id)
 
     if request.method == "POST":
+        ticket_number = ticket.ticket_number
         ticket.delete()
+        create_audit_log(
+        request,
+        "DELETE",
+        "Ticket",
+        ticket_number,
+        f"Deleted ticket {ticket_number}."
+    )
         messages.success(request, "Ticket deleted successfully.")
         return redirect("all_tickets")
 
@@ -269,8 +301,17 @@ def add_customer(request):
         form = CustomerForm(request.POST)
 
         if form.is_valid():
+            
 
             customer = form.save()
+
+            create_audit_log(
+        request,
+        "CREATE",
+        "Customer",
+        customer.id,
+        f"Created customer {customer.name} ({customer.phone})."
+    )
 
             return redirect(f"/customers/?customer={customer.id}")
 
@@ -303,6 +344,13 @@ def edit_customer(request, pk):
         if form.is_valid():
 
             form.save()
+            create_audit_log(
+        request,
+        "UPDATE",
+        "Customer",
+        customer.id,
+        f"Updated customer {customer.name} ({customer.phone})."
+    )
 
             return redirect(
                 f"{reverse('customers')}?customer={customer.id}"
@@ -327,18 +375,7 @@ def edit_customer(request, pk):
         "core/customers.html",
         context,
     )
-@login_required
-def delete_note(request, note_id):
 
-    if request.method == "POST":
-
-        note = get_object_or_404(Note, pk=note_id)
-
-        ticket_id = note.ticket.id
-
-        note.delete()
-
-        return redirect("ticket_detail", ticket_id)
 @login_required
 def customer_detail(request, pk):
 
@@ -630,6 +667,14 @@ def edit_ticket(request, ticket_id):
 
     if request.method == 'POST':
 
+        old_ticket_number = ticket.ticket_number
+        old_customer = ticket.customer
+        old_description = ticket.description
+        old_due_date = ticket.due_date
+        old_price = ticket.price
+        old_job_type = ticket.job_type
+        old_status = ticket.status
+
         # -------------------------
         # Ticket number
         # -------------------------
@@ -675,6 +720,13 @@ def edit_ticket(request, ticket_id):
                     phone=phone,
                     email=email,
                 )
+                create_audit_log(
+                    request,
+                    "CREATE",
+                    "Customer",
+                    customer.id,
+                    f"Created customer {customer.name} ({customer.phone})."
+                )
                 ticket.customer = customer
 
         # -------------------------
@@ -708,19 +760,83 @@ def edit_ticket(request, ticket_id):
         if deleted:
             ids = [int(x) for x in deleted.split(",") if x]
 
-            TicketPhoto.objects.filter(
+            photos_to_delete = TicketPhoto.objects.filter(
                 ticket=ticket,
                 id__in=ids
-            ).delete()
+            )
+
+            for photo in photos_to_delete:
+                photo_id = photo.id
+
+                photo.delete()
+
+                create_audit_log(
+                    request,
+                    "DELETE",
+                    "TicketPhoto",
+                    photo_id,
+                    f"Deleted photo from ticket {ticket.ticket_number}."
+                )
 
         # ===========================
         # Save new photos
         # ===========================
         for image in request.FILES.getlist("photos"):
 
-            TicketPhoto.objects.create(
+            ticket_photo = TicketPhoto.objects.create(
                 ticket=ticket,
                 image=image
+            )
+
+            create_audit_log(
+                request,
+                "CREATE",
+                "TicketPhoto",
+                ticket_photo.id,
+                f"Added photo to ticket {ticket.ticket_number}."
+            )
+        changes = []
+
+        if old_ticket_number != ticket.ticket_number:
+            changes.append(
+                f"Ticket number: {old_ticket_number} -> {ticket.ticket_number}"
+            )
+
+        if old_customer != ticket.customer:
+            changes.append(
+                f"Customer: {old_customer.name} -> {ticket.customer.name}"
+            )
+
+        if old_description != ticket.description:
+            changes.append("Description changed")
+
+        if old_due_date != ticket.due_date:
+            changes.append(
+                f"Due date: {old_due_date} -> {ticket.due_date}"
+            )
+
+        if old_price != ticket.price:
+            changes.append(
+                f"Price: {old_price} -> {ticket.price}"
+            )
+
+        if old_job_type != ticket.job_type:
+            changes.append(
+               f"Job type: {old_job_type.type} -> {ticket.job_type.type}"
+            )
+
+        if old_status != ticket.status:
+            changes.append(
+                f"Status: {old_status.status} -> {ticket.status.status}"
+            )
+
+        if changes:
+            create_audit_log(
+                request,
+                "UPDATE",
+                "Ticket",
+                ticket.ticket_number,
+                "; ".join(changes)
             )
 
         return redirect('ticket_detail', ticket_id=ticket.id)
@@ -738,7 +854,14 @@ def add_note(request, ticket_id):
     if request.method == 'POST':
         content = request.POST.get('content', '').strip()
         if content:
-            Note.objects.create(ticket=ticket, content=content)
+            note = Note.objects.create(ticket=ticket, content=content)
+            create_audit_log(
+                request,
+                "CREATE",
+                "Note",
+                note.id,
+                f"Created note for ticket {ticket.ticket_number}."
+            )
 
     next_path = request.POST.get('next')
     if next_path:
@@ -753,7 +876,18 @@ def add_photo(request, ticket_id):
     if request.method == 'POST':
         photos = request.FILES.getlist('photos')
         for photo in photos:
-            TicketPhoto.objects.create(ticket=ticket, image=photo)
+            ticket_photo = TicketPhoto.objects.create(
+                ticket=ticket,
+                image=photo
+            )
+
+            create_audit_log(
+                request,
+                "CREATE",
+                "TicketPhoto",
+                ticket_photo.id,
+                f"Added photo to ticket {ticket.ticket_number}."
+            )
 
     next_path = request.POST.get('next')
     if next_path:
@@ -766,6 +900,8 @@ def set_status(request, ticket_id, status_id):
     ticket = get_object_or_404(Ticket, id=ticket_id)
     status = get_object_or_404(Status, id=status_id)
 
+    old_status = ticket.status.status
+
     ticket.status = status
 
     # 如果状态是 Completed，则记录完成日期
@@ -777,6 +913,15 @@ def set_status(request, ticket_id, status_id):
             ticket.completed_date = None
 
     ticket.save()
+
+    create_audit_log(
+    request,
+    "UPDATE",
+    "Ticket",
+    ticket.ticket_number,
+    f"Changed status of ticket {ticket.ticket_number}: "
+    f"{old_status} -> {status.status}"
+)
 
     StatusHistory.objects.create(
         ticket=ticket,
@@ -791,8 +936,16 @@ def delete_note(request, note_id):
     note = get_object_or_404(Note, id=note_id)
 
     ticket_id = note.ticket.id
-
+    ticket_number = note.ticket.ticket_number
+    note_id = note.id
     note.delete()
+    create_audit_log(
+        request,
+        "DELETE",
+        "Note",
+        note_id,
+        f"Deleted note from ticket {ticket_number}."
+    )
 
     return redirect("ticket_detail", ticket_id)
 

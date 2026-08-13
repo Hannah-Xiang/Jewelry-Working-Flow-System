@@ -1937,3 +1937,8 @@ django.template.exceptions.TemplateSyntaxError: Template: C:\data\git\Jewelry-Wo
 2026-08-13 17:13:21,476 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
 2026-08-13 17:14:23,631 [INFO] django.utils.autoreload: C:\data\git\Jewelry-Working-Flow-System\core\views.py changed, reloading.
 2026-08-13 17:14:24,268 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-13 17:14:25,859 [INFO] django.server: "POST /ticket/246/edit/ HTTP/1.1" 302 0
+2026-08-13 17:14:25,893 [INFO] django.server: "GET /ticket/246/ HTTP/1.1" 200 26575
+2026-08-13 17:14:27,372 [INFO] django.server: "GET /ticket/246/edit/ HTTP/1.1" 200 43112
+2026-08-13 17:14:30,835 [INFO] django.server: "POST /ticket/246/edit/ HTTP/1.1" 302 0
+2026-08-13 17:14:30,848 [INFO] django.server: "GET /ticket/246/ HTTP/1.1" 200 26575

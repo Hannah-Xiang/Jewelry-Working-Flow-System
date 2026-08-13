@@ -7,6 +7,7 @@ from datetime import timedelta, date
 from django.utils import timezone
 import calendar as pycalendar
 import json
+from django.core.paginator import Paginator
 from django.contrib import messages
 from django.contrib.auth.views import PasswordResetConfirmView
 from django.urls import reverse_lazy
@@ -231,52 +232,75 @@ from django.db.models import Q
 def customer_search(request):
 
     keyword = request.GET.get("q", "").strip()
+    page_number = request.GET.get("page", 1)
 
-    # Remove all non-digit characters from the search input
-    # so phone searches work with any format:
-    # (226) 345-6789
-    # 2263456789
-    # 226-345-6789
-    # 226 345 6789
-    phone_digits = "".join(
-        character for character in keyword
-        if character.isdigit()
-    )
+    # --------------------------------
+    # Search customers
+    # --------------------------------
+    if keyword == "":
+        customers = Customer.objects.all().order_by("name")
 
-    # Normalize stored phone number by removing formatting characters
-    from django.db.models import Value
-    from django.db.models.functions import Replace
+    else:
 
-    normalized_phone = Replace(
-        Replace(
+        # Normalize phone search input
+        phone_digits = "".join(
+            character for character in keyword
+            if character.isdigit()
+        )
+
+        from django.db.models import Value
+        from django.db.models.functions import Replace
+
+        # Normalize phone number stored in database
+        normalized_phone = Replace(
             Replace(
                 Replace(
-                    "phone",
-                    Value(" "),
+                    Replace(
+                        "phone",
+                        Value(" "),
+                        Value("")
+                    ),
+                    Value("("),
                     Value("")
                 ),
-                Value("("),
+                Value(")"),
                 Value("")
             ),
-            Value(")"),
+            Value("-"),
             Value("")
-        ),
-        Value("-"),
-        Value("")
-    )
+        )
 
-    customers = Customer.objects.annotate(
-        normalized_phone=normalized_phone
-    ).filter(
-        Q(name__icontains=keyword) |
-        Q(phone__icontains=keyword) |
-        Q(normalized_phone__icontains=phone_digits) |
-        Q(tickets__ticket_number__icontains=keyword)
-    ).distinct()[:10]
+        search_conditions = (
+            Q(name__icontains=keyword) |
+            Q(email__icontains=keyword) |
+            Q(tickets__ticket_number__icontains=keyword)
+        )
 
+        if phone_digits:
+            search_conditions |= Q(
+                normalized_phone__icontains=phone_digits
+            )
+
+        customers = Customer.objects.annotate(
+            normalized_phone=normalized_phone
+        ).filter(
+            search_conditions
+        ).distinct().order_by("name")
+
+    # --------------------------------
+    # Pagination
+    # --------------------------------
+    paginator = Paginator(customers, 10)
+
+    page_obj = paginator.get_page(page_number)
+
+    # --------------------------------
+    # Return JSON
+    # --------------------------------
     data = []
 
-    for customer in customers:
+    for customer in page_obj:
+
         data.append({
             "id": customer.id,
             "name": customer.name,
@@ -285,7 +309,14 @@ def customer_search(request):
             "ticket_count": customer.tickets.count(),
         })
 
-    return JsonResponse(data, safe=False)
+    return JsonResponse({
+        "customers": data,
+        "count": paginator.count,
+        "page": page_obj.number,
+        "num_pages": paginator.num_pages,
+        "has_previous": page_obj.has_previous(),
+        "has_next": page_obj.has_next(),
+    })
 
 @login_required
 def customer_live_search(request):
@@ -492,12 +523,19 @@ def all_tickets(request):
         ).exclude(
             status__status__in=["Completed", "Ready for Pickup"]
         )
+        # --------------------------------
+    # Ticket pagination
+    # --------------------------------
+    paginator = Paginator(tickets, 10)
 
+    page_number = request.GET.get("page")
+
+    tickets = paginator.get_page(page_number)
     context = {
         "tickets": tickets,
         "statuses": Status.objects.all(),
         "job_types": JobType.objects.all(),
-        "ticket_count": tickets.count(),
+        "ticket_count": paginator.count,
         "selected_status": status_id,
         "selected_job_type": job_type_id,
         "search": search or "",
@@ -509,25 +547,27 @@ def all_tickets(request):
 @login_required
 def ticket_search(request):
 
-    search = request.GET.get('search', '')
+    search = request.GET.get('search', '').strip()
     status = request.GET.get('status', '')
     job_type = request.GET.get('job_type', '')
+    page_number = request.GET.get('page', 1)
 
     tickets = Ticket.objects.select_related(
         'customer', 'job_type', 'status'
     ).order_by('-created_date')
 
+    # --------------------------------
+    # Search
+    # --------------------------------
     if search:
 
-        # Remove all non-digit characters from the search input
-        # for phone-number searching.
+        # Normalize phone search input
         phone_digits = "".join(
             character for character in search
             if character.isdigit()
         )
 
-        # Normalize the phone number stored in the database
-        # by removing formatting characters.
+        # Normalize phone number stored in database
         from django.db.models import Value
         from django.db.models.functions import Replace
 
@@ -549,24 +589,54 @@ def ticket_search(request):
             Value("")
         )
 
+        # Build search conditions
+        search_conditions = (
+            Q(ticket_number__icontains=search) |
+            Q(customer__name__icontains=search)
+        )
+
+        # Phone search
+        if phone_digits:
+            search_conditions |= Q(
+                normalized_phone__icontains=phone_digits
+            )
+
         tickets = tickets.annotate(
             normalized_phone=normalized_phone
         ).filter(
-            Q(ticket_number__icontains=search) |
-            Q(customer__name__icontains=search) |
-            Q(customer__phone__icontains=search) |
-            Q(normalized_phone__icontains=phone_digits)
+            search_conditions
         )
 
+    # --------------------------------
+    # Status filter
+    # --------------------------------
     if status:
-        tickets = tickets.filter(status_id=status)
+        tickets = tickets.filter(
+            status_id=status
+        )
 
+    # --------------------------------
+    # Job type filter
+    # --------------------------------
     if job_type:
-        tickets = tickets.filter(job_type_id=job_type)
+        tickets = tickets.filter(
+            job_type_id=job_type
+        )
 
+    # --------------------------------
+    # Ticket pagination
+    # --------------------------------
+    paginator = Paginator(tickets, 10)
+
+    page_obj = paginator.get_page(page_number)
+
+    # --------------------------------
+    # Return JSON
+    # --------------------------------
     data = []
 
-    for ticket in tickets:
+    for ticket in page_obj:
+
         data.append({
             "id": ticket.id,
             "ticket_number": ticket.ticket_number,
@@ -579,7 +649,14 @@ def ticket_search(request):
             "created_date": ticket.created_date.strftime("%b %d, %Y"),
         })
 
-    return JsonResponse({"tickets": data, "count": len(data)})
+    return JsonResponse({
+        "tickets": data,
+        "count": paginator.count,
+        "page": page_obj.number,
+        "num_pages": paginator.num_pages,
+        "has_previous": page_obj.has_previous(),
+        "has_next": page_obj.has_next(),
+    })
 
 @login_required
 def calendar(request):
@@ -668,16 +745,82 @@ def ticket_detail(request, ticket_id):
 @login_required
 def customers(request):
 
-    customers = Customer.objects.annotate(
-        job_count=Count("tickets")
-    ).order_by("name")
+    # --------------------------------
+    # Customer search
+    # --------------------------------
+    keyword = request.GET.get("q", "").strip()
 
+    customers_queryset = Customer.objects.annotate(
+        job_count=Count("tickets")
+    )
+
+    if keyword:
+
+        phone_digits = "".join(
+            character
+            for character in keyword
+            if character.isdigit()
+        )
+
+        from django.db.models import Value
+        from django.db.models.functions import Replace
+
+        normalized_phone = Replace(
+            Replace(
+                Replace(
+                    Replace(
+                        "phone",
+                        Value(" "),
+                        Value("")
+                    ),
+                    Value("("),
+                    Value("")
+                ),
+                Value(")"),
+                Value("")
+            ),
+            Value("-"),
+            Value("")
+        )
+
+        search_conditions = (
+            Q(name__icontains=keyword) |
+            Q(email__icontains=keyword) |
+            Q(tickets__ticket_number__icontains=keyword)
+        )
+
+        if phone_digits:
+            search_conditions |= Q(
+                normalized_phone__icontains=phone_digits
+            )
+
+        customers_queryset = customers_queryset.annotate(
+            normalized_phone=normalized_phone
+        ).filter(
+            search_conditions
+        ).distinct()
+
+    customers_queryset = customers_queryset.order_by("name")
+
+    # --------------------------------
+    # Customer pagination
+    # --------------------------------
+    paginator = Paginator(customers_queryset, 10)
+
+    page_number = request.GET.get("page")
+
+    customers = paginator.get_page(page_number)
+
+    # --------------------------------
+    # Selected customer
+    # --------------------------------
     customer_id = request.GET.get("customer")
 
     if customer_id:
         customer = Customer.objects.get(id=customer_id)
     else:
-        customer = customers.first()
+        # Select the first customer on the current page
+        customer = customers.object_list.first()
 
     # All job types
     job_types = JobType.objects.all().order_by("type")
@@ -696,11 +839,19 @@ def customers(request):
     if selected_type != "all":
         tickets = tickets.filter(job_type_id=selected_type)
 
-    tickets = tickets.order_by("-created_date")
+        tickets = tickets.order_by("-created_date")
+
+    # --------------------------------
+    # Job statistics BEFORE pagination
+    # --------------------------------
 
     total_value = tickets.aggregate(
         Sum("price")
     )["price__sum"] or 0
+
+    # This is the number of jobs matching
+    # the currently selected job type
+    job_count = tickets.count()
 
     # Count for "All Jobs"
     all_count = Ticket.objects.filter(
@@ -714,20 +865,38 @@ def customers(request):
             job_type=job_type
         ).count()
 
+    # --------------------------------
+    # Job pagination
+    # --------------------------------
+
+    job_paginator = Paginator(tickets, 10)
+
+    job_page_number = request.GET.get("job_page")
+
+    tickets = job_paginator.get_page(job_page_number)
+
     show_form = request.GET.get("new")
+
     context = {
         "customers": customers,
         "customer": customer,
         "tickets": tickets,
-        "job_count": tickets.count(),
+
+        # Job information
+        "job_count": job_count,
         "total_value": total_value,
 
         "job_types": job_types,
         "selected_type": selected_type,
         "all_count": all_count,
 
+        # Job pagination
+        "job_paginator": job_paginator,
+        "job_page": tickets,
+
         "show_form": show_form,
         "customer_form": CustomerForm(),
+        "search_keyword": keyword,
     }
 
     return render(request, "core/customers.html", context)

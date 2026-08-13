@@ -267,90 +267,90 @@
                 Coordinates are based on the 80 x 80 SVG viewBox.
             -->
 
-            <!-- Left Pinky -->
-            <button
-                type="button"
-                class="finger-zone left-pinky"
-                data-finger="Left Pinky"
-                aria-label="Left Pinky"
-            ></button>
+           <!-- LEFT HAND -->
 
-            <!-- Left Ring -->
-            <button
-                type="button"
-                class="finger-zone left-ring"
-                data-finger="Left Ring"
-                aria-label="Left Ring"
-            ></button>
+<button
+    type="button"
+    class="finger-zone left-pinky"
+    data-finger="left_little"
+    data-label="Left Little"
+    aria-label="Left Little"
+></button>
 
-            <!-- Left Middle -->
-            <button
-                type="button"
-                class="finger-zone left-middle"
-                data-finger="Left Middle"
-                aria-label="Left Middle"
-            ></button>
+<button
+    type="button"
+    class="finger-zone left-ring"
+    data-finger="left_ring"
+    data-label="Left Ring"
+    aria-label="Left Ring"
+></button>
 
-            <!-- Left Index -->
-            <button
-                type="button"
-                class="finger-zone left-index"
-                data-finger="Left Index"
-                aria-label="Left Index"
-            ></button>
+<button
+    type="button"
+    class="finger-zone left-middle"
+    data-finger="left_middle"
+    data-label="Left Middle"
+    aria-label="Left Middle"
+></button>
 
-            <!-- Left Thumb -->
-            <button
-                type="button"
-                class="finger-zone left-thumb"
-                data-finger="Left Thumb"
-                aria-label="Left Thumb"
-            ></button>
+<button
+    type="button"
+    class="finger-zone left-index"
+    data-finger="left_index"
+    data-label="Left Index"
+    aria-label="Left Index"
+></button>
+
+<button
+    type="button"
+    class="finger-zone left-thumb"
+    data-finger="left_thumb"
+    data-label="Left Thumb"
+    aria-label="Left Thumb"
+></button>
 
 
-            <!--
-                RIGHT HAND
-            -->
+<!-- RIGHT HAND -->
 
-            <!-- Right Pinky -->
-            <button
-                type="button"
-                class="finger-zone right-pinky"
-                data-finger="Right Pinky"
-                aria-label="Right Pinky"
-            ></button>
+<button
+    type="button"
+    class="finger-zone right-pinky"
+    data-finger="right_little"
+    data-label="Right Little"
+    aria-label="Right Little"
+></button>
 
-            <!-- Right Ring -->
-            <button
-                type="button"
-                class="finger-zone right-ring"
-                data-finger="Right Ring"
-                aria-label="Right Ring"
-            ></button>
+<button
+    type="button"
+    class="finger-zone right-ring"
+    data-finger="right_ring"
+    data-label="Right Ring"
+    aria-label="Right Ring"
+></button>
 
-            <!-- Right Middle -->
-            <button
-                type="button"
-                class="finger-zone right-middle"
-                data-finger="Right Middle"
-                aria-label="Right Middle"
-            ></button>
+<button
+    type="button"
+    class="finger-zone right-middle"
+    data-finger="right_middle"
+    data-label="Right Middle"
+    aria-label="Right Middle"
+></button>
 
-            <!-- Right Index -->
-            <button
-                type="button"
-                class="finger-zone right-index"
-                data-finger="Right Index"
-                aria-label="Right Index"
-            ></button>
+<button
+    type="button"
+    class="finger-zone right-index"
+    data-finger="right_index"
+    data-label="Right Index"
+    aria-label="Right Index"
+></button>
 
-            <!-- Right Thumb -->
-            <button
-                type="button"
-                class="finger-zone right-thumb"
-                data-finger="Right Thumb"
-                aria-label="Right Thumb"
-            ></button>
+<button
+    type="button"
+    class="finger-zone right-thumb"
+    data-finger="right_thumb"
+    data-label="Right Thumb"
+    aria-label="Right Thumb"
+></button>
 
         </div>
 
@@ -1757,22 +1757,21 @@ fingerZones.forEach(function (finger) {
 
 
         // Select this finger
-        this.classList.add("selected");
+this.classList.add("selected");
 
+// Database value
+const fingerValue = this.dataset.finger;
 
-        // Get finger name
-        const fingerName =
-            this.dataset.finger;
+// Display label
+const fingerLabel = this.dataset.label;
 
+// Save database value
+fingerInput.value = fingerValue;
 
-        // Save value to hidden input
-        fingerInput.value =
-            fingerName;
+// Show nice label to user
+fingerNameEl.textContent = fingerLabel;
 
-
-        // Show selected finger
-        fingerNameEl.textContent =
-            fingerName;
+fingerDisplay.style.display = "block";
 
         fingerDisplay.style.display =
             "block";

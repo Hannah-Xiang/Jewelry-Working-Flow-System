@@ -915,52 +915,100 @@ def edit_ticket(request, ticket_id):
         old_price = ticket.price
         old_job_type = ticket.job_type
         old_status = ticket.status
+        old_ring_finger = ticket.ring_finger
 
         # -------------------------
         # Ticket number
         # -------------------------
-        ticket_number = request.POST.get("ticket_number", "").strip()
+
+        ticket_number = request.POST.get(
+            "ticket_number",
+            ""
+        ).strip()
 
         if Ticket.objects.filter(
             ticket_number__iexact=ticket_number
         ).exclude(id=ticket.id).exists():
 
-            messages.error(request, "Ticket number already exists.")
+            messages.error(
+                request,
+                "Ticket number already exists."
+            )
 
-            return render(request, "core/edit_ticket.html", {
-                "ticket": ticket,
-                "job_types": JobType.objects.all(),
-                "statuses": Status.objects.all(),
-            })
+            return render(
+                request,
+                "core/edit_ticket.html",
+                {
+                    "ticket": ticket,
+                    "job_types": JobType.objects.all(),
+                    "statuses": Status.objects.all(),
+                }
+            )
 
         ticket.ticket_number = ticket_number
+
 
         # -------------------------
         # Customer
         # -------------------------
-        existing_customer_id = request.POST.get("existing_customer_id", "").strip()
-        customer_name = request.POST.get("customer_name", "").strip()
-        phone = request.POST.get("phone", "").strip()
-        email = request.POST.get("email", "").strip()
+
+        existing_customer_id = request.POST.get(
+            "existing_customer_id",
+            ""
+        ).strip()
+
+        customer_name = request.POST.get(
+            "customer_name",
+            ""
+        ).strip()
+
+        phone = request.POST.get(
+            "phone",
+            ""
+        ).strip()
+
+        email = request.POST.get(
+            "email",
+            ""
+        ).strip()
+
 
         if existing_customer_id:
+
             # User selected an existing customer
-            ticket.customer = get_object_or_404(Customer, pk=existing_customer_id)
+
+            ticket.customer = get_object_or_404(
+                Customer,
+                pk=existing_customer_id
+            )
 
         else:
+
             # Search customer by phone number
-            customer = Customer.objects.filter(phone=phone).first()
+
+            customer = Customer.objects.filter(
+                phone=phone
+            ).first()
+
 
             if customer:
-                # Customer exists, link this ticket to that customer
+
+                # Customer exists,
+                # link this ticket to that customer
+
                 ticket.customer = customer
+
             else:
-                # Customer does not exist, create a new one
+
+                # Customer does not exist,
+                # create a new one
+
                 customer = Customer.objects.create(
                     name=customer_name,
                     phone=phone,
                     email=email,
                 )
+
                 create_audit_log(
                     request,
                     "CREATE",
@@ -968,21 +1016,58 @@ def edit_ticket(request, ticket_id):
                     customer.id,
                     f"Created customer {customer.name} ({customer.phone})."
                 )
+
                 ticket.customer = customer
 
-        # -------------------------
-        # Other fields (unchanged)
-        # -------------------------
-        ticket.description = request.POST.get('description', ticket.description)
-        ticket.due_date = request.POST.get('due_date', ticket.due_date)
-        ticket.price = request.POST.get('price') or None
-        ticket.job_type_id = request.POST.get('job_type', ticket.job_type_id)
 
-        new_status_id = request.POST.get('status')
+        # -------------------------
+        # Other fields
+        # -------------------------
+
+        ticket.description = request.POST.get(
+            "description",
+            ticket.description
+        )
+
+        ticket.due_date = request.POST.get(
+            "due_date",
+            ticket.due_date
+        )
+
+        ticket.price = request.POST.get(
+            "price"
+        ) or None
+
+        ticket.job_type_id = request.POST.get(
+            "job_type",
+            ticket.job_type_id
+        )
+
+
+        # -------------------------
+        # Ring Finger
+        # -------------------------
+
+        ticket.ring_finger = request.POST.get(
+            "ring_finger"
+        ) or None
+
+
+        # -------------------------
+        # Status
+        # -------------------------
+
+        new_status_id = request.POST.get(
+            "status"
+        )
+
 
         if new_status_id and int(new_status_id) != ticket.status_id:
+
             ticket.status_id = new_status_id
+
             ticket.save()
+
 
             StatusHistory.objects.create(
                 ticket=ticket,
@@ -991,25 +1076,41 @@ def edit_ticket(request, ticket_id):
             )
 
         else:
+
             ticket.save()
+
 
         # ===========================
         # Delete marked photos
         # ===========================
-        deleted = request.POST.get("deleted_photo_ids", "")
+
+        deleted = request.POST.get(
+            "deleted_photo_ids",
+            ""
+        )
+
 
         if deleted:
-            ids = [int(x) for x in deleted.split(",") if x]
+
+            ids = [
+                int(x)
+                for x in deleted.split(",")
+                if x
+            ]
+
 
             photos_to_delete = TicketPhoto.objects.filter(
                 ticket=ticket,
                 id__in=ids
             )
 
+
             for photo in photos_to_delete:
+
                 photo_id = photo.id
 
                 photo.delete()
+
 
                 create_audit_log(
                     request,
@@ -1019,15 +1120,18 @@ def edit_ticket(request, ticket_id):
                     f"Deleted photo from ticket {ticket.ticket_number}."
                 )
 
+
         # ===========================
         # Save new photos
         # ===========================
+
         for image in request.FILES.getlist("photos"):
 
             ticket_photo = TicketPhoto.objects.create(
                 ticket=ticket,
                 image=image
             )
+
 
             create_audit_log(
                 request,
@@ -1036,42 +1140,109 @@ def edit_ticket(request, ticket_id):
                 ticket_photo.id,
                 f"Added photo to ticket {ticket.ticket_number}."
             )
+
+
+        # ===========================
+        # Audit changes
+        # ===========================
+
         changes = []
 
+
         if old_ticket_number != ticket.ticket_number:
+
             changes.append(
-                f"Ticket number: {old_ticket_number} -> {ticket.ticket_number}"
+                f"Ticket number: "
+                f"{old_ticket_number} -> "
+                f"{ticket.ticket_number}"
             )
+
 
         if old_customer != ticket.customer:
+
             changes.append(
-                f"Customer: {old_customer.name} -> {ticket.customer.name}"
+                f"Customer: "
+                f"{old_customer.name} -> "
+                f"{ticket.customer.name}"
             )
+
 
         if old_description != ticket.description:
-            changes.append("Description changed")
+
+            changes.append(
+                "Description changed"
+            )
+
 
         if old_due_date != ticket.due_date:
+
             changes.append(
-                f"Due date: {old_due_date} -> {ticket.due_date}"
+                f"Due date: "
+                f"{old_due_date} -> "
+                f"{ticket.due_date}"
             )
+
 
         if old_price != ticket.price:
+
             changes.append(
-                f"Price: {old_price} -> {ticket.price}"
+                f"Price: "
+                f"{old_price} -> "
+                f"{ticket.price}"
             )
+
 
         if old_job_type != ticket.job_type:
+
             changes.append(
-               f"Job type: {old_job_type.type} -> {ticket.job_type.type}"
+                f"Job type: "
+                f"{old_job_type.type} -> "
+                f"{ticket.job_type.type}"
             )
+
 
         if old_status != ticket.status:
+
             changes.append(
-                f"Status: {old_status.status} -> {ticket.status.status}"
+                f"Status: "
+                f"{old_status.status} -> "
+                f"{ticket.status.status}"
             )
 
+
+        # -------------------------
+        # Ring finger audit
+        # -------------------------
+
+        if old_ring_finger != ticket.ring_finger:
+
+            old_finger_display = (
+                dict(Ticket.RING_FINGER_CHOICES).get(
+                    old_ring_finger,
+                    "None"
+                )
+            )
+
+            new_finger_display = (
+                dict(Ticket.RING_FINGER_CHOICES).get(
+                    ticket.ring_finger,
+                    "None"
+                )
+            )
+
+            changes.append(
+                f"Ring finger: "
+                f"{old_finger_display} -> "
+                f"{new_finger_display}"
+            )
+
+
+        # -------------------------
+        # Create audit log
+        # -------------------------
+
         if changes:
+
             create_audit_log(
                 request,
                 "UPDATE",
@@ -1080,13 +1251,30 @@ def edit_ticket(request, ticket_id):
                 "; ".join(changes)
             )
 
-        return redirect('ticket_detail', ticket_id=ticket.id)
 
-    return render(request, 'core/edit_ticket.html', {
-        'ticket': ticket,
-        'job_types': JobType.objects.all(),
-        'statuses': Status.objects.all(),
-    })
+        # -------------------------
+        # Redirect
+        # -------------------------
+
+        return redirect(
+            'ticket_detail',
+            ticket_id=ticket.id
+        )
+
+
+    # ===========================
+    # GET request
+    # ===========================
+
+    return render(
+        request,
+        'core/edit_ticket.html',
+        {
+            'ticket': ticket,
+            'job_types': JobType.objects.all(),
+            'statuses': Status.objects.all(),
+        }
+    )
 @login_required
 def add_note(request, ticket_id):
 

@@ -408,3 +408,26 @@ Exception: TEST ERROR - Jewelry System
 2026-08-13 13:19:29,075 [INFO] django.server: "GET /tickets/ HTTP/1.1" 200 158827
 2026-08-13 13:20:39,643 [INFO] django.utils.autoreload: C:\data\git\Jewelry-Working-Flow-System\core\views.py changed, reloading.
 2026-08-13 13:20:40,473 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-13 13:20:46,410 [INFO] django.server: "GET /tickets/search/?search=226&status=&job_type= HTTP/1.1" 200 9224
+2026-08-13 13:20:47,901 [INFO] django.server: "GET /tickets/search/?search=226350&status=&job_type= HTTP/1.1" 200 1205
+2026-08-13 13:20:48,432 [INFO] django.server: "GET /tickets/search/?search=22635077&status=&job_type= HTTP/1.1" 200 264
+2026-08-13 13:20:48,986 [INFO] django.server: "GET /tickets/search/?search=2263507737&status=&job_type= HTTP/1.1" 200 264
+2026-08-13 13:20:51,524 [INFO] django.server: "GET /tickets/search/?search=&status=&job_type= HTTP/1.1" 200 44752
+2026-08-13 13:20:52,890 [INFO] django.server: "GET /tickets/search/?search=3383&status=&job_type= HTTP/1.1" 200 264
+2026-08-13 13:20:54,022 [INFO] django.server: "GET /ticket/229/ HTTP/1.1" 200 23532
+2026-08-13 13:20:55,994 [INFO] django.server: "GET /tickets/ HTTP/1.1" 200 158827
+2026-08-13 13:20:57,696 [INFO] django.server: "GET /new-ticket/ HTTP/1.1" 200 41030
+2026-08-13 13:20:57,702 [INFO] django.server: "GET /static/images/hand.svg HTTP/1.1" 304 0
+2026-08-13 13:20:58,419 [INFO] django.server: "GET /tickets/ HTTP/1.1" 200 158827
+2026-08-13 13:20:58,916 [INFO] django.server: "GET / HTTP/1.1" 200 19722
+2026-08-13 13:21:43,557 [INFO] django.server: "GET /tickets/ HTTP/1.1" 200 158827
+2026-08-13 13:22:36,861 [INFO] django.server: "GET /new-ticket/ HTTP/1.1" 200 41030
+2026-08-13 13:23:03,578 [INFO] django.server: "GET /api/customers/live-search/?name=G HTTP/1.1" 200 1490
+2026-08-13 13:23:05,286 [INFO] django.server: "GET /api/customers/47/ HTTP/1.1" 200 76
+2026-08-13 13:23:10,026 [INFO] django.server: "GET / HTTP/1.1" 200 19722
+2026-08-13 13:23:12,349 [INFO] django.server: "GET /ticket/229/ HTTP/1.1" 200 23532
+2026-08-13 13:23:12,357 [INFO] django.server: "GET /media/tickets/PXL_20260813_153611071.jpg HTTP/1.1" 304 0
+2026-08-13 13:23:15,348 [INFO] django.server: "GET / HTTP/1.1" 200 19722
+2026-08-13 13:23:19,855 [INFO] django.server: "GET /calendar/ HTTP/1.1" 200 75439
+2026-08-13 13:23:44,148 [INFO] django.server: "GET /calendar/?month=9&year=2026 HTTP/1.1" 200 39386
+2026-08-13 13:23:44,997 [INFO] django.server: "GET /calendar/?month=8&year=2026 HTTP/1.1" 200 75439

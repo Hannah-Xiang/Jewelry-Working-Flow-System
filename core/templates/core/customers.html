@@ -351,12 +351,14 @@ action="{% url 'add_customer' %}"
                 </div>
 
                 <div class="profile-right">
-
+    {% if customer %}
     <a href="{% url 'edit_customer' customer.id %}"
        class="edit-btn">
         <i class="fa-regular fa-pen-to-square"></i>
         Edit
     </a>
+    {% endif %}
+            
 
     <div class="profile-stats">
 

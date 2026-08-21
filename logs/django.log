@@ -2169,3 +2169,148 @@ smtplib.SMTPSenderRefused: (530, b'5.7.0 Authentication Required. For more infor
 2026-08-20 22:51:19,044 [INFO] django.server: "POST /password-reset/ HTTP/1.1" 302 0
 2026-08-20 22:51:19,047 [INFO] django.server: "GET /password-reset/done/ HTTP/1.1" 200 4510
 2026-08-20 22:52:12,404 [INFO] django.server: "GET /login/ HTTP/1.1" 200 4883
+2026-08-20 22:56:03,079 [INFO] django.server: "POST /login/ HTTP/1.1" 302 0
+2026-08-20 22:56:03,116 [INFO] django.server: "GET / HTTP/1.1" 200 13155
+2026-08-20 22:56:48,175 [ERROR] django.request: Internal Server Error: /customers/
+Traceback (most recent call last):
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\core\views.py", line 902, in customers
+    return render(request, "core/customers.html", context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 172, in render
+    return self._render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 164, in _render
+    return self.nodelist.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 979, in render_annotated
+    return self.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 164, in _render
+    return self.nodelist.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 979, in render_annotated
+    return self.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 979, in render_annotated
+    return self.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\defaulttags.py", line 327, in render
+    return nodelist.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 979, in render_annotated
+    return self.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'edit_customer' with arguments '('',)' not found. 1 pattern(s) tried: ['customers/(?P<pk>[0-9]+)/edit/\\Z']
+2026-08-20 22:56:48,184 [ERROR] django.server: "GET /customers/ HTTP/1.1" 500 215150
+2026-08-20 23:02:32,921 [INFO] django.utils.autoreload: D:\Data\Git\Jewelry-Working-Flow-System\core\views.py changed, reloading.
+2026-08-20 23:02:34,011 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-20 23:02:36,063 [ERROR] django.request: Internal Server Error: /customers/
+Traceback (most recent call last):
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\core\views.py", line 902, in customers
+    return render(request, "core/customers.html", context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 172, in render
+    return self._render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 164, in _render
+    return self.nodelist.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 979, in render_annotated
+    return self.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 164, in _render
+    return self.nodelist.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 979, in render_annotated
+    return self.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 979, in render_annotated
+    return self.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\defaulttags.py", line 327, in render
+    return nodelist.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 979, in render_annotated
+    return self.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'edit_customer' with arguments '('',)' not found. 1 pattern(s) tried: ['customers/(?P<pk>[0-9]+)/edit/\\Z']
+2026-08-20 23:02:36,069 [ERROR] django.server: "GET /customers/ HTTP/1.1" 500 215287
+2026-08-20 23:03:34,611 [INFO] django.server: "GET /customers/ HTTP/1.1" 200 25523
+2026-08-20 23:04:12,831 [INFO] django.server: "GET /customers/ HTTP/1.1" 200 25245
+2026-08-20 23:04:14,080 [INFO] django.server: "GET /customers/ HTTP/1.1" 200 25245
+2026-08-20 23:04:38,706 [INFO] django.server: "GET /customers/ HTTP/1.1" 200 25306
+2026-08-20 23:04:39,130 [INFO] django.server: "GET /customers/ HTTP/1.1" 200 25306
+2026-08-20 23:04:39,906 [INFO] django.server: "GET /customers/ HTTP/1.1" 200 25306
+2026-08-20 23:04:40,509 [INFO] django.server: "GET /customers/ HTTP/1.1" 200 25306
+2026-08-20 23:05:26,053 [INFO] django.server: "GET /customers/ HTTP/1.1" 200 25523
+2026-08-20 23:05:26,582 [INFO] django.server: "GET /customers/ HTTP/1.1" 200 25523
+2026-08-20 23:05:43,930 [INFO] django.server: "GET / HTTP/1.1" 200 13155
+2026-08-20 23:05:44,536 [INFO] django.server: "GET /new-ticket/ HTTP/1.1" 200 38964
+2026-08-20 23:05:44,620 [INFO] django.server: "GET /static/images/hand.svg HTTP/1.1" 200 31908
+2026-08-20 23:05:44,965 [INFO] django.server: "GET /tickets/ HTTP/1.1" 200 18904
+2026-08-20 23:05:46,076 [INFO] django.server: "GET /calendar/ HTTP/1.1" 200 30049
+2026-08-20 23:05:46,690 [INFO] django.server: "GET /customers/ HTTP/1.1" 200 25523
+2026-08-20 23:05:47,675 [INFO] django.server: "GET /calendar/ HTTP/1.1" 200 30049
+2026-08-20 23:06:07,945 [INFO] django.server: "GET / HTTP/1.1" 200 13155
+2026-08-20 23:06:12,916 [INFO] django.server: "GET /new-ticket/ HTTP/1.1" 200 38964
+2026-08-20 23:06:13,646 [INFO] django.server: "GET /tickets/ HTTP/1.1" 200 18904
+2026-08-20 23:06:14,690 [INFO] django.server: "GET /calendar/ HTTP/1.1" 200 30049
+2026-08-20 23:06:21,910 [INFO] django.server: "GET / HTTP/1.1" 200 13155

@@ -11,6 +11,8 @@ class Customer(models.Model):
 
     class Meta:
         ordering = ["name"]
+    
+    
 
     def __str__(self):
         return f"{self.name} ({self.phone})"
@@ -41,6 +43,26 @@ class Ticket(models.Model):
     ticket_number = models.CharField(
         max_length=20,
         unique=True
+    )
+
+    RING_FINGER_CHOICES = [
+        ("left_thumb", "Left Thumb"),
+        ("left_index", "Left Index"),
+        ("left_middle", "Left Middle"),
+        ("left_ring", "Left Ring"),
+        ("left_little", "Left Little"),
+        ("right_thumb", "Right Thumb"),
+        ("right_index", "Right Index"),
+        ("right_middle", "Right Middle"),
+        ("right_ring", "Right Ring"),
+        ("right_little", "Right Little"),
+    ]
+
+    ring_finger = models.CharField(
+        max_length=20,
+        choices=RING_FINGER_CHOICES,
+        blank=True,
+        null=True
     )
 
     customer = models.ForeignKey(
@@ -156,3 +178,42 @@ class StatusHistory(models.Model):
 
     def __str__(self):
         return f"{self.ticket.ticket_number} -> {self.status.status}"
+
+class AuditLog(models.Model):
+    ACTION_CHOICES = [
+        ("CREATE", "Create"),
+        ("UPDATE", "Update"),
+        ("DELETE", "Delete"),
+        ("LOGIN", "Login"),
+        ("LOGOUT", "Logout"),
+    ]
+
+    user = models.ForeignKey(
+        "auth.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
+    action = models.CharField(
+        max_length=20,
+        choices=ACTION_CHOICES
+    )
+
+    model_name = models.CharField(max_length=100)
+
+    object_id = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True
+    )
+
+    description = models.TextField()
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    def __str__(self):
+        username = self.user.username if self.user else "System"
+        return f"{username} - {self.action} - {self.model_name}"

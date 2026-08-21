@@ -246,7 +246,68 @@
 </tbody>
 
     </table>
+<div class="pagination">
 
+    {% if tickets.has_previous %}
+        <a
+            href="#"
+            id="previous-page-btn"
+            class="page-btn"
+        >
+            <i class="fa-solid fa-chevron-left"></i>
+        </a>
+    {% else %}
+        <span
+            id="previous-page-btn"
+            class="page-btn disabled"
+        >
+            <i class="fa-solid fa-chevron-left"></i>
+        </span>
+    {% endif %}
+
+
+    <div class="page-number">
+
+        <input
+            type="number"
+            id="page-input"
+            min="1"
+            max="{{ tickets.paginator.num_pages }}"
+            value="{{ tickets.number }}"
+        >
+
+        <span id="page-total">
+            / {{ tickets.paginator.num_pages }}
+        </span>
+
+        <button
+            type="button"
+            id="go-page-btn"
+        >
+            Go
+        </button>
+
+    </div>
+
+
+    {% if tickets.has_next %}
+        <a
+            href="#"
+            id="next-page-btn"
+            class="page-btn"
+        >
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+    {% else %}
+        <span
+            id="next-page-btn"
+            class="page-btn disabled"
+        >
+            <i class="fa-solid fa-chevron-right"></i>
+        </span>
+    {% endif %}
+
+</div>
 </div>
 
 
@@ -500,6 +561,90 @@
     font-weight:600;
 }
 
+.pagination{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    padding:12px;
+    border-top:1px solid #eee;
+    background:#fff;
+}
+
+.page-btn{
+    width:32px;
+    height:32px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border:1px solid #ddd;
+    border-radius:8px;
+
+    background:white;
+    color:#444;
+
+    text-decoration:none;
+    cursor:pointer;
+
+    font-size:14px;
+}
+
+.page-btn:hover{
+    background:#faf7ef;
+    border-color:#c79c3d;
+    color:#c79c3d;
+}
+
+.page-btn.disabled{
+    color:#ccc;
+    background:#f8f8f8;
+    cursor:not-allowed;
+}
+
+.page-number{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:13px;
+    color:#666;
+}
+
+#page-input{
+    width:45px;
+    height:32px;
+    padding:0 6px;
+
+    border:1px solid #ddd;
+    border-radius:8px;
+
+    text-align:center;
+    box-sizing:border-box;
+}
+
+#page-input:focus{
+    outline:none;
+    border-color:#c79c3d;
+}
+
+#go-page-btn{
+    height:32px;
+    padding:0 10px;
+
+    border:none;
+    border-radius:8px;
+
+    background:#c79c3d;
+    color:white;
+
+    cursor:pointer;
+    font-size:13px;
+}
+
+#go-page-btn:hover{
+    background:#b58b2f;
+}
+
 
 
 </style>
@@ -523,7 +668,7 @@ const jobTypeFilter =
 
 let typingTimer;
 
-function loadTickets(){
+function loadTickets(page = 1){
 
     const search =
         searchInput.value;
@@ -535,9 +680,7 @@ function loadTickets(){
         jobTypeFilter.value;
 
     fetch(
-
-        `/tickets/search/?search=${encodeURIComponent(search)}&status=${status}&job_type=${jobType}`
-
+        `/tickets/search/?search=${encodeURIComponent(search)}&status=${status}&job_type=${jobType}&page=${page}`
     )
 
     .then(
@@ -559,6 +702,78 @@ function loadTickets(){
             data.count +
             " tickets found";
 
+        // --------------------------------
+        // Update pagination
+        // --------------------------------
+
+        const pageInput =
+            document.getElementById("page-input");
+
+        const pageTotal =
+            document.getElementById("page-total");
+
+        if (pageInput && pageTotal) {
+
+            pageInput.value = data.page;
+
+            pageInput.max = data.num_pages;
+
+            pageTotal.textContent =
+                `/ ${data.num_pages}`;
+        }
+
+        // --------------------------------
+        // Update previous button
+        // --------------------------------
+
+        const previousButton =
+            document.getElementById("previous-page-btn");
+
+        if (previousButton) {
+
+            if (data.has_previous) {
+
+                previousButton.classList.remove(
+                    "disabled"
+                );
+
+            } else {
+
+                previousButton.classList.add(
+                    "disabled"
+                );
+
+            }
+        }
+
+        // --------------------------------
+        // Update next button
+        // --------------------------------
+
+        const nextButton =
+            document.getElementById("next-page-btn");
+
+        if (nextButton) {
+
+            if (data.has_next) {
+
+                nextButton.classList.remove(
+                    "disabled"
+                );
+
+            } else {
+
+                nextButton.classList.add(
+                    "disabled"
+                );
+
+            }
+        }
+
+        // --------------------------------
+        // Display tickets
+        // --------------------------------
+
         data.tickets.forEach(ticket => {
 
             tbody.innerHTML += `
@@ -568,53 +783,58 @@ function loadTickets(){
     class="clickable-row">
 
 <td class="ticket-number">
+
     <a
         href="/ticket/${ticket.id}/"
         class="ticket-link"
         onclick="event.stopPropagation();">
 
-${ticket.ticket_number}
+        ${ticket.ticket_number}
 
-</a>
-
-</td>
-
-<td>
-<strong>
-${ticket.customer}
-</strong>
-<br>
-<span class="phone">
-${ticket.phone}
-</span>
-</td>
-
-<td>
-${ticket.job_type}
-</td>
-
-<td>
-
-<span
-class="badge"
-style="
-background:${ticket.status_color}20;
-color:${ticket.status_color};
-"
->
-
-${ticket.status}
-
-</span>
+    </a>
 
 </td>
 
 <td>
-${ticket.due_date}
+
+    <strong>
+        ${ticket.customer}
+    </strong>
+
+    <br>
+
+    <span class="phone">
+        ${ticket.phone}
+    </span>
+
 </td>
 
 <td>
-${ticket.created_date}
+    ${ticket.job_type}
+</td>
+
+<td>
+
+    <span
+        class="badge"
+        style="
+        background:${ticket.status_color}20;
+        color:${ticket.status_color};
+        "
+    >
+
+        ${ticket.status}
+
+    </span>
+
+</td>
+
+<td>
+    ${ticket.due_date}
+</td>
+
+<td>
+    ${ticket.created_date}
 </td>
 
 </tr>
@@ -637,7 +857,13 @@ searchInput.addEventListener(
 
         typingTimer =
             setTimeout(
-                loadTickets,
+                function(){
+
+                    // Always go back to page 1
+                    // when a new search is started
+                    loadTickets(1);
+
+                },
                 300
             );
 
@@ -646,13 +872,128 @@ searchInput.addEventListener(
 
 statusFilter.addEventListener(
     "change",
-    loadTickets
+    function(){
+        loadTickets(1);
+    }
 );
 
 jobTypeFilter.addEventListener(
     "change",
-    loadTickets
+    function(){
+        loadTickets(1);
+    }
 );
+
+const pageInput =
+    document.getElementById("page-input");
+
+const goPageBtn =
+    document.getElementById("go-page-btn");
+
+const previousPageBtn =
+    document.getElementById("previous-page-btn");
+
+const nextPageBtn =
+    document.getElementById("next-page-btn");
+
+
+if (goPageBtn && pageInput) {
+
+    goPageBtn.addEventListener(
+        "click",
+        function(){
+
+            let page =
+                parseInt(pageInput.value);
+
+            const maxPage =
+                parseInt(pageInput.max);
+
+            if (isNaN(page)) {
+                return;
+            }
+
+            if (page < 1) {
+                page = 1;
+            }
+
+            if (page > maxPage) {
+                page = maxPage;
+            }
+
+            loadTickets(page);
+
+        }
+    );
+
+
+    pageInput.addEventListener(
+        "keydown",
+        function(event){
+
+            if (event.key === "Enter") {
+
+                goPageBtn.click();
+
+            }
+
+        }
+    );
+
+}
+
+
+if (previousPageBtn) {
+
+    previousPageBtn.addEventListener(
+        "click",
+        function(event){
+
+            event.preventDefault();
+
+            const currentPage =
+                parseInt(pageInput.value);
+
+            if (currentPage > 1) {
+
+                loadTickets(
+                    currentPage - 1
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+if (nextPageBtn) {
+
+    nextPageBtn.addEventListener(
+        "click",
+        function(event){
+
+            event.preventDefault();
+
+            const currentPage =
+                parseInt(pageInput.value);
+
+            const maxPage =
+                parseInt(pageInput.max);
+
+            if (currentPage < maxPage) {
+
+                loadTickets(
+                    currentPage + 1
+                );
+
+            }
+
+        }
+    );
+
+}
 
 </script>
 

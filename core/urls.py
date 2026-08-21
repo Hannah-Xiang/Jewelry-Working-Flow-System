@@ -125,6 +125,7 @@ path(
     views.delete_ticket,
     name="delete_ticket",
 ),
+path("test-error/", views.test_error, name="test_error"),
 
 ]
 

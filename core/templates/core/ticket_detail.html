@@ -1,4 +1,5 @@
 {% extends 'core/base.html' %}
+{% load static %}
 {% load custom_tags %}
 
 {% block content %}
@@ -108,12 +109,89 @@
                 </p>
 
                 <div class="price-badge">
-                    Value / Price:&nbsp;<span>{% if ticket.price is not None %}
+    Value / Price:&nbsp;
+    <span>
+        {% if ticket.price is not None %}
             ${{ ticket.price }}
         {% else %}
             N/A
-        {% endif %}</span>
+        {% endif %}
+    </span>
+</div>
+
+{% if ticket.ring_finger %}
+    <div class="ring-finger-detail">
+
+        <div class="ring-finger-title">
+            Ring Finger
+        </div>
+
+        <div class="hand-selector-detail">
+
+            <div class="hand-wrapper-detail">
+
+                <img
+                    src="{% static 'images/hand.svg' %}"
+                    class="hand-image-detail"
+                    alt="Ring finger"
+                >
+
+                <!-- LEFT HAND -->
+
+                <div
+                    class="finger-zone-detail left-pinky-detail {% if ticket.ring_finger == 'left_little' %}selected{% endif %}">
                 </div>
+
+                <div
+                    class="finger-zone-detail left-ring-detail {% if ticket.ring_finger == 'left_ring' %}selected{% endif %}">
+                </div>
+
+                <div
+                    class="finger-zone-detail left-middle-detail {% if ticket.ring_finger == 'left_middle' %}selected{% endif %}">
+                </div>
+
+                <div
+                    class="finger-zone-detail left-index-detail {% if ticket.ring_finger == 'left_index' %}selected{% endif %}">
+                </div>
+
+                <div
+                    class="finger-zone-detail left-thumb-detail {% if ticket.ring_finger == 'left_thumb' %}selected{% endif %}">
+                </div>
+
+
+                <!-- RIGHT HAND -->
+
+                <div
+                    class="finger-zone-detail right-pinky-detail {% if ticket.ring_finger == 'right_little' %}selected{% endif %}">
+                </div>
+
+                <div
+                    class="finger-zone-detail right-ring-detail {% if ticket.ring_finger == 'right_ring' %}selected{% endif %}">
+                </div>
+
+                <div
+                    class="finger-zone-detail right-middle-detail {% if ticket.ring_finger == 'right_middle' %}selected{% endif %}">
+                </div>
+
+                <div
+                    class="finger-zone-detail right-index-detail {% if ticket.ring_finger == 'right_index' %}selected{% endif %}">
+                </div>
+
+                <div
+                    class="finger-zone-detail right-thumb-detail {% if ticket.ring_finger == 'right_thumb' %}selected{% endif %}">
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="selected-finger-detail">
+            Selected:
+            <strong>{{ ticket.get_ring_finger_display }}</strong>
+        </div>
+
+    </div>
+{% endif %}
 
             </div>
 
@@ -771,6 +849,201 @@
 
 }
 
+.ring-finger-info {
+    margin-top: 12px;
+    font-size: 14px;
+    color: #555;
+}
+
+.ring-finger-label {
+    font-weight: 600;
+    color: #777;
+}
+
+.ring-finger-value {
+    color: #c79c3d;
+    font-weight: 700;
+    margin-left: 5px;
+}
+/* =========================================
+   RING FINGER - DETAIL PAGE
+========================================= */
+
+.ring-finger-detail {
+    margin-top: 20px;
+}
+
+.ring-finger-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+.hand-selector-detail {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.hand-wrapper-detail {
+    position: relative;
+    width: 430px;
+    max-width: 100%;
+    aspect-ratio: 1 / 1;
+}
+
+.hand-image-detail {
+    width: 100%;
+    height: 100%;
+    display: block;
+
+    user-select: none;
+    pointer-events: none;
+}
+
+
+/* =========================================
+   FINGER HIGHLIGHT
+========================================= */
+
+.finger-zone-detail {
+    position: absolute;
+
+    padding: 0;
+    margin: 0;
+
+    background: transparent;
+    border: 2px solid transparent;
+
+    border-radius: 40%;
+
+    pointer-events: none;
+}
+
+
+/* Selected finger */
+
+.finger-zone-detail.selected {
+    background: rgba(199, 156, 61, .40);
+    border-color: #c79c3d;
+    box-shadow: 0 0 8px rgba(199, 156, 61, .35);
+}
+
+
+/* =========================================
+   LEFT HAND
+========================================= */
+
+.left-thumb-detail {
+    left: 38%;
+    top: 48%;
+    width: 8%;
+    height: 20%;
+    transform: rotate(35deg);
+}
+
+.left-index-detail {
+    left: 28%;
+    top: 30%;
+    width: 6%;
+    height: 25%;
+}
+
+.left-middle-detail {
+    left: 21%;
+    top: 26%;
+    width: 6%;
+    height: 25%;
+}
+
+.left-ring-detail {
+    left: 14%;
+    top: 30%;
+    width: 6%;
+    height: 23%;
+}
+
+.left-pinky-detail {
+    left: 8%;
+    top: 38%;
+    width: 5%;
+    height: 20%;
+}
+
+
+/* =========================================
+   RIGHT HAND
+========================================= */
+
+.right-thumb-detail {
+    right: 38%;
+    top: 48%;
+    width: 8%;
+    height: 20%;
+    transform: rotate(-35deg);
+}
+
+.right-index-detail {
+    right: 28%;
+    top: 30%;
+    width: 6%;
+    height: 25%;
+}
+
+.right-middle-detail {
+    right: 21%;
+    top: 26%;
+    width: 6%;
+    height: 25%;
+}
+
+.right-ring-detail {
+    right: 14%;
+    top: 30%;
+    width: 6%;
+    height: 23%;
+}
+
+.right-pinky-detail {
+    right: 8%;
+    top: 38%;
+    width: 5%;
+    height: 20%;
+}
+
+
+/* =========================================
+   SELECTED FINGER TEXT
+========================================= */
+
+.selected-finger-detail {
+    margin-top: 12px;
+
+    padding: 10px 14px;
+
+    border-radius: 6px;
+
+    background: #faf7f0;
+
+    color: #555;
+
+    font-size: 14px;
+}
+
+.selected-finger-detail strong {
+    color: #c79c3d;
+}
+
+
+@media(max-width:600px) {
+
+    .hand-wrapper-detail {
+        width: 340px;
+    }
+
+}
 </style>
 
 <script>

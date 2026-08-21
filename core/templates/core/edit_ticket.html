@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load custom_tags %}
+{% load custom_tags static %}
 
 {% block content %}
 
@@ -168,7 +168,15 @@
 
             <form method="POST" id="edit-ticket-form" action="{% url 'edit_ticket' ticket.id %}">
                 {% csrf_token %}
-                <input type="hidden" name="deleted_photo_ids" id="deleted_photo_ids">
+
+<input type="hidden" name="deleted_photo_ids" id="deleted_photo_ids">
+
+<input
+    type="hidden"
+    name="ring_finger"
+    id="id_ring_finger"
+    value="{{ ticket.ring_finger|default:'' }}"
+>
 
                 <div class="card">
 
@@ -216,7 +224,127 @@
                             <label>$ FINAL PRICE / ESTIMATE</label>
                             <input type="number" step="0.01" name="price" class="form-input" value="{{ ticket.price|default_if_none:'' }}">
                         </div>
+                        <div class="form-field ring-finger-field">
 
+    <label>RING FINGER</label>
+
+    <p class="ring-finger-hint">
+        Select the finger this ring is being made for.
+    </p>
+
+    <div class="hand-selector-edit">
+
+        <div class="hand-wrapper-edit">
+
+            <img
+                src="{% static 'images/hand.svg' %}"
+                class="hand-image-edit"
+                alt="Select ring finger"
+            >
+
+            <!-- LEFT HAND -->
+
+            <button
+                type="button"
+                class="finger-zone-edit left-pinky-edit {% if ticket.ring_finger == 'left_little' %}selected{% endif %}"
+                data-finger="left_little"
+                data-label="Left Little"
+                aria-label="Left Little"
+            ></button>
+
+            <button
+                type="button"
+                class="finger-zone-edit left-ring-edit {% if ticket.ring_finger == 'left_ring' %}selected{% endif %}"
+                data-finger="left_ring"
+                data-label="Left Ring"
+                aria-label="Left Ring"
+            ></button>
+
+            <button
+                type="button"
+                class="finger-zone-edit left-middle-edit {% if ticket.ring_finger == 'left_middle' %}selected{% endif %}"
+                data-finger="left_middle"
+                data-label="Left Middle"
+                aria-label="Left Middle"
+            ></button>
+
+            <button
+                type="button"
+                class="finger-zone-edit left-index-edit {% if ticket.ring_finger == 'left_index' %}selected{% endif %}"
+                data-finger="left_index"
+                data-label="Left Index"
+                aria-label="Left Index"
+            ></button>
+
+            <button
+                type="button"
+                class="finger-zone-edit left-thumb-edit {% if ticket.ring_finger == 'left_thumb' %}selected{% endif %}"
+                data-finger="left_thumb"
+                data-label="Left Thumb"
+                aria-label="Left Thumb"
+            ></button>
+
+
+            <!-- RIGHT HAND -->
+
+            <button
+                type="button"
+                class="finger-zone-edit right-pinky-edit {% if ticket.ring_finger == 'right_little' %}selected{% endif %}"
+                data-finger="right_little"
+                data-label="Right Little"
+                aria-label="Right Little"
+            ></button>
+
+            <button
+                type="button"
+                class="finger-zone-edit right-ring-edit {% if ticket.ring_finger == 'right_ring' %}selected{% endif %}"
+                data-finger="right_ring"
+                data-label="Right Ring"
+                aria-label="Right Ring"
+            ></button>
+
+            <button
+                type="button"
+                class="finger-zone-edit right-middle-edit {% if ticket.ring_finger == 'right_middle' %}selected{% endif %}"
+                data-finger="right_middle"
+                data-label="Right Middle"
+                aria-label="Right Middle"
+            ></button>
+
+            <button
+                type="button"
+                class="finger-zone-edit right-index-edit {% if ticket.ring_finger == 'right_index' %}selected{% endif %}"
+                data-finger="right_index"
+                data-label="Right Index"
+                aria-label="Right Index"
+            ></button>
+
+            <button
+                type="button"
+                class="finger-zone-edit right-thumb-edit {% if ticket.ring_finger == 'right_thumb' %}selected{% endif %}"
+                data-finger="right_thumb"
+                data-label="Right Thumb"
+                aria-label="Right Thumb"
+            ></button>
+
+        </div>
+
+    </div>
+
+    <div
+        id="selected-finger-display-edit"
+        class="selected-finger-display-edit"
+        {% if not ticket.ring_finger %}style="display:none;"{% endif %}
+    >
+        Selected:
+        <strong id="selected-finger-name-edit">
+            {% if ticket.ring_finger %}
+                {{ ticket.get_ring_finger_display }}
+            {% endif %}
+        </strong>
+    </div>
+
+</div>
                         <div class="form-field">
                             <label>STATUS</label>
                             <select name="status" class="form-input">
@@ -1064,6 +1192,195 @@
 
 }
 
+/* =========================================
+   RING FINGER - EDIT PAGE
+========================================= */
+
+.ring-finger-field {
+    grid-column: 1 / -1;
+}
+
+.ring-finger-hint {
+    color: #c79c3d;
+    font-size: 13px;
+    margin: -2px 0 8px;
+}
+
+.hand-selector-edit {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 5px;
+}
+
+.hand-wrapper-edit {
+    position: relative;
+    width: 430px;
+    max-width: 100%;
+    aspect-ratio: 1 / 1;
+}
+
+.hand-image-edit {
+    width: 100%;
+    height: 100%;
+    display: block;
+
+    user-select: none;
+    pointer-events: none;
+}
+
+
+/* Finger click areas */
+
+.finger-zone-edit {
+    position: absolute;
+
+    padding: 0;
+    margin: 0;
+
+    background: transparent;
+    border: 2px solid transparent;
+
+    cursor: pointer;
+
+    z-index: 10;
+
+    transition: .15s ease;
+
+    border-radius: 40%;
+}
+
+
+/* Hover */
+
+.finger-zone-edit:hover {
+    background: rgba(199, 156, 61, .20);
+    border-color: rgba(199, 156, 61, .7);
+}
+
+
+/* Already selected finger */
+
+.finger-zone-edit.selected {
+    background: rgba(199, 156, 61, .40);
+    border-color: #c79c3d;
+    box-shadow: 0 0 8px rgba(199, 156, 61, .30);
+}
+
+
+/* =========================================
+   LEFT HAND
+========================================= */
+
+.left-thumb-edit {
+    left: 38%;
+    top: 48%;
+    width: 8%;
+    height: 20%;
+    transform: rotate(35deg);
+}
+
+.left-index-edit {
+    left: 28%;
+    top: 30%;
+    width: 6%;
+    height: 25%;
+}
+
+.left-middle-edit {
+    left: 21%;
+    top: 26%;
+    width: 6%;
+    height: 25%;
+}
+
+.left-ring-edit {
+    left: 14%;
+    top: 30%;
+    width: 6%;
+    height: 23%;
+}
+
+.left-pinky-edit {
+    left: 8%;
+    top: 38%;
+    width: 5%;
+    height: 20%;
+}
+
+
+/* =========================================
+   RIGHT HAND
+========================================= */
+
+.right-thumb-edit {
+    right: 38%;
+    top: 48%;
+    width: 8%;
+    height: 20%;
+    transform: rotate(-35deg);
+}
+
+.right-index-edit {
+    right: 28%;
+    top: 30%;
+    width: 6%;
+    height: 25%;
+}
+
+.right-middle-edit {
+    right: 21%;
+    top: 26%;
+    width: 6%;
+    height: 25%;
+}
+
+.right-ring-edit {
+    right: 14%;
+    top: 30%;
+    width: 6%;
+    height: 23%;
+}
+
+.right-pinky-edit {
+    right: 8%;
+    top: 38%;
+    width: 5%;
+    height: 20%;
+}
+
+
+/* =========================================
+   SELECTED TEXT
+========================================= */
+
+.selected-finger-display-edit {
+    margin-top: 12px;
+
+    padding: 10px 14px;
+
+    border-radius: 6px;
+
+    background: #faf7f0;
+
+    color: #555;
+
+    font-size: 14px;
+}
+
+.selected-finger-display-edit strong {
+    color: #c79c3d;
+}
+
+
+@media(max-width:600px) {
+
+    .hand-wrapper-edit {
+        width: 340px;
+    }
+
+}
+
 </style>
 <script>
     document.querySelectorAll(".ticket-photo").forEach(function(img){
@@ -1233,11 +1550,24 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ---------- live search on Name / Phone fields ----------
-    nameInput.addEventListener("input", function () {
-        if (nameInput.readOnly) return;
-        phoneResults.style.display = "none";
-        runSearch(nameResults);
-    });
+ function capitalizeName(name) {
+    return name
+        .toLowerCase()
+        .replace(/\b\w/g, char => char.toUpperCase());
+}
+
+nameInput.addEventListener("input", function () {
+    if (nameInput.readOnly) return;
+
+    const cursor = this.selectionStart;
+
+    this.value = capitalizeName(this.value);
+
+    this.setSelectionRange(cursor, cursor);
+
+    phoneResults.style.display = "none";
+    runSearch(nameResults);
+});
 
     // Formats raw digits into "(XXX) XXX-XXXX" as the user types, same as
     // the New Ticket / Add Customer pages. Caps out at 10 digits.
@@ -1366,6 +1696,80 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
+
+});
+
+// =========================================
+// RING FINGER EDITOR
+// =========================================
+
+const editFingerInput =
+    document.getElementById("id_ring_finger");
+
+const editFingerDisplay =
+    document.getElementById("selected-finger-display-edit");
+
+const editFingerName =
+    document.getElementById("selected-finger-name-edit");
+
+const editFingerZones =
+    document.querySelectorAll(".finger-zone-edit");
+
+
+editFingerZones.forEach(function (finger) {
+
+    finger.addEventListener("click", function () {
+
+        const alreadySelected =
+            this.classList.contains("selected");
+
+
+        // Remove previous selection
+        editFingerZones.forEach(function (item) {
+            item.classList.remove("selected");
+        });
+
+
+        // If clicking the currently selected finger again,
+        // clear it.
+        if (alreadySelected) {
+
+            editFingerInput.value = "";
+
+            editFingerDisplay.style.display = "none";
+
+            return;
+        }
+
+
+        // Select new finger
+        this.classList.add("selected");
+
+
+        // Database value
+        const fingerValue =
+            this.dataset.finger;
+
+
+        // Human-readable label
+        const fingerLabel =
+            this.dataset.label;
+
+
+        // Save value for Django
+        editFingerInput.value =
+            fingerValue;
+
+
+        // Show label
+        editFingerName.textContent =
+            fingerLabel;
+
+
+        editFingerDisplay.style.display =
+            "block";
+
+    });
 
 });
 </script>

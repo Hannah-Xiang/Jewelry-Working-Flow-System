@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-
+{% load static %}
 {% block content %}
 
 <div class="ticket-page">
@@ -233,8 +233,144 @@
                             <label>Price</label>
                             <input type="number" step="0.01" name="price" class="form-input" value="{{ ticket.price|default_if_none:'' }}">
                         </div>
+    
+                       <!-- Ring Finger -->
+<div class="form-group">
+
+    <label>Ring Finger</label>
+
+    <p class="hint">
+        Select the finger this ring is being made for.
+    </p>
+
+    <!-- Hidden value submitted with the form -->
+    <input
+        type="hidden"
+        name="ring_finger"
+        id="id_ring_finger"
+        value="{{ form.ring_finger.value|default:'' }}"
+    >
+
+    <div class="hand-selector">
+
+        <div class="hand-wrapper">
+
+            <!-- The SVG image -->
+            <img
+                src="{% static 'images/hand.svg' %}"
+                class="hand-image"
+                alt="Select ring finger"
+            >
+
+            <!--
+                LEFT HAND
+                Coordinates are based on the 80 x 80 SVG viewBox.
+            -->
+
+           <!-- LEFT HAND -->
+
+<button
+    type="button"
+    class="finger-zone left-pinky"
+    data-finger="left_little"
+    data-label="Left Little"
+    aria-label="Left Little"
+></button>
+
+<button
+    type="button"
+    class="finger-zone left-ring"
+    data-finger="left_ring"
+    data-label="Left Ring"
+    aria-label="Left Ring"
+></button>
+
+<button
+    type="button"
+    class="finger-zone left-middle"
+    data-finger="left_middle"
+    data-label="Left Middle"
+    aria-label="Left Middle"
+></button>
+
+<button
+    type="button"
+    class="finger-zone left-index"
+    data-finger="left_index"
+    data-label="Left Index"
+    aria-label="Left Index"
+></button>
+
+<button
+    type="button"
+    class="finger-zone left-thumb"
+    data-finger="left_thumb"
+    data-label="Left Thumb"
+    aria-label="Left Thumb"
+></button>
+
+
+<!-- RIGHT HAND -->
+
+<button
+    type="button"
+    class="finger-zone right-pinky"
+    data-finger="right_little"
+    data-label="Right Little"
+    aria-label="Right Little"
+></button>
+
+<button
+    type="button"
+    class="finger-zone right-ring"
+    data-finger="right_ring"
+    data-label="Right Ring"
+    aria-label="Right Ring"
+></button>
+
+<button
+    type="button"
+    class="finger-zone right-middle"
+    data-finger="right_middle"
+    data-label="Right Middle"
+    aria-label="Right Middle"
+></button>
+
+<button
+    type="button"
+    class="finger-zone right-index"
+    data-finger="right_index"
+    data-label="Right Index"
+    aria-label="Right Index"
+></button>
+
+<button
+    type="button"
+    class="finger-zone right-thumb"
+    data-finger="right_thumb"
+    data-label="Right Thumb"
+    aria-label="Right Thumb"
+></button>
+
+        </div>
+
+    </div>
+
+    <!-- Selected finger -->
+    <div
+        id="selected-finger-display"
+        class="selected-finger-display"
+        style="display:none;"
+    >
+        Selected:
+        <strong id="selected-finger-name"></strong>
+    </div>
 
 </div>
+
+</div>
+
+
 
     <!-- Photos -->
 
@@ -461,6 +597,290 @@ input[readonly]{
     color:#c79c3d;
     margin-top:6px;
     font-size:13px;
+}
+
+#finger-selector{
+    width:100%;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    gap:35px;
+    margin-top:15px;
+}
+
+    /* -----------------------------------------
+       HAND SELECTOR
+    ----------------------------------------- */
+
+    .hand-selector {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-top: 15px;
+    }
+
+    .hand-wrapper {
+        position: relative;
+
+        /*
+         * Keep the image small.
+         * Change 430px if you want it smaller/larger.
+         */
+        width: 430px;
+        max-width: 100%;
+
+        aspect-ratio: 1 / 1;
+    }
+
+    .hand-image {
+        width: 100%;
+        height: 100%;
+        display: block;
+
+        user-select: none;
+        pointer-events: none;
+    }
+
+
+   /* =========================================
+   RING FINGER SELECTOR
+========================================= */
+
+.hand-selector {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.hand-wrapper {
+    position: relative;
+    width: 430px;
+    max-width: 100%;
+    aspect-ratio: 1 / 1;
+}
+
+.hand-image {
+    width: 100%;
+    height: 100%;
+    display: block;
+
+    user-select: none;
+    pointer-events: none;
+}
+
+
+/* =========================================
+   FINGER CLICK AREAS
+========================================= */
+
+.finger-zone {
+    position: absolute;
+
+    padding: 0;
+    margin: 0;
+
+    background: transparent;
+    border: 2px solid transparent;
+
+    cursor: pointer;
+
+    z-index: 10;
+
+    transition: .15s ease;
+
+    border-radius: 40%;
+}
+
+
+/* Hover */
+.finger-zone:hover {
+    background: rgba(199, 156, 61, .20);
+    border-color: rgba(199, 156, 61, .7);
+}
+
+
+/* Selected */
+.finger-zone.selected {
+    background: rgba(199, 156, 61, .35);
+    border-color: #c79c3d;
+}
+
+
+
+/* =========================================
+   SELECTED FINGER TEXT
+========================================= */
+
+.selected-finger-display {
+    margin-top: 12px;
+
+    padding: 10px 14px;
+
+    border-radius: 6px;
+
+    background: #faf7f0;
+
+    color: #555;
+
+    font-size: 14px;
+}
+
+.selected-finger-display strong {
+    color: #c79c3d;
+}// ---------- ring finger selector ----------
+const fingerInput   = document.getElementById("id_ring_finger");
+const fingerDisplay = document.getElementById("selected-finger-display");
+const fingerNameEl  = document.getElementById("selected-finger-name");
+
+    /* -----------------------------------------
+       SELECTED TEXT
+    ----------------------------------------- */
+
+    .selected-finger-display {
+        margin-top: 12px;
+
+        padding: 10px 14px;
+
+        border-radius: 6px;
+
+        background: #faf7f0;
+
+        color: #555;
+
+        font-size: 14px;
+    }
+
+    .selected-finger-display strong {
+        color: #c9972f;
+    }
+
+
+    /* -----------------------------------------
+       MOBILE
+    ----------------------------------------- */
+
+    @media (max-width: 600px) {
+
+        .hand-wrapper {
+            width: 340px;
+        }
+
+    }
+
+/* Invisible clickable areas */
+
+.finger-hitbox{
+    position:absolute;
+    border:none;
+    background:transparent;
+    padding:0;
+    margin:0;
+    cursor:pointer;
+    border-radius:50%;
+    z-index:2;
+}
+
+
+/* Hover */
+
+.finger-hitbox:hover{
+    background:rgba(199,156,61,.18);
+}
+
+
+/* Selected */
+
+.finger-hitbox.selected{
+    background:rgba(199,156,61,.40);
+    box-shadow:0 0 0 2px rgba(199,156,61,.65);
+}
+
+
+/* LEFT HAND */
+
+.left-thumb{
+    left:38%;
+    top:48%;
+    width:8%;
+    height:20%;
+    transform:rotate(35deg);
+}
+
+.left-index{
+    left:28%;
+    top:30%;
+    width:6%;
+    height:25%;
+}
+
+.left-middle{
+    left:21%;
+    top:26%;
+    width:6%;
+    height:25%;
+}   
+
+.left-ring{
+    left:14%;
+    top:30%;
+    width:6%;
+    height:23%;
+}
+
+.left-pinky{
+    left:8%;
+    top:38%;
+    width:5%;
+    height:20%;
+}
+
+
+/* RIGHT HAND */
+
+.right-thumb{
+    right:38%;
+    top:48%;
+    width:8%;
+    height:20%;
+    transform:rotate(-35deg);
+}
+
+.right-index{
+    right:28%;
+    top:30%;
+    width:6%;
+    height:25%;
+}
+
+.right-middle{
+    right:21%;
+    top:26%;
+    width:6%;
+    height:25%;
+}
+
+.right-ring{
+    right:14%;
+    top:30%;
+    width:6%;
+    height:23%;
+}
+
+.right-pinky{
+    right:8%;
+    top:38%;
+    width:5%;
+    height:20%;
+}
+
+
+@media(max-width:600px){
+
+    .hand-wrapper {
+        width: 340px;
+    }
+
 }
 
 .upload-box{
@@ -981,11 +1401,24 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ---------- live search on Name / Phone fields ----------
-    nameInput.addEventListener("input", function () {
-        if (nameInput.readOnly) return;
-        phoneResults.style.display = "none";
-        runSearch(nameResults);
-    });
+ function capitalizeName(name) {
+    return name
+        .toLowerCase()
+        .replace(/\b\w/g, char => char.toUpperCase());
+}
+
+nameInput.addEventListener("input", function () {
+    if (nameInput.readOnly) return;
+
+    const cursor = this.selectionStart;
+
+    this.value = capitalizeName(this.value);
+
+    this.setSelectionRange(cursor, cursor);
+
+    phoneResults.style.display = "none";
+    runSearch(nameResults);
+});
 
     // Formats raw digits into "(XXX) XXX-XXXX" as the user types.
     // Caps out at 10 digits (area code + 3 + 4), so nothing more can be typed
@@ -1279,6 +1712,73 @@ if ('webkitSpeechRecognition' in window) {
     console.log("Speech Recognition not supported.");
 
 }
+
+
+// ---------- ring finger selector ----------
+
+const fingerInput =
+    document.getElementById("id_ring_finger");
+
+const fingerDisplay =
+    document.getElementById("selected-finger-display");
+
+const fingerNameEl =
+    document.getElementById("selected-finger-name");
+
+const fingerZones =
+    document.querySelectorAll(".finger-zone");
+
+
+fingerZones.forEach(function (finger) {
+
+    finger.addEventListener("click", function () {
+
+        // Check if this finger is already selected
+        const alreadySelected =
+            this.classList.contains("selected");
+
+
+        // Remove previous selection
+        fingerZones.forEach(function (item) {
+            item.classList.remove("selected");
+        });
+
+
+        // If clicking the same finger again,
+        // cancel the selection
+        if (alreadySelected) {
+
+            fingerInput.value = "";
+
+            fingerDisplay.style.display = "none";
+
+            return;
+        }
+
+
+        // Select this finger
+this.classList.add("selected");
+
+// Database value
+const fingerValue = this.dataset.finger;
+
+// Display label
+const fingerLabel = this.dataset.label;
+
+// Save database value
+fingerInput.value = fingerValue;
+
+// Show nice label to user
+fingerNameEl.textContent = fingerLabel;
+
+fingerDisplay.style.display = "block";
+
+        fingerDisplay.style.display =
+            "block";
+
+    });
+
+});
 </script>
 
 {% endblock %}

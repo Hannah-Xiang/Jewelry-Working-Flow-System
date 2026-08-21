@@ -37,10 +37,11 @@
 
         <div class="search-box">
     <input
-        type="text"
-        id="customer-search"
-        placeholder="Search customers..."
-    >
+    type="text"
+    id="customer-search"
+    placeholder="Search customers..."
+    value="{{ search_keyword }}"
+>
 </div>
 
         <div class="customer-list" id="customer-list">
@@ -48,8 +49,8 @@
             {% for c in customers %}
 
 <a
-href="?customer={{ c.id }}"
-class="customer-link"
+    href="?customer={{ c.id }}&page={{ customers.number }}{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}"
+    class="customer-link"
 >
 
 <div class="customer-item {% if customer.id == c.id %}active{% endif %}">
@@ -79,6 +80,69 @@ class="customer-link"
 {% endfor %}
 
         </div>
+
+        <div class="pagination">
+
+    {% if customers.has_previous %}
+    <a
+        href="?page={{ customers.previous_page_number }}"
+        id="previous-customer-page-btn"
+        class="page-btn"
+    >
+        <i class="fa-solid fa-chevron-left"></i>
+    </a>
+{% else %}
+    <span
+        id="previous-customer-page-btn"
+        class="page-btn disabled"
+    >
+        <i class="fa-solid fa-chevron-left"></i>
+    </span>
+{% endif %}
+
+
+    <div class="page-number">
+
+        <input
+            type="number"
+            id="page-input"
+            min="1"
+            max="{{ customers.paginator.num_pages }}"
+            value="{{ customers.number }}"
+        >
+
+        <span id="page-total">
+    / {{ customers.paginator.num_pages }}
+</span>
+
+        <button
+            type="button"
+            id="go-page-btn"
+        >
+            Go
+        </button>
+
+    </div>
+
+
+    {% if customers.has_next %}
+    <a
+        href="?page={{ customers.next_page_number }}"
+        id="next-customer-page-btn"
+        class="page-btn"
+    >
+        <i class="fa-solid fa-chevron-right"></i>
+    </a>
+{% else %}
+    <span
+        id="next-customer-page-btn"
+        class="page-btn disabled"
+    >
+        <i class="fa-solid fa-chevron-right"></i>
+    </span>
+{% endif %}
+
+</div>
 
     </div>
 
@@ -332,7 +396,7 @@ action="{% url 'add_customer' %}"
 <div class="tabs">
 
     <a
-        href="?customer={{ customer.id }}"
+        href="?customer={{ customer.id }}&page={{ customers.number }}{% if search_keyword %}&q={{ search_keyword|urlencode }}{% endif %}"
         class="tab {% if selected_type == 'all' %}active{% endif %}"
     >
         All Jobs ({{ all_count }})
@@ -341,7 +405,7 @@ action="{% url 'add_customer' %}"
     {% for job_type in job_types %}
 
         <a
-            href="?customer={{ customer.id }}&type={{ job_type.id }}"
+            href="?customer={{ customer.id }}&type={{ job_type.id }}&page={{ customers.number }}{% if search_keyword %}&q={{ search_keyword|urlencode }}{% endif %}"
             class="tab {% if selected_type == job_type.id|stringformat:'s' %}active{% endif %}"
         >
             {{ job_type.type }} ({{ job_type.ticket_count }})
@@ -457,7 +521,76 @@ No jobs found.
 
 </tbody>
 
-            </table>
+</table>
+
+<!-- JOB PAGINATION -->
+
+{% if job_page.paginator.num_pages > 1 %}
+
+<div class="job-pagination">
+
+    {% if job_page.has_previous %}
+
+        <a
+            href="?customer={{ customer.id }}&page={{ customers.number }}&job_page={{ job_page.previous_page_number }}{% if selected_type != 'all' %}&type={{ selected_type }}{% endif %}{% if search_keyword %}&q={{ search_keyword|urlencode }}{% endif %}"
+            class="job-page-btn"
+        >
+            <i class="fa-solid fa-chevron-left"></i>
+        </a>
+
+    {% else %}
+
+        <span class="job-page-btn disabled">
+            <i class="fa-solid fa-chevron-left"></i>
+        </span>
+
+    {% endif %}
+
+
+    <div class="job-page-number">
+
+        <input
+            type="number"
+            id="job-page-input"
+            min="1"
+            max="{{ job_page.paginator.num_pages }}"
+            value="{{ job_page.number }}"
+        >
+
+        <span>
+            / {{ job_page.paginator.num_pages }}
+        </span>
+
+        <button
+            type="button"
+            id="job-go-page-btn"
+        >
+            Go
+        </button>
+
+    </div>
+
+
+    {% if job_page.has_next %}
+
+        <a
+            href="?customer={{ customer.id }}&page={{ customers.number }}&job_page={{ job_page.next_page_number }}{% if selected_type != 'all' %}&type={{ selected_type }}{% endif %}{% if search_keyword %}&q={{ search_keyword|urlencode }}{% endif %}"
+            class="job-page-btn"
+        >
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+
+    {% else %}
+
+        <span class="job-page-btn disabled">
+            <i class="fa-solid fa-chevron-right"></i>
+        </span>
+
+    {% endif %}
+
+</div>
+
+{% endif %}
 
         </div>
 
@@ -471,6 +604,179 @@ No jobs found.
 </div>
 
 <style>
+
+    /* ---------- Job Pagination ---------- */
+
+.job-pagination{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    padding:12px;
+    border-top:1px solid #eee;
+    background:#fff;
+}
+
+.job-page-btn{
+    width:32px;
+    height:32px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border:1px solid #ddd;
+    border-radius:8px;
+
+    background:white;
+    color:#444;
+
+    text-decoration:none;
+    cursor:pointer;
+
+    font-size:14px;
+}
+
+.job-page-btn:hover{
+    background:#faf7ef;
+    border-color:#c79c3d;
+    color:#c79c3d;
+}
+
+.job-page-btn.disabled{
+    color:#ccc;
+    background:#f8f8f8;
+    cursor:not-allowed;
+}
+
+.job-page-number{
+    display:flex;
+    align-items:center;
+    gap:6px;
+
+    font-size:13px;
+    color:#666;
+}
+
+#job-page-input{
+    width:45px;
+    height:32px;
+
+    padding:0 6px;
+
+    border:1px solid #ddd;
+    border-radius:8px;
+
+    text-align:center;
+    box-sizing:border-box;
+}
+
+#job-page-input:focus{
+    outline:none;
+    border-color:#c79c3d;
+}
+
+#job-go-page-btn{
+    height:32px;
+    padding:0 10px;
+
+    border:none;
+    border-radius:8px;
+
+    background:#c79c3d;
+    color:white;
+
+    cursor:pointer;
+    font-size:13px;
+}
+
+#job-go-page-btn:hover{
+    background:#b58b2f;
+}
+
+    .pagination{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    padding:12px;
+    border-top:1px solid #eee;
+    background:#fff;
+}
+
+.page-btn{
+    width:32px;
+    height:32px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border:1px solid #ddd;
+    border-radius:8px;
+
+    background:white;
+    color:#444;
+
+    text-decoration:none;
+    cursor:pointer;
+
+    font-size:14px;
+}
+
+.page-btn:hover{
+    background:#faf7ef;
+    border-color:#c79c3d;
+    color:#c79c3d;
+}
+
+.page-btn.disabled{
+    color:#ccc;
+    background:#f8f8f8;
+    cursor:not-allowed;
+}
+
+.page-number{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:13px;
+    color:#666;
+}
+
+#page-input{
+    width:45px;
+    height:32px;
+    padding:0 6px;
+
+    border:1px solid #ddd;
+    border-radius:8px;
+
+    text-align:center;
+    box-sizing:border-box;
+}
+
+#page-input:focus{
+    outline:none;
+    border-color:#c79c3d;
+}
+
+#go-page-btn{
+    height:32px;
+    padding:0 10px;
+
+    border:none;
+    border-radius:8px;
+
+    background:#c79c3d;
+    color:white;
+
+    cursor:pointer;
+    font-size:13px;
+}
+
+#go-page-btn:hover{
+    background:#b58b2f;
+}
 
 .customers-layout{
     display:grid;
@@ -887,47 +1193,245 @@ textarea.form-input{
 
 <script>
 
-const searchInput = document.getElementById("customer-search");
-const customerList = document.getElementById("customer-list");
+const searchInput =
+    document.getElementById("customer-search");
 
-searchInput.addEventListener("input", function(){
+const customerList =
+    document.getElementById("customer-list");
 
-    const keyword = this.value.trim();
 
-    const searchUrl = "{% url 'customer_search' %}";
+function loadCustomers(page = 1) {
 
-    fetch(`${searchUrl}?q=${encodeURIComponent(keyword)}`)
+    const keyword =
+        searchInput.value.trim();
+
+    const searchUrl =
+        "{% url 'customer_search' %}";
+
+    fetch(
+        `${searchUrl}?q=${encodeURIComponent(keyword)}&page=${page}`
+    )
         .then(response => response.json())
-        .then(customers => {
+
+        .then(data => {
 
             customerList.innerHTML = "";
 
-            customers.forEach(customer => {
+            data.customers.forEach(customer => {
 
                 customerList.innerHTML += `
-                    <a href="?customer=${customer.id}" class="customer-link">
+    <a
+    href="?customer=${customer.id}&page=${data.page}&q=${encodeURIComponent(keyword)}"
+    class="customer-link"
+>
 
-                        <div class="customer-item">
+        <div class="customer-item">
 
-                            <div class="avatar">
-                                ${customer.name.substring(0,1).toUpperCase()}
-                            </div>
+            <div class="avatar">
+                ${customer.name
+                    .substring(0, 1)
+                    .toUpperCase()}
+            </div>
 
-                            <div>
-                                <strong>${customer.name}</strong>
-                                <p>${customer.phone}</p>
-                            </div>
+            <div>
 
-                        </div>
+                <strong>
+                    ${customer.name}
+                </strong>
 
-                    </a>
-                `;
+                <p>
+                    ${customer.phone}
+                </p>
+
+            </div>
+
+        </div>
+
+    </a>
+`;
 
             });
 
+
+            // --------------------------------
+            // Update current page
+            // --------------------------------
+
+            const pageInput =
+                document.getElementById("page-input");
+
+            const pageTotal =
+                document.getElementById("page-total");
+
+            pageInput.value =
+                data.page;
+
+            pageInput.max =
+                data.num_pages;
+
+            pageTotal.textContent =
+                `/ ${data.num_pages}`;
+
+
+            // --------------------------------
+            // Update Previous button
+            // --------------------------------
+
+            const previousButton =
+                document.getElementById(
+                    "previous-customer-page-btn"
+                );
+
+            if (previousButton) {
+
+    if (data.has_previous) {
+
+        previousButton.classList.remove(
+            "disabled"
+        );
+
+    } else {
+
+        previousButton.classList.add(
+            "disabled"
+        );
+
+    }
+}
+
+
+
+            // --------------------------------
+            // Update Next button
+            // --------------------------------
+
+            const nextButton =
+                document.getElementById(
+                    "next-customer-page-btn"
+                );
+
+            if (nextButton) {
+
+    if (data.has_next) {
+
+        nextButton.classList.remove(
+            "disabled"
+        );
+
+    } else {
+
+        nextButton.classList.add(
+            "disabled"
+        );
+
+    }
+}
+
         });
 
-});
+}
+
+searchInput.addEventListener(
+    "input",
+    function() {
+
+        const keyword =
+            this.value.trim();
+
+        if (keyword === "") {
+
+            window.location.href =
+                "{% url 'customers' %}";
+
+            return;
+        }
+
+        // Every new search starts from page 1
+        loadCustomers(1);
+
+    }
+);
+
+
+// --------------------------------
+// Previous customer page
+// --------------------------------
+
+const previousButton =
+    document.getElementById(
+        "previous-customer-page-btn"
+    );
+
+if (previousButton) {
+
+    previousButton.addEventListener(
+        "click",
+        function(event) {
+
+            // Only use AJAX when searching
+            if (searchInput.value.trim() !== "") {
+
+                event.preventDefault();
+
+                const currentPage =
+                    parseInt(pageInput.value);
+
+                if (currentPage > 1) {
+
+                    loadCustomers(
+                        currentPage - 1
+                    );
+
+                }
+            }
+
+            // If there is no search,
+            // normal Django pagination works.
+        }
+    );
+}
+
+
+// --------------------------------
+// Next customer page
+// --------------------------------
+
+const nextButton =
+    document.getElementById(
+        "next-customer-page-btn"
+    );
+
+if (nextButton) {
+
+    nextButton.addEventListener(
+        "click",
+        function(event) {
+
+            // Only use AJAX when searching
+            if (searchInput.value.trim() !== "") {
+
+                event.preventDefault();
+
+                const currentPage =
+                    parseInt(pageInput.value);
+
+                const maxPage =
+                    parseInt(pageInput.max);
+
+                if (currentPage < maxPage) {
+
+                    loadCustomers(
+                        currentPage + 1
+                    );
+
+                }
+            }
+
+            // If there is no search,
+            // normal Django pagination works.
+        }
+    );
+}
 
 // ---------- Phone auto-format on the Add/Edit Customer form ----------
 // Formats raw digits into "(XXX) XXX-XXXX" as the user types, same behavior
@@ -955,6 +1459,163 @@ if (customerPhoneInput) {
         const digits = this.value.replace(/\D/g, "").substring(0, 10);
         this.value = formatPhoneNumber(digits);
     });
+}
+
+const customerNameInput = document.getElementById("id_name");
+
+if (customerNameInput) {
+
+    function capitalizeName(value) {
+
+        return value
+            .toLowerCase()
+            .replace(/\b\w/g, letter => letter.toUpperCase());
+
+    }
+
+    customerNameInput.addEventListener("input", function () {
+
+        const cursor = this.selectionStart;
+
+        this.value = capitalizeName(this.value);
+
+        this.setSelectionRange(cursor, cursor);
+
+    });
+
+}
+
+const pageInput = document.getElementById("page-input");
+const goPageBtn = document.getElementById("go-page-btn");
+
+if (pageInput && goPageBtn) {
+
+    function goToPage() {
+
+        let page = parseInt(pageInput.value);
+
+        const maxPage = parseInt(pageInput.max);
+
+        if (isNaN(page)) {
+            return;
+        }
+
+        if (page < 1) {
+            page = 1;
+        }
+
+        if (page > maxPage) {
+            page = maxPage;
+        }
+
+        if (searchInput.value.trim() !== "") {
+
+    loadCustomers(page);
+
+} else {
+
+    window.location.href = `?page=${page}`;
+
+}
+    }
+
+    goPageBtn.addEventListener("click", goToPage);
+
+    pageInput.addEventListener("keydown", function(event) {
+
+        if (event.key === "Enter") {
+            goToPage();
+        }
+
+    });
+
+}
+
+// --------------------------------
+// Job pagination
+// --------------------------------
+
+const jobPageInput =
+    document.getElementById("job-page-input");
+
+const jobGoPageBtn =
+    document.getElementById("job-go-page-btn");
+
+if (jobPageInput && jobGoPageBtn) {
+
+    function goToJobPage() {
+
+        let jobPage =
+            parseInt(jobPageInput.value);
+
+        const maxJobPage =
+            parseInt(jobPageInput.max);
+
+        if (isNaN(jobPage)) {
+            return;
+        }
+
+        if (jobPage < 1) {
+            jobPage = 1;
+        }
+
+        if (jobPage > maxJobPage) {
+            jobPage = maxJobPage;
+        }
+
+        const url =
+            new URL(window.location.href);
+
+        url.searchParams.set(
+            "customer",
+            "{{ customer.id }}"
+        );
+
+        url.searchParams.set(
+            "page",
+            "{{ customers.number }}"
+        );
+
+        url.searchParams.set(
+            "job_page",
+            jobPage
+        );
+
+        {% if selected_type != 'all' %}
+        url.searchParams.set(
+            "type",
+            "{{ selected_type }}"
+        );
+        {% else %}
+        url.searchParams.delete("type");
+        {% endif %}
+
+        {% if search_keyword %}
+        url.searchParams.set(
+            "q",
+            "{{ search_keyword|urlencode }}"
+        );
+        {% endif %}
+
+        window.location.href = url.toString();
+    }
+
+    jobGoPageBtn.addEventListener(
+        "click",
+        goToJobPage
+    );
+
+    jobPageInput.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (event.key === "Enter") {
+                goToJobPage();
+            }
+
+        }
+    );
+
 }
 
 </script>

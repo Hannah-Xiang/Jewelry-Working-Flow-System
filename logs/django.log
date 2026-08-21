@@ -1942,3 +1942,230 @@ django.template.exceptions.TemplateSyntaxError: Template: C:\data\git\Jewelry-Wo
 2026-08-13 17:14:27,372 [INFO] django.server: "GET /ticket/246/edit/ HTTP/1.1" 200 43112
 2026-08-13 17:14:30,835 [INFO] django.server: "POST /ticket/246/edit/ HTTP/1.1" 302 0
 2026-08-13 17:14:30,848 [INFO] django.server: "GET /ticket/246/ HTTP/1.1" 200 26575
+2026-08-20 21:44:02,625 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-20 21:44:20,783 [INFO] django.server: "GET / HTTP/1.1" 302 0
+2026-08-20 21:44:20,820 [INFO] django.server: "GET /login/?next=/ HTTP/1.1" 200 4883
+2026-08-20 21:44:21,023 [INFO] django.server: "GET /static/images/logo.png HTTP/1.1" 200 26667
+2026-08-20 21:44:21,231 [WARNING] django.request: Not Found: /favicon.ico
+2026-08-20 21:44:21,233 [WARNING] django.server: "GET /favicon.ico HTTP/1.1" 404 10197
+2026-08-20 21:44:27,379 [INFO] django.server: "GET / HTTP/1.1" 302 0
+2026-08-20 21:44:27,387 [INFO] django.server: "GET /login/?next=/ HTTP/1.1" 200 4883
+2026-08-20 21:44:27,405 [INFO] django.server: "GET /static/images/logo.png HTTP/1.1" 200 26667
+2026-08-20 21:44:27,566 [WARNING] django.request: Not Found: /favicon.ico
+2026-08-20 21:44:27,570 [WARNING] django.server: "GET /favicon.ico HTTP/1.1" 404 10197
+2026-08-20 21:44:32,235 [ERROR] django.request: Internal Server Error: /login/
+Traceback (most recent call last):
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+sqlite3.OperationalError: no such table: auth_user
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\views\generic\base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\utils\decorators.py", line 48, in _wrapper
+    return bound_method(*args, **kwargs)
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\utils\decorators.py", line 48, in _wrapper
+    return bound_method(*args, **kwargs)
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\views\decorators\debug.py", line 143, in sensitive_post_parameters_wrapper
+    return view(request, *args, **kwargs)
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\utils\decorators.py", line 48, in _wrapper
+    return bound_method(*args, **kwargs)
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\utils\decorators.py", line 48, in _wrapper
+    return bound_method(*args, **kwargs)
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\views\decorators\cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\contrib\auth\views.py", line 89, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\views\generic\base.py", line 144, in dispatch
+    return handler(request, *args, **kwargs)
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\views\generic\edit.py", line 150, in post
+    if form.is_valid():
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\forms\forms.py", line 206, in is_valid
+    return self.is_bound and not self.errors
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\forms\forms.py", line 201, in errors
+    self.full_clean()
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\forms\forms.py", line 338, in full_clean
+    self._clean_form()
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\forms\forms.py", line 354, in _clean_form
+    cleaned_data = self.clean()
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\views\decorators\debug.py", line 75, in sensitive_variables_wrapper
+    return func(*func_args, **func_kwargs)
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\contrib\auth\forms.py", line 366, in clean
+    self.user_cache = authenticate(
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\views\decorators\debug.py", line 75, in sensitive_variables_wrapper
+    return func(*func_args, **func_kwargs)
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\contrib\auth\__init__.py", line 114, in authenticate
+    user = backend.authenticate(request, **credentials)
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\contrib\auth\backends.py", line 65, in authenticate
+    user = UserModel._default_manager.get_by_natural_key(username)
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\contrib\auth\base_user.py", line 37, in get_by_natural_key
+    return self.get(**{self.model.USERNAME_FIELD: username})
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\db\models\query.py", line 631, in get
+    num = len(clone)
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\db\models\query.py", line 368, in __len__
+    self._fetch_all()
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\db\models\query.py", line 1954, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\db\models\query.py", line 93, in __iter__
+    results = compiler.execute_sql(
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "D:\Program Files\Python\Python310\lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+django.db.utils.OperationalError: no such table: auth_user
+2026-08-20 21:44:32,248 [ERROR] django.server: "POST /login/?next=/ HTTP/1.1" 500 237681
+2026-08-20 21:46:15,661 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-20 21:46:18,040 [INFO] django.server: "GET / HTTP/1.1" 302 0
+2026-08-20 21:46:18,056 [INFO] django.server: "GET /login/?next=/ HTTP/1.1" 200 4883
+2026-08-20 21:46:23,649 [INFO] django.server: "POST /login/?next=/ HTTP/1.1" 302 0
+2026-08-20 21:46:23,740 [INFO] django.server: "GET / HTTP/1.1" 200 13155
+2026-08-20 21:55:55,549 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-20 21:57:45,874 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-20 21:58:19,461 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-20 21:59:40,301 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-20 22:01:54,334 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-20 22:01:57,403 [INFO] django.server: "GET / HTTP/1.1" 302 0
+2026-08-20 22:01:57,418 [INFO] django.server: "GET /login/?next=/ HTTP/1.1" 200 4883
+2026-08-20 22:02:01,193 [INFO] django.server: "GET / HTTP/1.1" 200 13155
+2026-08-20 22:02:03,513 [INFO] django.server: "POST /logout/ HTTP/1.1" 302 0
+2026-08-20 22:02:03,517 [INFO] django.server: "GET /login/ HTTP/1.1" 200 4883
+2026-08-20 22:02:06,538 [INFO] django.server: "GET /password-reset/ HTTP/1.1" 200 4744
+2026-08-20 22:02:11,042 [ERROR] django.contrib.auth: Failed to send password reset email to 1
+Traceback (most recent call last):
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\auth\forms.py", line 434, in send_mail
+    email_message.send()
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\mail\message.py", line 307, in send
+    return self.get_connection(fail_silently).send_messages([self])
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\mail\backends\smtp.py", line 154, in send_messages
+    sent = self._send(message)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\mail\backends\smtp.py", line 173, in _send
+    self.connection.sendmail(
+  File "D:\Program Files\Python\Python310\lib\smtplib.py", line 887, in sendmail
+    raise SMTPSenderRefused(code, resp, from_addr)
+smtplib.SMTPSenderRefused: (530, b'5.7.0 Authentication Required. For more information, go to\n5.7.0  https://support.google.com/accounts/troubleshooter/2402620. 46e09a7af769-7f440022cc5sm5940652a34.18 - gsmtp', "Zareh's Jewellery Workflow System <zarehs2010@gmail.com>")
+2026-08-20 22:02:11,063 [INFO] django.server: "POST /password-reset/ HTTP/1.1" 302 0
+2026-08-20 22:02:11,066 [INFO] django.server: "GET /password-reset/done/ HTTP/1.1" 200 4510
+2026-08-20 22:02:13,004 [INFO] django.server: "GET /login/ HTTP/1.1" 200 4883
+2026-08-20 22:15:53,102 [INFO] django.server: "GET /login/ HTTP/1.1" 200 4883
+2026-08-20 22:15:54,662 [INFO] django.server: "GET /password-reset/ HTTP/1.1" 200 4744
+2026-08-20 22:16:03,779 [INFO] django.server: "GET /admin HTTP/1.1" 301 0
+2026-08-20 22:16:03,799 [INFO] django.server: "GET /admin/ HTTP/1.1" 302 0
+2026-08-20 22:16:03,942 [INFO] django.server: "GET /admin/login/?next=/admin/ HTTP/1.1" 200 4173
+2026-08-20 22:16:04,199 [INFO] django.server: "GET /static/admin/css/base.css HTTP/1.1" 200 22120
+2026-08-20 22:16:04,271 [INFO] django.server: "GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2808
+2026-08-20 22:16:04,293 [INFO] django.server: "GET /static/admin/js/theme.js HTTP/1.1" 200 1653
+2026-08-20 22:16:04,303 [INFO] django.server: "GET /static/admin/css/login.css HTTP/1.1" 200 951
+2026-08-20 22:16:04,313 [INFO] django.server: "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2810
+2026-08-20 22:16:04,315 [INFO] django.server: "GET /static/admin/css/responsive.css HTTP/1.1" 200 16565
+2026-08-20 22:16:04,335 [INFO] django.server: "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+2026-08-20 22:16:09,373 [INFO] django.server: "POST /admin/login/?next=/admin/ HTTP/1.1" 302 0
+2026-08-20 22:16:09,415 [INFO] django.server: "GET /admin/ HTTP/1.1" 200 11290
+2026-08-20 22:16:09,451 [INFO] django.server: "GET /static/admin/css/dashboard.css HTTP/1.1" 200 441
+2026-08-20 22:16:09,455 [INFO] django.server: "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 200 331
+2026-08-20 22:16:09,460 [INFO] django.server: "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 200 380
+2026-08-20 22:16:11,253 [INFO] django.server: "GET /admin/auth/user/ HTTP/1.1" 200 15142
+2026-08-20 22:16:11,289 [INFO] django.server: "GET /static/admin/css/changelists.css HTTP/1.1" 200 6878
+2026-08-20 22:16:11,297 [INFO] django.server: "GET /static/admin/js/jquery.init.js HTTP/1.1" 200 347
+2026-08-20 22:16:11,313 [INFO] django.server: "GET /static/admin/js/core.js HTTP/1.1" 200 6208
+2026-08-20 22:16:11,315 [INFO] django.server: "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 200 9777
+2026-08-20 22:16:11,319 [INFO] django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+2026-08-20 22:16:11,341 [INFO] django.server: "GET /static/admin/js/actions.js HTTP/1.1" 200 8076
+2026-08-20 22:16:11,341 [INFO] django.server: "GET /static/admin/js/urlify.js HTTP/1.1" 200 7887
+2026-08-20 22:16:11,343 [INFO] django.server: "GET /static/admin/img/search.svg HTTP/1.1" 200 458
+2026-08-20 22:16:11,352 [INFO] django.server: "GET /static/admin/js/prepopulate.js HTTP/1.1" 200 1531
+2026-08-20 22:16:11,360 [INFO] django.server: "GET /static/admin/img/icon-yes.svg HTTP/1.1" 200 436
+2026-08-20 22:16:11,372 [INFO] django.server: "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 200 285314
+2026-08-20 22:16:11,405 [INFO] django.server: "GET /static/admin/js/filters.js HTTP/1.1" 200 978
+2026-08-20 22:16:11,462 [INFO] django.server: "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 200 325171
+2026-08-20 22:16:11,497 [INFO] django.server: "GET /static/admin/img/tooltag-add.svg HTTP/1.1" 200 331
+2026-08-20 22:16:11,499 [INFO] django.server: "GET /static/admin/img/sorting-icons.svg HTTP/1.1" 200 1097
+2026-08-20 22:16:11,499 [INFO] django.server: "GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 200 581
+2026-08-20 22:16:23,323 [WARNING] django.security.csrf: Forbidden (CSRF token from POST incorrect.): /password-reset/
+2026-08-20 22:16:23,327 [WARNING] django.server: "POST /password-reset/ HTTP/1.1" 403 2503
+2026-08-20 22:17:00,957 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-20 22:17:04,920 [INFO] django.server: "GET /password-reset/ HTTP/1.1" 200 4744
+2026-08-20 22:17:07,093 [ERROR] django.contrib.auth: Failed to send password reset email to 1
+Traceback (most recent call last):
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\auth\forms.py", line 434, in send_mail
+    email_message.send()
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\mail\message.py", line 307, in send
+    return self.get_connection(fail_silently).send_messages([self])
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\mail\backends\smtp.py", line 154, in send_messages
+    sent = self._send(message)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\mail\backends\smtp.py", line 173, in _send
+    self.connection.sendmail(
+  File "D:\Program Files\Python\Python310\lib\smtplib.py", line 887, in sendmail
+    raise SMTPSenderRefused(code, resp, from_addr)
+smtplib.SMTPSenderRefused: (530, b'5.7.0 Authentication Required. For more information, go to\n5.7.0  https://support.google.com/accounts/troubleshooter/2402620. 5614622812f47-4b2d6d894c9sm3383248b6e.17 - gsmtp', "Zareh's Jewellery Workflow System <zarehs2010@gmail.com>")
+2026-08-20 22:17:07,099 [INFO] django.server: "POST /password-reset/ HTTP/1.1" 302 0
+2026-08-20 22:17:07,102 [INFO] django.server: "GET /password-reset/done/ HTTP/1.1" 200 4510
+2026-08-20 22:41:00,936 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-20 22:41:01,210 [INFO] django.server: "GET /login/ HTTP/1.1" 302 0
+2026-08-20 22:41:01,273 [INFO] django.server: "GET / HTTP/1.1" 200 13155
+2026-08-20 22:41:08,740 [INFO] django.server: "POST /logout/ HTTP/1.1" 302 0
+2026-08-20 22:41:08,747 [INFO] django.server: "GET /login/ HTTP/1.1" 200 4883
+2026-08-20 22:41:10,656 [INFO] django.server: "GET /password-reset/ HTTP/1.1" 200 4744
+2026-08-20 22:41:13,395 [ERROR] django.contrib.auth: Failed to send password reset email to 1
+Traceback (most recent call last):
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\auth\forms.py", line 434, in send_mail
+    email_message.send()
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\mail\message.py", line 307, in send
+    return self.get_connection(fail_silently).send_messages([self])
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\mail\backends\smtp.py", line 154, in send_messages
+    sent = self._send(message)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\mail\backends\smtp.py", line 173, in _send
+    self.connection.sendmail(
+  File "D:\Program Files\Python\Python310\lib\smtplib.py", line 887, in sendmail
+    raise SMTPSenderRefused(code, resp, from_addr)
+smtplib.SMTPSenderRefused: (530, b'5.7.0 Authentication Required. For more information, go to\n5.7.0  https://support.google.com/accounts/troubleshooter/2402620. 46e09a7af769-7f43fc6c89dsm6429472a34.0 - gsmtp', "Zareh's Jewellery Workflow System <zarehs2010@gmail.com>")
+2026-08-20 22:41:13,397 [INFO] django.server: "POST /password-reset/ HTTP/1.1" 302 0
+2026-08-20 22:41:13,401 [INFO] django.server: "GET /password-reset/done/ HTTP/1.1" 200 4510
+2026-08-20 22:45:17,627 [INFO] django.server: "GET /login/ HTTP/1.1" 200 4883
+2026-08-20 22:45:19,271 [INFO] django.server: "GET /password-reset/ HTTP/1.1" 200 4744
+2026-08-20 22:45:21,990 [ERROR] django.contrib.auth: Failed to send password reset email to 1
+Traceback (most recent call last):
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\auth\forms.py", line 434, in send_mail
+    email_message.send()
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\mail\message.py", line 307, in send
+    return self.get_connection(fail_silently).send_messages([self])
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\mail\backends\smtp.py", line 154, in send_messages
+    sent = self._send(message)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\mail\backends\smtp.py", line 173, in _send
+    self.connection.sendmail(
+  File "D:\Program Files\Python\Python310\lib\smtplib.py", line 887, in sendmail
+    raise SMTPSenderRefused(code, resp, from_addr)
+smtplib.SMTPSenderRefused: (530, b'5.7.0 Authentication Required. For more information, go to\n5.7.0  https://support.google.com/accounts/troubleshooter/2402620. 46e09a7af769-7f43fea4893sm6643041a34.9 - gsmtp', "Zareh's Jewellery Workflow System <zarehs2010@gmail.com>")
+2026-08-20 22:45:21,990 [INFO] django.server: "POST /password-reset/ HTTP/1.1" 302 0
+2026-08-20 22:45:21,994 [INFO] django.server: "GET /password-reset/done/ HTTP/1.1" 200 4510
+2026-08-20 22:51:08,595 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-20 22:51:13,298 [INFO] django.server: "GET /login/ HTTP/1.1" 200 4883
+2026-08-20 22:51:14,756 [INFO] django.server: "GET /password-reset/ HTTP/1.1" 200 4744
+2026-08-20 22:51:19,044 [INFO] django.server: "POST /password-reset/ HTTP/1.1" 302 0
+2026-08-20 22:51:19,047 [INFO] django.server: "GET /password-reset/done/ HTTP/1.1" 200 4510
+2026-08-20 22:52:12,404 [INFO] django.server: "GET /login/ HTTP/1.1" 200 4883

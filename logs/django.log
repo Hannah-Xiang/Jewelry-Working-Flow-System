@@ -2689,3 +2689,4 @@ django.db.utils.OperationalError: no such column: core_ticket.ring_finger
 2026-08-27 12:59:43,096 [INFO] django.server: "GET /customers/ HTTP/1.1" 200 29704
 2026-08-27 12:59:44,595 [INFO] django.server: "GET /customers/?customer=43&page=1 HTTP/1.1" 200 29700
 2026-08-27 12:59:45,369 [INFO] django.server: "GET /customers/?customer=47&page=1 HTTP/1.1" 200 29711
+2026-08-27 12:59:45,928 [INFO] django.server: "GET /customers/?customer=37&page=1 HTTP/1.1" 200 29704

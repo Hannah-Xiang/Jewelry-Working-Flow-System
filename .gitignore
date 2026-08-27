@@ -8,3 +8,4 @@ db.sqlite3
 media/tickets/
 logs/
 backup/
+django.log

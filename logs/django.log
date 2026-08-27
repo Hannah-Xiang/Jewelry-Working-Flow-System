@@ -1942,3 +1942,750 @@ django.template.exceptions.TemplateSyntaxError: Template: C:\data\git\Jewelry-Wo
 2026-08-13 17:14:27,372 [INFO] django.server: "GET /ticket/246/edit/ HTTP/1.1" 200 43112
 2026-08-13 17:14:30,835 [INFO] django.server: "POST /ticket/246/edit/ HTTP/1.1" 302 0
 2026-08-13 17:14:30,848 [INFO] django.server: "GET /ticket/246/ HTTP/1.1" 200 26575
+2026-08-27 12:47:36,757 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-27 12:47:41,959 [INFO] django.server: "GET /new-ticket/ HTTP/1.1" 200 38964
+2026-08-27 12:50:05,717 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-27 12:50:06,307 [INFO] django.server: "GET /new-ticket/ HTTP/1.1" 302 0
+2026-08-27 12:50:06,320 [INFO] django.server: "GET /login/?next=/new-ticket/ HTTP/1.1" 200 4883
+2026-08-27 12:50:06,328 [INFO] django.server: "GET /static/images/logo.png HTTP/1.1" 304 0
+2026-08-27 12:50:07,305 [INFO] django.server: "GET /login/?next=/new-ticket/ HTTP/1.1" 200 4883
+2026-08-27 12:50:13,662 [INFO] django.server: "POST /login/?next=/new-ticket/ HTTP/1.1" 302 0
+2026-08-27 12:50:13,688 [INFO] django.server: "GET /new-ticket/ HTTP/1.1" 200 40268
+2026-08-27 12:50:16,631 [INFO] django.server: "GET / HTTP/1.1" 200 19705
+2026-08-27 12:51:10,676 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-27 12:51:14,831 [INFO] django.server: "GET / HTTP/1.1" 302 0
+2026-08-27 12:51:14,843 [INFO] django.server: "GET /login/?next=/ HTTP/1.1" 200 4883
+2026-08-27 12:51:25,980 [INFO] django.server: "POST /login/?next=/ HTTP/1.1" 200 4991
+2026-08-27 12:51:52,052 [INFO] django.server: "POST /login/?next=/ HTTP/1.1" 200 4991
+2026-08-27 12:52:44,880 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-27 12:52:47,949 [INFO] django.server: "POST /login/?next=/ HTTP/1.1" 302 0
+2026-08-27 12:52:47,993 [INFO] django.server: "GET / HTTP/1.1" 200 13155
+2026-08-27 12:52:53,321 [INFO] django.server: "POST /logout/ HTTP/1.1" 302 0
+2026-08-27 12:52:53,325 [INFO] django.server: "GET /login/ HTTP/1.1" 200 4883
+2026-08-27 12:52:59,027 [INFO] django.server: "POST /login/ HTTP/1.1" 302 0
+2026-08-27 12:52:59,039 [INFO] django.server: "GET / HTTP/1.1" 200 13155
+2026-08-27 12:53:02,745 [INFO] django.server: "GET /new-ticket/ HTTP/1.1" 200 38964
+2026-08-27 12:53:03,265 [INFO] django.server: "GET /tickets/ HTTP/1.1" 200 18904
+2026-08-27 12:53:03,953 [INFO] django.server: "GET /calendar/ HTTP/1.1" 200 30049
+2026-08-27 12:53:04,657 [ERROR] django.request: Internal Server Error: /customers/
+Traceback (most recent call last):
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\core\views.py", line 902, in customers
+    return render(request, "core/customers.html", context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 172, in render
+    return self._render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 164, in _render
+    return self.nodelist.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 979, in render_annotated
+    return self.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 164, in _render
+    return self.nodelist.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 979, in render_annotated
+    return self.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 979, in render_annotated
+    return self.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\defaulttags.py", line 327, in render
+    return nodelist.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 979, in render_annotated
+    return self.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'edit_customer' with arguments '('',)' not found. 1 pattern(s) tried: ['customers/(?P<pk>[0-9]+)/edit/\\Z']
+2026-08-27 12:53:04,661 [ERROR] django.server: "GET /customers/ HTTP/1.1" 500 214856
+2026-08-27 12:53:18,609 [INFO] django.server: "GET / HTTP/1.1" 200 13155
+2026-08-27 12:53:19,764 [INFO] django.server: "GET /admin HTTP/1.1" 301 0
+2026-08-27 12:53:19,850 [INFO] django.server: "GET /admin/ HTTP/1.1" 200 11291
+2026-08-27 12:53:20,020 [INFO] django.server: "GET /static/admin/css/base.css HTTP/1.1" 200 22120
+2026-08-27 12:53:20,028 [INFO] django.server: "GET /static/admin/css/dashboard.css HTTP/1.1" 200 441
+2026-08-27 12:53:20,076 [INFO] django.server: "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2810
+2026-08-27 12:53:20,092 [INFO] django.server: "GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2808
+2026-08-27 12:53:20,098 [INFO] django.server: "GET /static/admin/css/responsive.css HTTP/1.1" 200 16565
+2026-08-27 12:53:20,105 [INFO] django.server: "GET /static/admin/js/theme.js HTTP/1.1" 200 1653
+2026-08-27 12:53:20,124 [INFO] django.server: "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 200 331
+2026-08-27 12:53:20,125 [INFO] django.server: "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 200 380
+2026-08-27 12:53:20,125 [INFO] django.server: "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+2026-08-27 12:53:34,835 [INFO] django.server: "GET /admin/core/status/ HTTP/1.1" 200 11213
+2026-08-27 12:53:34,861 [INFO] django.server: "GET /static/admin/css/changelists.css HTTP/1.1" 200 6878
+2026-08-27 12:53:34,867 [INFO] django.server: "GET /static/admin/js/jquery.init.js HTTP/1.1" 200 347
+2026-08-27 12:53:34,878 [INFO] django.server: "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 200 9777
+2026-08-27 12:53:34,884 [INFO] django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+2026-08-27 12:53:34,884 [INFO] django.server: "GET /static/admin/js/core.js HTTP/1.1" 200 6208
+2026-08-27 12:53:34,891 [INFO] django.server: "GET /static/admin/js/actions.js HTTP/1.1" 200 8076
+2026-08-27 12:53:34,891 [INFO] django.server: "GET /static/admin/js/urlify.js HTTP/1.1" 200 7887
+2026-08-27 12:53:34,903 [INFO] django.server: "GET /static/admin/js/prepopulate.js HTTP/1.1" 200 1531
+2026-08-27 12:53:34,917 [INFO] django.server: "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 200 285314
+2026-08-27 12:53:34,943 [INFO] django.server: "GET /static/admin/js/filters.js HTTP/1.1" 200 978
+2026-08-27 12:53:34,989 [INFO] django.server: "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 200 325171
+2026-08-27 12:53:35,017 [INFO] django.server: "GET /static/admin/img/tooltag-add.svg HTTP/1.1" 200 331
+2026-08-27 12:54:36,300 [INFO] django.server: "GET /admin/core/status/ HTTP/1.1" 302 0
+2026-08-27 12:54:36,360 [INFO] django.server: "GET /admin/login/?next=/admin/core/status/ HTTP/1.1" 200 4197
+2026-08-27 12:54:36,381 [INFO] django.server: "GET /static/admin/css/login.css HTTP/1.1" 200 951
+2026-08-27 12:54:43,775 [INFO] django.server: "POST /admin/login/?next=/admin/core/status/ HTTP/1.1" 302 0
+2026-08-27 12:54:43,808 [INFO] django.server: "GET /admin/core/status/ HTTP/1.1" 200 13303
+2026-08-27 12:54:43,821 [INFO] django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+2026-08-27 12:54:45,205 [INFO] django.server: "GET /admin/auth/user/ HTTP/1.1" 200 15973
+2026-08-27 12:54:45,216 [INFO] django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+2026-08-27 12:54:45,228 [INFO] django.server: "GET /static/admin/img/icon-yes.svg HTTP/1.1" 200 436
+2026-08-27 12:54:45,231 [INFO] django.server: "GET /static/admin/img/search.svg HTTP/1.1" 200 458
+2026-08-27 12:54:45,241 [INFO] django.server: "GET /static/admin/img/sorting-icons.svg HTTP/1.1" 200 1097
+2026-08-27 12:54:45,241 [INFO] django.server: "GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 200 581
+2026-08-27 12:54:53,032 [INFO] django.server: "GET /admin/auth/user/2/change/ HTTP/1.1" 200 27284
+2026-08-27 12:54:53,048 [INFO] django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+2026-08-27 12:54:53,057 [INFO] django.server: "GET /static/admin/css/forms.css HTTP/1.1" 200 8525
+2026-08-27 12:54:53,072 [INFO] django.server: "GET /static/admin/css/widgets.css HTTP/1.1" 200 11973
+2026-08-27 12:54:53,073 [INFO] django.server: "GET /static/admin/js/prepopulate_init.js HTTP/1.1" 200 586
+2026-08-27 12:54:53,075 [INFO] django.server: "GET /static/admin/js/admin/DateTimeShortcuts.js HTTP/1.1" 200 19319
+2026-08-27 12:54:53,075 [INFO] django.server: "GET /static/admin/js/calendar.js HTTP/1.1" 200 9141
+2026-08-27 12:54:53,077 [INFO] django.server: "GET /static/admin/js/SelectFilter2.js HTTP/1.1" 200 15845
+2026-08-27 12:54:53,080 [INFO] django.server: "GET /static/admin/js/SelectBox.js HTTP/1.1" 200 4530
+2026-08-27 12:54:53,095 [INFO] django.server: "GET /static/admin/js/change_form.js HTTP/1.1" 200 606
+2026-08-27 12:54:53,132 [INFO] django.server: "GET /static/admin/img/selector-icons.svg HTTP/1.1" 200 3291
+2026-08-27 12:54:53,135 [INFO] django.server: "GET /static/admin/img/icon-calendar.svg HTTP/1.1" 200 1086
+2026-08-27 12:54:53,137 [INFO] django.server: "GET /static/admin/img/icon-clock.svg HTTP/1.1" 200 677
+2026-08-27 12:54:56,162 [INFO] django.server: "GET /admin/auth/user/2/delete/ HTTP/1.1" 200 13043
+2026-08-27 12:54:56,189 [INFO] django.server: "GET /static/admin/js/cancel.js HTTP/1.1" 200 884
+2026-08-27 12:55:00,018 [ERROR] django.request: Internal Server Error: /admin/auth/user/2/delete/
+Traceback (most recent call last):
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+sqlite3.OperationalError: no such table: core_auditlog
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\admin\options.py", line 720, in wrapper
+    return self.admin_site.admin_view(view)(*args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\views\decorators\cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\admin\sites.py", line 246, in inner
+    return view(request, *args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\utils\decorators.py", line 48, in _wrapper
+    return bound_method(*args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\admin\options.py", line 2210, in delete_view
+    return self._delete_view(request, object_id, extra_context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\admin\options.py", line 2246, in _delete_view
+    self.delete_model(request, obj)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\admin\options.py", line 1321, in delete_model
+    obj.delete()
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\base.py", line 1281, in delete
+    return collector.delete()
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\deletion.py", line 485, in delete
+    combined_updates.update(**{field.name: value})
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\query.py", line 1263, in update
+    rows = query.get_compiler(self.db).execute_sql(ROW_COUNT)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\sql\compiler.py", line 2060, in execute_sql
+    row_count = super().execute_sql(result_type)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+django.db.utils.OperationalError: no such table: core_auditlog
+2026-08-27 12:55:00,026 [ERROR] django.server: "POST /admin/auth/user/2/delete/ HTTP/1.1" 500 194325
+2026-08-27 12:55:03,344 [INFO] django.server: "GET /admin/auth/user/2/delete/ HTTP/1.1" 200 13043
+2026-08-27 12:55:05,249 [ERROR] django.request: Internal Server Error: /admin/auth/user/2/delete/
+Traceback (most recent call last):
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+sqlite3.OperationalError: no such table: core_auditlog
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\admin\options.py", line 720, in wrapper
+    return self.admin_site.admin_view(view)(*args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\views\decorators\cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\admin\sites.py", line 246, in inner
+    return view(request, *args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\utils\decorators.py", line 48, in _wrapper
+    return bound_method(*args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\admin\options.py", line 2210, in delete_view
+    return self._delete_view(request, object_id, extra_context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\admin\options.py", line 2246, in _delete_view
+    self.delete_model(request, obj)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\admin\options.py", line 1321, in delete_model
+    obj.delete()
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\base.py", line 1281, in delete
+    return collector.delete()
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\deletion.py", line 485, in delete
+    combined_updates.update(**{field.name: value})
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\query.py", line 1263, in update
+    rows = query.get_compiler(self.db).execute_sql(ROW_COUNT)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\sql\compiler.py", line 2060, in execute_sql
+    row_count = super().execute_sql(result_type)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+django.db.utils.OperationalError: no such table: core_auditlog
+2026-08-27 12:55:05,251 [ERROR] django.server: "POST /admin/auth/user/2/delete/ HTTP/1.1" 500 194325
+2026-08-27 12:55:09,798 [ERROR] django.request: Internal Server Error: /calendar/
+Traceback (most recent call last):
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+sqlite3.OperationalError: no such column: core_ticket.ring_finger
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\core\views.py", line 682, in calendar
+    for ticket in tickets:
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\query.py", line 386, in __iter__
+    self._fetch_all()
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\query.py", line 1954, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\query.py", line 93, in __iter__
+    results = compiler.execute_sql(
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+django.db.utils.OperationalError: no such column: core_ticket.ring_finger
+2026-08-27 12:55:09,800 [ERROR] django.server: "GET /calendar/ HTTP/1.1" 500 155265
+2026-08-27 12:55:13,083 [WARNING] django.security.csrf: Forbidden (CSRF token from POST incorrect.): /logout/
+2026-08-27 12:55:13,084 [WARNING] django.server: "POST /logout/ HTTP/1.1" 403 2503
+2026-08-27 12:55:15,979 [WARNING] django.security.csrf: Forbidden (CSRF token from POST incorrect.): /logout/
+2026-08-27 12:55:15,979 [WARNING] django.server: "POST /logout/ HTTP/1.1" 403 2503
+2026-08-27 12:55:19,164 [ERROR] django.request: Internal Server Error: /admin/auth/user/2/delete/
+Traceback (most recent call last):
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+sqlite3.OperationalError: no such table: core_auditlog
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\admin\options.py", line 720, in wrapper
+    return self.admin_site.admin_view(view)(*args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\views\decorators\cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\admin\sites.py", line 246, in inner
+    return view(request, *args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\utils\decorators.py", line 48, in _wrapper
+    return bound_method(*args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\admin\options.py", line 2210, in delete_view
+    return self._delete_view(request, object_id, extra_context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\admin\options.py", line 2246, in _delete_view
+    self.delete_model(request, obj)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\admin\options.py", line 1321, in delete_model
+    obj.delete()
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\base.py", line 1281, in delete
+    return collector.delete()
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\deletion.py", line 485, in delete
+    combined_updates.update(**{field.name: value})
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\query.py", line 1263, in update
+    rows = query.get_compiler(self.db).execute_sql(ROW_COUNT)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\sql\compiler.py", line 2060, in execute_sql
+    row_count = super().execute_sql(result_type)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+django.db.utils.OperationalError: no such table: core_auditlog
+2026-08-27 12:55:19,167 [ERROR] django.server: "POST /admin/auth/user/2/delete/ HTTP/1.1" 500 194325
+2026-08-27 12:55:23,130 [INFO] django.server: "GET /admin/ HTTP/1.1" 200 14745
+2026-08-27 12:55:23,151 [INFO] django.server: "GET /static/admin/img/icon-deletelink.svg HTTP/1.1" 200 392
+2026-08-27 12:55:27,377 [WARNING] django.request: Not Found: /l
+2026-08-27 12:55:27,378 [WARNING] django.server: "GET /l HTTP/1.1" 404 10167
+2026-08-27 12:55:30,179 [ERROR] django.request: Internal Server Error: /
+Traceback (most recent call last):
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+sqlite3.OperationalError: no such column: core_ticket.ring_finger
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\core\views.py", line 133, in dashboard
+    return render(request, "core/dashboard.html", context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 172, in render
+    return self._render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 164, in _render
+    return self.nodelist.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 979, in render_annotated
+    return self.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 164, in _render
+    return self.nodelist.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 979, in render_annotated
+    return self.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 979, in render_annotated
+    return self.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\defaulttags.py", line 199, in render
+    len_values = len(values)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\query.py", line 368, in __len__
+    self._fetch_all()
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\query.py", line 1954, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\query.py", line 93, in __iter__
+    results = compiler.execute_sql(
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+django.db.utils.OperationalError: no such column: core_ticket.ring_finger
+2026-08-27 12:55:30,180 [ERROR] django.server: "GET / HTTP/1.1" 500 231824
+2026-08-27 12:55:38,014 [ERROR] django.request: Internal Server Error: /admin/core/auditlog/
+Traceback (most recent call last):
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+sqlite3.OperationalError: no such table: core_auditlog
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\admin\options.py", line 720, in wrapper
+    return self.admin_site.admin_view(view)(*args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\views\decorators\cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\admin\sites.py", line 246, in inner
+    return view(request, *args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\utils\decorators.py", line 48, in _wrapper
+    return bound_method(*args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\admin\options.py", line 2025, in changelist_view
+    cl = self.get_changelist_instance(request)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\admin\options.py", line 868, in get_changelist_instance
+    return ChangeList(
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\admin\views\main.py", line 146, in __init__
+    self.get_results(request)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\admin\views\main.py", line 313, in get_results
+    result_count = paginator.count
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\utils\functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\paginator.py", line 110, in count
+    return c()
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\query.py", line 606, in count
+    return self.query.get_count(using=self.db)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\sql\query.py", line 646, in get_count
+    return obj.get_aggregation(using, {"__count": Count("*")})["__count"]
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\sql\query.py", line 628, in get_aggregation
+    result = compiler.execute_sql(SINGLE)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+django.db.utils.OperationalError: no such table: core_auditlog
+2026-08-27 12:55:38,018 [ERROR] django.server: "GET /admin/core/auditlog/ HTTP/1.1" 500 201037
+2026-08-27 12:55:48,091 [INFO] django.server: "GET / HTTP/1.1" 302 0
+2026-08-27 12:55:48,097 [INFO] django.server: "GET /login/?next=/ HTTP/1.1" 200 4883
+2026-08-27 12:55:48,191 [INFO] django.server: "GET /static/images/logo.png HTTP/1.1" 304 0
+2026-08-27 12:55:57,784 [ERROR] django.request: Internal Server Error: /
+Traceback (most recent call last):
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+sqlite3.OperationalError: no such column: core_ticket.ring_finger
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\core\views.py", line 133, in dashboard
+    return render(request, "core/dashboard.html", context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 172, in render
+    return self._render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 164, in _render
+    return self.nodelist.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 979, in render_annotated
+    return self.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 164, in _render
+    return self.nodelist.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 979, in render_annotated
+    return self.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 979, in render_annotated
+    return self.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\defaulttags.py", line 199, in render
+    len_values = len(values)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\query.py", line 368, in __len__
+    self._fetch_all()
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\query.py", line 1954, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\query.py", line 93, in __iter__
+    results = compiler.execute_sql(
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+django.db.utils.OperationalError: no such column: core_ticket.ring_finger
+2026-08-27 12:55:57,786 [ERROR] django.server: "GET / HTTP/1.1" 500 231968
+2026-08-27 12:55:58,324 [ERROR] django.request: Internal Server Error: /
+Traceback (most recent call last):
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+sqlite3.OperationalError: no such column: core_ticket.ring_finger
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\core\views.py", line 133, in dashboard
+    return render(request, "core/dashboard.html", context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 172, in render
+    return self._render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 164, in _render
+    return self.nodelist.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 979, in render_annotated
+    return self.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 164, in _render
+    return self.nodelist.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 979, in render_annotated
+    return self.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 1018, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\base.py", line 979, in render_annotated
+    return self.render(context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\template\defaulttags.py", line 199, in render
+    len_values = len(values)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\query.py", line 368, in __len__
+    self._fetch_all()
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\query.py", line 1954, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\query.py", line 93, in __iter__
+    results = compiler.execute_sql(
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "D:\Data\Git\Jewelry-Working-Flow-System\.venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+django.db.utils.OperationalError: no such column: core_ticket.ring_finger
+2026-08-27 12:55:58,327 [ERROR] django.server: "GET / HTTP/1.1" 500 231824
+2026-08-27 12:56:53,517 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-27 12:56:54,336 [INFO] django.server: "GET / HTTP/1.1" 302 0
+2026-08-27 12:56:54,346 [INFO] django.server: "GET /login/?next=/ HTTP/1.1" 200 4883
+2026-08-27 12:57:00,472 [INFO] django.server: "POST /login/?next=/ HTTP/1.1" 302 0
+2026-08-27 12:57:00,539 [INFO] django.server: "GET / HTTP/1.1" 200 19822
+2026-08-27 12:57:17,401 [INFO] django.server: "GET / HTTP/1.1" 200 19822
+2026-08-27 12:57:19,924 [INFO] django.server: "GET /admin/ HTTP/1.1" 200 14745
+2026-08-27 12:57:28,520 [INFO] django.server: "GET /admin/core/auditlog/ HTTP/1.1" 200 12957
+2026-08-27 12:57:28,534 [INFO] django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+2026-08-27 12:57:30,500 [INFO] django.server: "GET /admin/core/customer/ HTTP/1.1" 200 33394
+2026-08-27 12:57:30,513 [INFO] django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+2026-08-27 12:57:36,274 [INFO] django.server: "GET /admin/core/jobtype/ HTTP/1.1" 200 13587
+2026-08-27 12:57:36,287 [INFO] django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+2026-08-27 12:57:39,764 [INFO] django.server: "GET /admin/core/note/ HTTP/1.1" 200 13365
+2026-08-27 12:57:39,773 [INFO] django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+2026-08-27 12:57:43,251 [INFO] django.server: "GET /admin/core/statushistory/ HTTP/1.1" 200 43441
+2026-08-27 12:57:43,263 [INFO] django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+2026-08-27 12:57:47,671 [INFO] django.server: "GET /admin/core/status/ HTTP/1.1" 200 13303
+2026-08-27 12:57:47,682 [INFO] django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+2026-08-27 12:57:48,603 [INFO] django.server: "GET /admin/core/ticketphoto/ HTTP/1.1" 200 12835
+2026-08-27 12:57:48,612 [INFO] django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+2026-08-27 12:57:49,210 [INFO] django.server: "GET /admin/core/ticket/ HTTP/1.1" 200 48650
+2026-08-27 12:57:49,218 [INFO] django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+2026-08-27 12:58:03,238 [INFO] django.server: "GET /admin/auth/user/ HTTP/1.1" 200 15973
+2026-08-27 12:58:03,250 [INFO] django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+2026-08-27 12:58:04,825 [INFO] django.server: "GET /admin/auth/user/2/change/ HTTP/1.1" 200 27563
+2026-08-27 12:58:04,841 [INFO] django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+2026-08-27 12:58:12,175 [INFO] django.server: "POST /admin/auth/user/2/change/ HTTP/1.1" 302 0
+2026-08-27 12:58:12,195 [INFO] django.server: "GET /admin/auth/user/ HTTP/1.1" 200 16170
+2026-08-27 12:58:12,209 [INFO] django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+2026-08-27 12:58:15,413 [INFO] django.server: "GET / HTTP/1.1" 200 19833
+2026-08-27 12:58:20,330 [INFO] django.server: "GET /new-ticket/ HTTP/1.1" 200 40089
+2026-08-27 12:58:23,656 [INFO] django.server: "GET /tickets/ HTTP/1.1" 200 28325
+2026-08-27 12:58:25,056 [INFO] django.server: "GET /calendar/ HTTP/1.1" 200 58122
+2026-08-27 12:58:28,405 [INFO] django.server: "GET /calendar/?month=9&year=2026 HTTP/1.1" 200 36076
+2026-08-27 12:58:29,176 [INFO] django.server: "GET /calendar/?month=10&year=2026 HTTP/1.1" 200 29186
+2026-08-27 12:58:30,119 [INFO] django.server: "GET /calendar/?month=9&year=2026 HTTP/1.1" 200 36076
+2026-08-27 12:58:30,421 [INFO] django.server: "GET /calendar/?month=8&year=2026 HTTP/1.1" 200 58122
+2026-08-27 12:58:30,648 [INFO] django.server: "GET /calendar/?month=7&year=2026 HTTP/1.1" 200 33014
+2026-08-27 12:58:30,901 [INFO] django.server: "GET /calendar/?month=6&year=2026 HTTP/1.1" 200 29003
+2026-08-27 12:58:32,310 [INFO] django.server: "GET /calendar/?month=7&year=2026 HTTP/1.1" 200 33014
+2026-08-27 12:58:33,687 [INFO] django.server: "GET /calendar/?month=8&year=2026 HTTP/1.1" 200 58122
+2026-08-27 12:58:43,105 [INFO] django.server: "GET /tickets/ HTTP/1.1" 200 28325
+2026-08-27 12:58:46,778 [INFO] django.server: "GET / HTTP/1.1" 200 19833
+2026-08-27 12:58:47,522 [INFO] django.server: "GET /tickets/ HTTP/1.1" 200 28325
+2026-08-27 12:58:49,320 [INFO] django.server: "GET / HTTP/1.1" 200 19833
+2026-08-27 12:58:54,493 [INFO] django.server: "GET /customers/ HTTP/1.1" 200 29704
+2026-08-27 12:58:55,822 [INFO] django.server: "GET /customers/?customer=16&page=1 HTTP/1.1" 200 29722
+2026-08-27 12:58:56,408 [INFO] django.server: "GET /customers/?customer=47&page=1 HTTP/1.1" 200 29711
+2026-08-27 12:58:56,980 [INFO] django.server: "GET /customers/?customer=29&page=1 HTTP/1.1" 200 29705
+2026-08-27 12:58:57,458 [INFO] django.server: "GET /customers/?customer=47&page=1 HTTP/1.1" 200 29711
+2026-08-27 12:58:58,938 [INFO] django.server: "GET /customers/?customer=37&page=1 HTTP/1.1" 200 29704
+2026-08-27 12:59:01,173 [INFO] django.server: "GET /customers/?customer=37&page=1 HTTP/1.1" 200 29704
+2026-08-27 12:59:06,052 [INFO] django.server: "GET /new-ticket/ HTTP/1.1" 200 40089
+2026-08-27 12:59:06,844 [INFO] django.server: "GET / HTTP/1.1" 200 19833
+2026-08-27 12:59:38,582 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-08-27 12:59:40,104 [INFO] django.server: "GET / HTTP/1.1" 200 19833
+2026-08-27 12:59:41,129 [INFO] django.server: "GET / HTTP/1.1" 200 19833
+2026-08-27 12:59:41,847 [INFO] django.server: "GET / HTTP/1.1" 200 19833
+2026-08-27 12:59:43,096 [INFO] django.server: "GET /customers/ HTTP/1.1" 200 29704
+2026-08-27 12:59:44,595 [INFO] django.server: "GET /customers/?customer=43&page=1 HTTP/1.1" 200 29700
+2026-08-27 12:59:45,369 [INFO] django.server: "GET /customers/?customer=47&page=1 HTTP/1.1" 200 29711

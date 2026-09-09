@@ -704,6 +704,7 @@ def ticket_search(request):
             "due_date": ticket.due_date.strftime("%b %d, %Y"),
             "created_date": ticket.created_date.strftime("%b %d, %Y"),
             "is_overdue":ticket.due_date < timezone.now().date() and ticket.status.status != "Completed",
+            "is_starred": ticket.is_starred,
         })
 
     return JsonResponse({
@@ -746,6 +747,7 @@ def calendar(request):
             "job_type": ticket.job_type.type,
             "status": ticket.status.status,
             "color": ticket.status.color,
+            "is_starred": ticket.is_starred,
         })
 
     if month == 1:
@@ -789,15 +791,37 @@ def calendar(request):
 def ticket_detail(request, ticket_id):
 
     ticket = get_object_or_404(Ticket, id=ticket_id)
+    latest_note = ticket.notes.order_by("-created_at").first()
 
     context = {
         "ticket": ticket,
         "statuses": Status.objects.all(),
         "ready_status": Status.objects.filter(status="Ready for Pickup").first(),
         "completed_status": Status.objects.filter(status="Completed").first(),
+        "latest_note": latest_note,
     }
 
     return render(request, "core/ticket_detail.html", context)
+@login_required
+def toggle_ticket_star(request, ticket_id):
+
+    ticket = get_object_or_404(
+        Ticket,
+        id=ticket_id
+    )
+
+    if request.method == "POST":
+
+        ticket.is_starred = not ticket.is_starred
+
+        ticket.save(
+            update_fields=["is_starred"]
+        )
+
+    return redirect(
+        "ticket_detail",
+        ticket_id=ticket.id
+    )
 
 @login_required
 def customers(request):

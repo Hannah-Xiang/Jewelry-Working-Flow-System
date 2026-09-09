@@ -44,7 +44,24 @@
 
         </div>
 
-        <div>
+        <div class="ticket-header-actions">
+
+            <form
+                method="POST"
+                action="{% url 'toggle_ticket_star' ticket.id %}"
+                class="top-star-form"
+            >
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="top-star-btn {% if ticket.is_starred %}active{% endif %}"
+                    title="{% if ticket.is_starred %}Unstar ticket{% else %}Star ticket{% endif %}"
+                >
+                    <i class="{% if ticket.is_starred %}fa-solid{% else %}fa-regular{% endif %} fa-star"></i>
+                </button>
+
+            </form>
 
             <a href="{% url 'edit_ticket' ticket.id %}" class="edit-ticket-btn">
                 ✎ Edit Ticket
@@ -294,6 +311,75 @@
                 </p> -->
 
             </div>
+            <div class="card star-card {% if ticket.is_starred %}starred{% endif %}">
+
+                <form
+                    method="POST"
+                    action="{% url 'toggle_ticket_star' ticket.id %}"
+                    class="star-toggle-form"
+                >
+
+                    {% csrf_token %}
+
+                    <div class="star-card-header">
+
+                        <div class="star-card-title">
+
+                            <i class="{% if ticket.is_starred %}fa-solid{% else %}fa-regular{% endif %} fa-star"></i>
+
+                            <span>
+                                {% if ticket.is_starred %}
+                                    STARRED
+                                {% else %}
+                                    STAR
+                                {% endif %}
+                            </span>
+
+                        </div>
+
+                        <label class="star-detail-switch">
+
+                            <input
+                                type="checkbox"
+                                {% if ticket.is_starred %}checked{% endif %}
+                                onchange="this.form.submit()"
+                            >
+
+                            <span class="star-detail-slider"></span>
+
+                        </label>
+
+                    </div>
+
+                    {% if ticket.is_starred %}
+
+                        {% if latest_note %}
+
+                            <p class="star-note">
+                                {{ latest_note.content }}
+                            </p>
+
+                        {% else %}
+
+                            <p class="star-note">
+                                No notes yet.
+                            </p>
+
+                        {% endif %}
+
+                    {% else %}
+
+                        <p class="star-description">
+                            Toggle to flag this ticket for priority attention.
+                        </p>
+
+                    {% endif %}
+
+                </form>
+
+            </div>
+
+            
 
             <div class="card">
 
@@ -553,6 +639,191 @@
 
 .card-header-row h3{
     margin:0;
+}
+
+/* =========================================
+   TICKET STAR
+========================================= */
+
+.ticket-header-actions{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+
+/* -----------------------------------------
+   Top Star Button
+----------------------------------------- */
+
+.top-star-form{
+    margin:0;
+}
+
+.top-star-btn{
+    width:48px;
+    height:48px;
+
+    border-radius:50%;
+
+    border:1px solid #e8dcc2;
+
+    background:white;
+
+    color:#777;
+
+    cursor:pointer;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:18px;
+
+    transition:.2s;
+}
+
+.top-star-btn:hover{
+    background:#faf7ef;
+}
+
+.top-star-btn.active{
+    background:#c79c3d;
+    border-color:#c79c3d;
+    color:#111;
+}
+
+
+/* -----------------------------------------
+   Star Card
+----------------------------------------- */
+
+.star-card{
+    transition:
+        background .2s ease,
+        border-color .2s ease;
+}
+
+.star-card.starred{
+    background:#fffaf0;
+    border-color:#e2c36d;
+}
+
+
+/* -----------------------------------------
+   Header
+----------------------------------------- */
+
+.star-card-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.star-card-title{
+    display:flex;
+    align-items:center;
+    gap:9px;
+
+    color:#777;
+
+    font-size:15px;
+    font-weight:600;
+}
+
+.star-card.starred .star-card-title{
+    color:#c79c3d;
+}
+
+
+/* -----------------------------------------
+   Description / Note
+----------------------------------------- */
+
+.star-description,
+.star-note{
+    margin:8px 0 0;
+
+    color:#777;
+
+    font-size:14px;
+
+    line-height:1.45;
+}
+
+.star-note{
+    color:#666;
+}
+
+
+/* -----------------------------------------
+   Switch
+----------------------------------------- */
+
+.star-toggle-form{
+    margin:0;
+}
+
+.star-detail-switch{
+    position:relative;
+
+    display:block;
+
+    width:46px;
+    height:26px;
+
+    cursor:pointer;
+}
+
+.star-detail-switch input{
+    opacity:0;
+
+    width:0;
+    height:0;
+
+    position:absolute;
+}
+
+.star-detail-slider{
+    position:absolute;
+
+    inset:0;
+
+    background:#f1ead8;
+
+    border-radius:30px;
+
+    transition:.2s;
+}
+
+.star-detail-slider::before{
+    content:"";
+
+    position:absolute;
+
+    width:22px;
+    height:22px;
+
+    left:2px;
+    top:2px;
+
+    background:white;
+
+    border-radius:50%;
+
+    box-shadow:0 1px 3px rgba(0,0,0,.15);
+
+    transition:.2s;
+}
+
+.star-detail-switch input:checked
++ .star-detail-slider{
+    background:#c79c3d;
+}
+
+.star-detail-switch input:checked
++ .star-detail-slider::before{
+    transform:translateX(20px);
 }
 
 .customer-box{

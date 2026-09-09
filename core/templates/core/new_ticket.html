@@ -422,6 +422,44 @@
     </div>
 
 </div>
+<!-- Star Ticket -->
+
+<div class="card star-ticket-card">
+
+    <div class="star-ticket-left">
+
+        <div class="star-icon">
+
+            <i class="fa-regular fa-star star-outline"></i>
+            <i class="fa-solid fa-star star-filled"></i>
+
+        </div>
+
+        <div class="star-ticket-text">
+
+            <h3>Star this ticket</h3>
+
+            <p>
+                Flag for priority attention or add a special note
+            </p>
+
+        </div>
+
+    </div>
+
+    <label class="star-switch">
+
+        <input
+            type="checkbox"
+            name="is_starred"
+            id="id_is_starred"
+        >
+
+        <span class="star-slider"></span>
+
+    </label>
+
+</div>
 
     <!-- Buttons -->
 
@@ -905,6 +943,236 @@ const fingerNameEl  = document.getElementById("selected-finger-name");
 
 .upload-content p{
     color:#777;
+}
+/* =========================================
+   STAR TICKET
+========================================= */
+
+.star-ticket-card{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    background:#fff;
+
+    border:1px solid #eee;
+
+    transition:
+        background .2s ease,
+        border-color .2s ease;
+}
+
+
+/* -----------------------------------------
+   Left side
+----------------------------------------- */
+
+.star-ticket-left{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+
+/* -----------------------------------------
+   Text
+----------------------------------------- */
+
+.star-ticket-text h3{
+    margin:0 0 5px 0;
+}
+
+.star-ticket-text p{
+    margin:0;
+
+    color:#777;
+
+    font-size:14px;
+}
+
+
+/* -----------------------------------------
+   Star icon
+----------------------------------------- */
+
+.star-icon{
+    width:42px;
+    height:42px;
+
+    flex-shrink:0;
+
+    border-radius:50%;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:#faf7ef;
+
+    border:1px solid #e6dcc7;
+
+    color:#8b7d62;
+
+    transition:
+        background .2s ease,
+        border-color .2s ease,
+        color .2s ease;
+}
+
+
+/* Both stars occupy the same position */
+
+.star-icon i{
+    font-size:18px;
+}
+
+
+/* OFF = outline star */
+
+.star-filled{
+    display:none;
+}
+
+.star-outline{
+    display:block;
+}
+
+
+/* -----------------------------------------
+   Switch
+----------------------------------------- */
+
+.star-switch{
+    position:relative;
+
+    width:52px;
+    height:30px;
+
+    display:block;
+
+    cursor:pointer;
+
+    flex-shrink:0;
+}
+
+
+/* Hide real checkbox */
+
+.star-switch input{
+    position:absolute;
+
+    opacity:0;
+
+    width:0;
+    height:0;
+}
+
+
+/* Switch background */
+
+.star-slider{
+    position:absolute;
+
+    inset:0;
+
+    background:#f1ecdf;
+
+    border-radius:30px;
+
+    transition:.2s;
+}
+
+
+/* Switch circle */
+
+.star-slider::before{
+    content:"";
+
+    position:absolute;
+
+    width:24px;
+    height:24px;
+
+    left:3px;
+    top:3px;
+
+    background:#fff;
+
+    border-radius:50%;
+
+    box-shadow:0 1px 4px rgba(0,0,0,.12);
+
+    transition:.2s;
+}
+
+
+/* =========================================
+   ON STATE
+========================================= */
+
+
+/* Card */
+
+.star-ticket-card:has(
+    .star-switch input:checked
+){
+    background:#faf7ef;
+
+    border-color:#e4c979;
+}
+
+
+/* Icon */
+
+.star-ticket-card:has(
+    .star-switch input:checked
+) .star-icon{
+
+    background:#c79c3d;
+
+    border-color:#c79c3d;
+
+    color:#111;
+}
+
+
+/* Switch */
+
+.star-switch input:checked + .star-slider{
+    background:#c79c3d;
+}
+
+
+/* Move switch circle */
+
+.star-switch input:checked + .star-slider::before{
+    transform:translateX(22px);
+}
+
+
+/* Switch ON = filled star */
+
+.star-switch input:checked
+~ .star-slider{
+    background:#c79c3d;
+}
+
+
+/* Hide outline */
+
+.star-ticket-card:has(
+    .star-switch input:checked
+) .star-outline{
+    display:none;
+}
+
+
+/* Show filled */
+
+.star-ticket-card:has(
+    .star-switch input:checked
+) .star-filled{
+    display:block;
 }
 
 .action-buttons{

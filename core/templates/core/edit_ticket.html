@@ -532,6 +532,117 @@
                 </h2>
 
             </div>
+            <div>
+
+
+
+    <!-- =========================
+         STARRED
+    ========================== -->
+
+    <div class="card star-card {% if ticket.is_starred %}starred{% endif %}">
+
+        <form
+            method="POST"
+            action="{% url 'toggle_ticket_star' ticket.id %}"
+            class="star-toggle-form"
+        >
+
+            {% csrf_token %}
+
+            <div class="star-card-header">
+
+                <div class="star-card-title">
+
+                    <i
+                        class="{% if ticket.is_starred %}fa-solid{% else %}fa-regular{% endif %} fa-star"
+                    ></i>
+
+                    <span>
+                        {% if ticket.is_starred %}
+                            STARRED
+                        {% else %}
+                            STAR
+                        {% endif %}
+                    </span>
+
+                </div>
+
+
+                <label class="star-detail-switch">
+
+                    <input
+                        type="checkbox"
+                        {% if ticket.is_starred %}checked{% endif %}
+                        onchange="this.form.submit()"
+                    >
+
+                    <span class="star-detail-slider"></span>
+
+                </label>
+
+            </div>
+
+
+            {% if ticket.is_starred %}
+
+                <p class="star-description">
+                    This ticket is flagged for priority attention.
+                </p>
+
+            {% else %}
+
+                <p class="star-description">
+                    Toggle to flag this ticket for priority attention.
+                </p>
+
+            {% endif %}
+
+        </form>
+
+    </div>
+
+
+    <!-- =========================
+         QUICK ACTIONS
+    ========================== -->
+
+    <div class="card">
+
+        <h3>
+            Quick Actions
+        </h3>
+
+        <br>
+
+        {% for status in statuses %}
+
+            <form
+                method="POST"
+                action="{% url 'set_status' ticket.id status.id %}"
+            >
+
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="quick-action-btn"
+                    style="
+                        background:{{ status.color }}20;
+                        color:{{ status.color }};
+                    "
+                >
+                    Mark {{ status.status }}
+                </button>
+
+            </form>
+
+        {% endfor %}
+
+    </div>
+
+
+    
 
             <div class="card">
 
@@ -576,6 +687,151 @@
 </div>
 
 <style>
+
+    /* =========================================
+   STAR CARD - EDIT PAGE
+========================================= */
+
+.star-card{
+    transition:
+        background .2s ease,
+        border-color .2s ease;
+}
+
+.star-card-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.star-card-title{
+    display:flex;
+    align-items:center;
+    gap:9px;
+
+    color:#777;
+
+    font-size:15px;
+    font-weight:600;
+}
+
+.star-card-title i{
+    font-size:16px;
+}
+
+.star-card.starred{
+    background:#fffaf0;
+    border-color:#e2c36d;
+}
+
+.star-card.starred .star-card-title{
+    color:#c79c3d;
+}
+
+.star-description{
+    margin:10px 0 0;
+
+    color:#777;
+
+    font-size:14px;
+    line-height:1.45;
+}
+
+.star-toggle-form{
+    margin:0;
+}
+
+.star-detail-switch{
+    position:relative;
+
+    display:block;
+
+    width:46px;
+    height:26px;
+
+    flex-shrink:0;
+
+    cursor:pointer;
+}
+
+.star-detail-switch input{
+    position:absolute;
+
+    opacity:0;
+
+    width:0;
+    height:0;
+}
+
+.star-detail-slider{
+    position:absolute;
+
+    inset:0;
+
+    background:#f1ead8;
+
+    border-radius:30px;
+
+    transition:.2s;
+}
+
+.star-detail-slider::before{
+    content:"";
+
+    position:absolute;
+
+    width:22px;
+    height:22px;
+
+    left:2px;
+    top:2px;
+
+    background:#fff;
+
+    border-radius:50%;
+
+    box-shadow:0 1px 3px rgba(0,0,0,.15);
+
+    transition:.2s;
+}
+
+.star-detail-switch input:checked + .star-detail-slider{
+    background:#c79c3d;
+}
+
+.star-detail-switch input:checked + .star-detail-slider::before{
+    transform:translateX(20px);
+}
+/* =========================================
+   QUICK ACTIONS
+========================================= */
+
+.quick-action-btn{
+    display:block;
+    width:100%;
+    padding:12px;
+    margin-bottom:14px;
+    border:none;
+    border-radius:10px;
+    font-weight:600;
+    cursor:pointer;
+    font-size:14px;
+}
+
+
+.quick-action-btn:last-child{
+    margin-bottom:12px;
+}
+
+.quick-action-btn:hover{
+    opacity:.85;
+    transform:translateY(-1px);
+}
+
+ .quick-action-btn.active{
+    box-shadow:
+        inset 0 0 0 2px currentColor;
+}
 
 #image-modal{
 

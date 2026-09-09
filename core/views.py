@@ -552,6 +552,12 @@ def ticket_search(request):
     job_type = request.GET.get('job_type', '')
     page_number = request.GET.get('page', 1)
 
+    # Dashboard filters
+    open_jobs = request.GET.get("open")
+    due = request.GET.get("due")
+    pickup = request.GET.get("pickup")
+    overdue = request.GET.get("overdue")
+
     tickets = Ticket.objects.select_related(
         'customer', 'job_type', 'status'
     ).order_by('-created_date')
@@ -622,6 +628,56 @@ def ticket_search(request):
         tickets = tickets.filter(
             job_type_id=job_type
         )
+    # --------------------------------
+    # Dashboard filters
+    # --------------------------------
+
+    if open_jobs:
+        tickets = tickets.exclude(
+            status__status="Completed"
+        )
+
+    if due == "thisweek":
+
+        today = timezone.now().date()
+
+        start_of_week = (
+            today -
+            timedelta(days=today.weekday())
+        )
+
+        end_of_week = (
+            start_of_week +
+            timedelta(days=6)
+        )
+
+        tickets = tickets.filter(
+            due_date__lte=end_of_week
+        ).exclude(
+            status__status__in=[
+                "Completed",
+                "Ready for Pickup"
+            ]
+        )
+
+    if pickup:
+
+        tickets = tickets.filter(
+            status__status="Ready for Pickup"
+        )
+
+    if overdue:
+
+        today = timezone.now().date()
+
+        tickets = tickets.filter(
+            due_date__lt=today
+        ).exclude(
+            status__status__in=[
+                "Completed",
+                "Ready for Pickup"
+            ]
+        )
 
     # --------------------------------
     # Ticket pagination
@@ -647,6 +703,7 @@ def ticket_search(request):
             "status_color": ticket.status.color,
             "due_date": ticket.due_date.strftime("%b %d, %Y"),
             "created_date": ticket.created_date.strftime("%b %d, %Y"),
+            "is_overdue":ticket.due_date < timezone.now().date() and ticket.status.status != "Completed",
         })
 
     return JsonResponse({
@@ -1298,30 +1355,69 @@ def add_note(request, ticket_id):
     return redirect('ticket_detail', ticket_id=ticket.id)
 
 @login_required
+@login_required
 def add_photo(request, ticket_id):
 
     ticket = get_object_or_404(Ticket, id=ticket_id)
 
-    if request.method == 'POST':
-        photos = request.FILES.getlist('photos')
-        for photo in photos:
-            ticket_photo = TicketPhoto.objects.create(
+    if request.method == "POST":
+
+        # ========================================
+        # 1. Delete photos marked for deletion
+        # ========================================
+
+        deleted_photo_ids = request.POST.get(
+            "deleted_photo_ids",
+            ""
+        )
+
+        if deleted_photo_ids:
+
+            photo_ids = [
+                int(photo_id)
+                for photo_id in deleted_photo_ids.split(",")
+                if photo_id.isdigit()
+            ]
+
+            photos_to_delete = ticket.photos.filter(
+                id__in=photo_ids
+            )
+
+            for photo in photos_to_delete:
+
+                # Delete actual image file
+                if photo.image:
+                    photo.image.delete(save=False)
+
+                # Delete database record
+                photo.delete()
+
+
+        # ========================================
+        # 2. Add new photos
+        # ========================================
+
+        for uploaded_file in request.FILES.getlist("photos"):
+
+            TicketPhoto.objects.create(
                 ticket=ticket,
-                image=photo
+                image=uploaded_file
             )
 
-            create_audit_log(
-                request,
-                "CREATE",
-                "TicketPhoto",
-                ticket_photo.id,
-                f"Added photo to ticket {ticket.ticket_number}."
-            )
 
-    next_path = request.POST.get('next')
-    if next_path:
-        return redirect(next_path)
-    return redirect('ticket_detail', ticket_id=ticket.id)
+        # ========================================
+        # 3. Return to the page we came from
+        # ========================================
+
+        next_url = request.POST.get("next")
+
+        if next_url:
+            return redirect(next_url)
+
+        return redirect("ticket_detail", ticket.id)
+
+
+    return redirect("ticket_detail", ticket.id)
 
 @login_required
 def set_status(request, ticket_id, status_id):

@@ -671,7 +671,7 @@ let typingTimer;
 function loadTickets(page = 1){
 
     const search =
-        searchInput.value;
+        searchInput.value.trim();
 
     const status =
         statusFilter.value;
@@ -679,8 +679,67 @@ function loadTickets(page = 1){
     const jobType =
         jobTypeFilter.value;
 
+    // --------------------------------
+    // Keep Dashboard filters
+    // --------------------------------
+
+    const currentParams =
+        new URLSearchParams(window.location.search);
+
+    const open =
+        currentParams.get("open") || "";
+
+    const due =
+        currentParams.get("due") || "";
+
+    const pickup =
+        currentParams.get("pickup") || "";
+
+    const overdue =
+        currentParams.get("overdue") || "";
+
+    const params =
+        new URLSearchParams();
+
+    params.set(
+        "search",
+        search
+    );
+
+    params.set(
+        "status",
+        status
+    );
+
+    params.set(
+        "job_type",
+        jobType
+    );
+
+    params.set(
+        "page",
+        page
+    );
+
+    // Preserve Dashboard filter
+    if (open) {
+        params.set("open", open);
+    }
+
+    if (due) {
+        params.set("due", due);
+    }
+
+    if (pickup) {
+        params.set("pickup", pickup);
+    }
+
+    if (overdue) {
+        params.set("overdue", overdue);
+    }
+
     fetch(
-        `/tickets/search/?search=${encodeURIComponent(search)}&status=${status}&job_type=${jobType}&page=${page}`
+        `/tickets/search/?${params.toString()}`
     )
 
     .then(
@@ -830,7 +889,11 @@ function loadTickets(page = 1){
 </td>
 
 <td>
-    ${ticket.due_date}
+    ${
+        ticket.is_overdue
+        ? `<span class="overdue-date">${ticket.due_date}</span>`
+        : ticket.due_date
+    }
 </td>
 
 <td>

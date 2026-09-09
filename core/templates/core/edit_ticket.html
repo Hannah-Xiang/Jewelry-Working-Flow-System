@@ -389,16 +389,26 @@
                     id="photo-upload-form"
                 >
                     {% csrf_token %}
+
                     <input type="hidden" name="next" value="{{ request.path }}">
+
+                    <!-- Keep pending photo deletions when uploading new photos -->
                     <input
-                        type="file"
-                        id="photo-upload-input"
-                        name="photos"
-                        accept="image/*"
-                        multiple
-                        class="hidden-file-input"
-                        onchange="document.getElementById('photo-upload-form').submit()"
+                        type="hidden"
+                        name="deleted_photo_ids"
+                        id="photo_upload_deleted_photo_ids"
                     >
+
+
+                <input
+                    type="file"
+                    id="photo-upload-input"
+                    name="photos"
+                    accept="image/*"
+                    multiple
+                    class="hidden-file-input"
+                    onchange="document.getElementById('photo-upload-form').submit()"
+                >
                 </form>
 
                 {% if ticket.photos.all %}
@@ -1412,48 +1422,34 @@ document.getElementById("image-modal").onclick=function(e){
 };
 
 let deletedPhotos = [];
-document.querySelectorAll(".delete-photo-btn").forEach(btn=>{
 
-    btn.onclick=function(){
+document.querySelectorAll(".delete-photo-btn").forEach(btn => {
 
-        const photo=this.closest(".photo-item");
+    btn.onclick = function () {
 
-        const id=photo.dataset.photoId;
+        const photo = this.closest(".photo-item");
+        const id = photo.dataset.photoId;
 
-        deletedPhotos.push(id);
+        // Prevent duplicate IDs
+        if (!deletedPhotos.includes(id)) {
+            deletedPhotos.push(id);
+        }
 
-        document.getElementById("deleted_photo_ids").value=
-            deletedPhotos.join(",");
+        const deletedIds = deletedPhotos.join(",");
 
+        // Edit Ticket form
+        document.getElementById("deleted_photo_ids").value = deletedIds;
+
+        // Photo upload form
+        document.getElementById("photo_upload_deleted_photo_ids").value = deletedIds;
+
+        // Remove from UI
         photo.remove();
-
     };
 
 });
 
-let newFiles=[];
 
-document
-.getElementById("photo-upload-input")
-.addEventListener("change",function(){
-
-    newFiles.push(...Array.from(this.files));
-
-    refreshGallery();
-
-});
-
-const dt = new DataTransfer();
-
-newFiles.forEach(file=>{
-
-    dt.items.add(file);
-
-});
-
-document
-.getElementById("photo-upload-input")
-.files = dt.files;
 
 
 

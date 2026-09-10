@@ -50,6 +50,11 @@ urlpatterns = [
         views.generate_ticket,
         name='generate_ticket'
     ),
+    path(
+        "ticket/<int:ticket_id>/toggle-star/",
+        views.toggle_ticket_star,
+        name="toggle_ticket_star"
+    ),
 
     path('ticket/<int:ticket_id>/edit/', views.edit_ticket, name='edit_ticket'),
     path('ticket/<int:ticket_id>/add-note/', views.add_note, name='add_note'),

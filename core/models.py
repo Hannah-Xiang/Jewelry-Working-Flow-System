@@ -94,6 +94,10 @@ class Ticket(models.Model):
         null=True
     )
 
+    is_starred = models.BooleanField(
+        default=False
+    )
+
     completed_date = models.DateField(
         blank=True,
         null=True

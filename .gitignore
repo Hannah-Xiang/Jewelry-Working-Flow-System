@@ -3,7 +3,9 @@ __pycache__/
 *.pyc
 db.sqlite3
 .env
-media/
-backup/
-logs/
+.venv
 db.sqlite3
+media/tickets/
+logs/
+backup/
+django.log

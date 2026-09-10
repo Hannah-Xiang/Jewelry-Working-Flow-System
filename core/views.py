@@ -2,7 +2,7 @@ from asyncio.log import logger
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
-from django.db.models import Q, Count, Sum
+from django.db.models import Q, Count, Sum, OuterRef, Subquery
 from datetime import timedelta, date
 from django.utils import timezone
 import calendar as pycalendar
@@ -57,8 +57,20 @@ def dashboard(request):
     three_months_ago = today - timedelta(days=90)
 
     recent_tickets = Ticket.objects.filter(
-        created_date__gte=three_months_ago
-    ).order_by('-created_date')[:10]
+            created_date__gte=three_months_ago
+        ).annotate(
+            latest_note_content=Subquery(
+                Note.objects.filter(
+                    ticket=OuterRef("pk")
+                ).order_by("-created_at").values("content")[:1]
+            )
+        ).select_related(
+            "customer",
+            "job_type",
+            "status"
+        ).order_by(
+            "-created_date"
+        )[:10]
 
     # OPEN JOBS
     open_jobs = Ticket.objects.exclude(

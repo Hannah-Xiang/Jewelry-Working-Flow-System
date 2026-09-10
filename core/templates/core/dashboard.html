@@ -123,7 +123,19 @@
 >
 
     <td class="ticket-number">
+
+    {% if ticket.is_starred %}
+        <i class="fa-solid fa-star ticket-star"></i>
+    {% endif %}
+
     {{ ticket.ticket_number }}
+
+    {% if ticket.is_starred and ticket.latest_note_content %}
+        <div class="ticket-note-preview">
+            {{ ticket.latest_note_content|truncatechars:45 }}
+        </div>
+    {% endif %}
+
 </td>
 
     <td>{{ ticket.customer.name }}</td>
@@ -221,6 +233,14 @@
 >
 
     <div>
+        <p class="ticket-number">
+
+        {% if ticket.is_starred %}
+            <i class="fa-solid fa-star ticket-star"></i>
+        {% endif %}
+
+        {{ ticket.ticket_number }}
+        </p>
 
         <strong>
             {{ ticket.customer.name }}
@@ -257,6 +277,23 @@
 </div>
 
 <style>
+.ticket-star {
+    color: #c79c3d;
+    margin-right: 7px;
+    font-size: 13px;
+}
+
+.ticket-note-preview {
+    margin-top: 5px;
+    color: #777;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.3;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
 .dashboard{
     width:100%;

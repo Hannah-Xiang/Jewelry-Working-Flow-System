@@ -693,6 +693,8 @@ def ticket_search(request):
 
     for ticket in page_obj:
 
+        latest_note = ticket.notes.order_by("-created_at").first()
+
         data.append({
             "id": ticket.id,
             "ticket_number": ticket.ticket_number,
@@ -703,8 +705,18 @@ def ticket_search(request):
             "status_color": ticket.status.color,
             "due_date": ticket.due_date.strftime("%b %d, %Y"),
             "created_date": ticket.created_date.strftime("%b %d, %Y"),
-            "is_overdue":ticket.due_date < timezone.now().date() and ticket.status.status != "Completed",
+            "is_overdue": (
+                ticket.due_date < timezone.now().date()
+                and ticket.status.status != "Completed"
+            ),
             "is_starred": ticket.is_starred,
+
+            # Latest note for starred ticket
+            "latest_note": (
+                latest_note.content
+                if ticket.is_starred and latest_note
+                else ""
+            ),
         })
 
     return JsonResponse({
@@ -740,6 +752,9 @@ def calendar(request):
     for ticket in tickets:
         day = ticket.due_date.day
         tickets_by_day.setdefault(day, []).append(ticket)
+
+        latest_note = ticket.notes.order_by("-created_at").first()
+
         tickets_json.setdefault(day, []).append({
             "id": ticket.id,
             "ticket_number": ticket.ticket_number,
@@ -748,6 +763,11 @@ def calendar(request):
             "status": ticket.status.status,
             "color": ticket.status.color,
             "is_starred": ticket.is_starred,
+            "latest_note": (
+                latest_note.content
+                if ticket.is_starred and latest_note
+                else ""
+            ),
         })
 
     if month == 1:

@@ -196,6 +196,16 @@
             {{ ticket.ticket_number }}
         </a>
 
+        {% if ticket.is_starred %}
+            {% with latest_note=ticket.notes.all|first %}
+                {% if latest_note %}
+                    <div class="latest-ticket-note">
+                        {{ latest_note.content }}
+                    </div>
+                {% endif %}
+            {% endwith %}
+        {% endif %}
+
     </td>
 
     <td>
@@ -337,10 +347,26 @@
 </div>
 
 <style>
-    .ticket-number{
+.ticket-number{
     color:#c79c3d;
     font-weight:600;
-    white-space:nowrap;
+}
+
+.latest-ticket-note {
+    margin-top: 5px;
+    font-size: 14px;
+    font-weight: 400;
+    color: grey;
+    max-width: 240px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+}
+
+.latest-ticket-note i {
+    color: #c79c3d;
+    margin-right: 4px;
 }
 
 .ticket-star-form{
@@ -968,6 +994,16 @@ function loadTickets(page = 1){
     >
         ${ticket.ticket_number}
     </a>
+    ${
+        ticket.is_starred && ticket.latest_note
+        ? `
+            <div class="latest-ticket-note">
+                
+                ${ticket.latest_note}
+            </div>
+        `
+        : ""
+    }
 
 </td>
 

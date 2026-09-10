@@ -468,6 +468,23 @@
     font-size:11px;
     color:#c79c3d;
 }
+.calendar-latest-note {
+    margin-top: 4px;
+    margin-bottom: 8px;
+    padding-left: 17px;
+    font-size: 14px;
+    color: grey;
+    line-height: 1.4;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.calendar-latest-note i {
+    color: #c79c3d;
+    margin-right: 4px;
+}
 
 .job-number-left{
     display:flex;
@@ -623,6 +640,17 @@ href="/ticket/${ticket.id}/"
     </span>
 
 </div>
+
+${
+    ticket.is_starred && ticket.latest_note
+    ? `
+        <div class="calendar-latest-note">
+            
+            ${ticket.latest_note}
+        </div>
+    `
+    : ""
+} 
 
 <div class="job-name">
 

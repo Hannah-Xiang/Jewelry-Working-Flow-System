@@ -40,6 +40,8 @@ class TicketForm(forms.ModelForm):
             "price",
             #finger ring
             "ring_finger",
+            "is_starred",
+            
         ]
 
         widgets = {
@@ -83,6 +85,11 @@ class TicketForm(forms.ModelForm):
                     "placeholder": "Enter price or estimate"
                 }
             ),
+            "is_starred": forms.CheckboxInput(
+                attrs={
+                    "class": "star-checkbox"
+                }
+),
 
         }
 

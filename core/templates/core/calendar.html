@@ -84,8 +84,22 @@
                             {% endif %}
                             {% if day in tickets_by_day %}
                                 {% for ticket in tickets_by_day|get_item:day %}
-                                        <div class="event" style="background:{{ ticket.status.color }}20; color:{{ ticket.status.color }};">
-                                            {{ ticket.customer.name }}
+                                        <div
+                                            class="event"
+                                            style="
+                                                background:{{ ticket.status.color }}20;
+                                                color:{{ ticket.status.color }};
+                                            "
+                                        >
+
+                                            <span>
+                                                {{ ticket.customer.name }}
+                                            </span>
+
+                                            {% if ticket.is_starred %}
+                                                <i class="fa-solid fa-star calendar-star"></i>
+                                            {% endif %}
+
                                         </div>
                                 {% endfor %}
                             {% endif %}
@@ -449,6 +463,40 @@
 
 }
 
+.calendar-star{
+    margin-left:6px;
+    font-size:11px;
+    color:#c79c3d;
+}
+.calendar-latest-note {
+    margin-top: 4px;
+    margin-bottom: 8px;
+    padding-left: 17px;
+    font-size: 14px;
+    color: grey;
+    line-height: 1.4;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.calendar-latest-note i {
+    color: #c79c3d;
+    margin-right: 4px;
+}
+
+.job-number-left{
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
+
+.calendar-job-star{
+    color:#c79c3d;
+    font-size:11px;
+}
+
 </style>
 
 <script>
@@ -569,21 +617,40 @@ href="/ticket/${ticket.id}/"
 
 <div class="job-number">
 
-${ticket.ticket_number}
+    <span class="job-number-left">
 
-<span
-class="job-status"
-style="
-background:${ticket.color}20;
-color:${ticket.color};
-"
->
+        ${
+            ticket.is_starred
+            ? `<i class="fa-solid fa-star calendar-job-star"></i>`
+            : ""
+        }
 
-${ticket.status}
+        ${ticket.ticket_number}
 
-</span>
+    </span>
+
+    <span
+        class="job-status"
+        style="
+            background:${ticket.color}20;
+            color:${ticket.color};
+        "
+    >
+        ${ticket.status}
+    </span>
 
 </div>
+
+${
+    ticket.is_starred && ticket.latest_note
+    ? `
+        <div class="calendar-latest-note">
+            
+            ${ticket.latest_note}
+        </div>
+    `
+    : ""
+} 
 
 <div class="job-name">
 

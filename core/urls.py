@@ -27,6 +27,11 @@ urlpatterns = [
         views.customer_search,
         name='customer_search'
     ),
+    path(
+    'api/customers/live-search/',
+    views.customer_live_search,
+    name='customer_live_search'
+),
 
     path(
         'api/customers/<int:pk>/',
@@ -44,6 +49,11 @@ urlpatterns = [
         'api/ticket-number/',
         views.generate_ticket,
         name='generate_ticket'
+    ),
+    path(
+        "ticket/<int:ticket_id>/toggle-star/",
+        views.toggle_ticket_star,
+        name="toggle_ticket_star"
     ),
 
     path('ticket/<int:ticket_id>/edit/', views.edit_ticket, name='edit_ticket'),
@@ -115,10 +125,25 @@ path(
     name="password_reset_complete",
 ),
 
+path(
+    "ticket/<int:ticket_id>/delete/",
+    views.delete_ticket,
+    name="delete_ticket",
+),
+path("test-error/", views.test_error, name="test_error"),
+
 ]
 
 # Media files (uploaded ticket photos) are only served this way in development.
 # In production, your web server (nginx, etc.) or a storage backend (S3, etc.)
 # should serve MEDIA_URL instead.
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(
+        settings.MEDIA_URL,
+        document_root=settings.MEDIA_ROOT,
+    )
+
+    urlpatterns += static(
+        settings.STATIC_URL,
+        document_root=settings.STATIC_ROOT,
+    )

@@ -166,12 +166,45 @@
     class="clickable-row">
 
     <td class="ticket-number">
+
+        {% if ticket.is_starred %}
+
+            <form
+                method="POST"
+                action="{% url 'toggle_ticket_star' ticket.id %}"
+                class="ticket-star-form"
+                onclick="event.stopPropagation();"
+            >
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="ticket-star-btn starred"
+                    title="Unstar ticket"
+                >
+                    <i class="fa-solid fa-star"></i>
+                </button>
+            </form>
+
+        {% endif %}
+
         <a
-        href="{% url 'ticket_detail' ticket.id %}"
-        class="ticket-link"
-    >
-        {{ ticket.ticket_number }}
+            href="{% url 'ticket_detail' ticket.id %}"
+            class="ticket-link"
+            onclick="event.stopPropagation();"
+        >
+            {{ ticket.ticket_number }}
         </a>
+
+        {% if ticket.is_starred %}
+            {% with latest_note=ticket.notes.all|first %}
+                {% if latest_note %}
+                    <div class="latest-ticket-note">
+                        {{ latest_note.content }}
+                    </div>
+                {% endif %}
+            {% endwith %}
+        {% endif %}
 
     </td>
 
@@ -246,13 +279,128 @@
 </tbody>
 
     </table>
+<div class="pagination">
 
+    {% if tickets.has_previous %}
+        <a
+            href="#"
+            id="previous-page-btn"
+            class="page-btn"
+        >
+            <i class="fa-solid fa-chevron-left"></i>
+        </a>
+    {% else %}
+        <span
+            id="previous-page-btn"
+            class="page-btn disabled"
+        >
+            <i class="fa-solid fa-chevron-left"></i>
+        </span>
+    {% endif %}
+
+
+    <div class="page-number">
+
+        <input
+            type="number"
+            id="page-input"
+            min="1"
+            max="{{ tickets.paginator.num_pages }}"
+            value="{{ tickets.number }}"
+        >
+
+        <span id="page-total">
+            / {{ tickets.paginator.num_pages }}
+        </span>
+
+        <button
+            type="button"
+            id="go-page-btn"
+        >
+            Go
+        </button>
+
+    </div>
+
+
+    {% if tickets.has_next %}
+        <a
+            href="#"
+            id="next-page-btn"
+            class="page-btn"
+        >
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+    {% else %}
+        <span
+            id="next-page-btn"
+            class="page-btn disabled"
+        >
+            <i class="fa-solid fa-chevron-right"></i>
+        </span>
+    {% endif %}
+
+</div>
 </div>
 
 
 </div>
 
 <style>
+.ticket-number{
+    color:#c79c3d;
+    font-weight:600;
+}
+
+.latest-ticket-note {
+    margin-top: 5px;
+    font-size: 14px;
+    font-weight: 400;
+    color: grey;
+    max-width: 240px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+}
+
+.latest-ticket-note i {
+    color: #c79c3d;
+    margin-right: 4px;
+}
+
+.ticket-star-form{
+    display:inline-flex;
+    margin:0;
+    padding:0;
+    margin-right:8px;
+    vertical-align:middle;
+}
+
+.ticket-star-btn{
+    border:none;
+    background:none;
+    padding:0;
+    margin:0;
+    cursor:pointer;
+
+    color:#c79c3d;
+
+    font-size:14px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.ticket-star-btn:hover{
+    color:#b58b2f;
+    transform:scale(1.1);
+}
+
+.ticket-star-btn i{
+    pointer-events:none;
+}
 
 .tickets-page{
     width:100%;
@@ -500,11 +648,123 @@
     font-weight:600;
 }
 
+.pagination{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    padding:12px;
+    border-top:1px solid #eee;
+    background:#fff;
+}
+
+.page-btn{
+    width:32px;
+    height:32px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border:1px solid #ddd;
+    border-radius:8px;
+
+    background:white;
+    color:#444;
+
+    text-decoration:none;
+    cursor:pointer;
+
+    font-size:14px;
+}
+
+.page-btn:hover{
+    background:#faf7ef;
+    border-color:#c79c3d;
+    color:#c79c3d;
+}
+
+.page-btn.disabled{
+    color:#ccc;
+    background:#f8f8f8;
+    cursor:not-allowed;
+}
+
+.page-number{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:13px;
+    color:#666;
+}
+
+#page-input{
+    width:45px;
+    height:32px;
+    padding:0 6px;
+
+    border:1px solid #ddd;
+    border-radius:8px;
+
+    text-align:center;
+    box-sizing:border-box;
+}
+
+#page-input:focus{
+    outline:none;
+    border-color:#c79c3d;
+}
+
+#go-page-btn{
+    height:32px;
+    padding:0 10px;
+
+    border:none;
+    border-radius:8px;
+
+    background:#c79c3d;
+    color:white;
+
+    cursor:pointer;
+    font-size:13px;
+}
+
+#go-page-btn:hover{
+    background:#b58b2f;
+}
+
 
 
 </style>
 
 <script>
+    function getCSRFToken(){
+
+    const name = "csrftoken=";
+
+    const decodedCookie =
+        decodeURIComponent(document.cookie);
+
+    const cookies =
+        decodedCookie.split(";");
+
+    for(let cookie of cookies){
+
+        cookie = cookie.trim();
+
+        if(cookie.indexOf(name) === 0){
+
+            return cookie.substring(
+                name.length,
+                cookie.length
+            );
+
+        }
+
+    }
+
+    return "";
+
+}
 
 const searchInput =
     document.getElementById(
@@ -523,10 +783,10 @@ const jobTypeFilter =
 
 let typingTimer;
 
-function loadTickets(){
+function loadTickets(page = 1){
 
     const search =
-        searchInput.value;
+        searchInput.value.trim();
 
     const status =
         statusFilter.value;
@@ -534,10 +794,67 @@ function loadTickets(){
     const jobType =
         jobTypeFilter.value;
 
+    // --------------------------------
+    // Keep Dashboard filters
+    // --------------------------------
+
+    const currentParams =
+        new URLSearchParams(window.location.search);
+
+    const open =
+        currentParams.get("open") || "";
+
+    const due =
+        currentParams.get("due") || "";
+
+    const pickup =
+        currentParams.get("pickup") || "";
+
+    const overdue =
+        currentParams.get("overdue") || "";
+
+    const params =
+        new URLSearchParams();
+
+    params.set(
+        "search",
+        search
+    );
+
+    params.set(
+        "status",
+        status
+    );
+
+    params.set(
+        "job_type",
+        jobType
+    );
+
+    params.set(
+        "page",
+        page
+    );
+
+    // Preserve Dashboard filter
+    if (open) {
+        params.set("open", open);
+    }
+
+    if (due) {
+        params.set("due", due);
+    }
+
+    if (pickup) {
+        params.set("pickup", pickup);
+    }
+
+    if (overdue) {
+        params.set("overdue", overdue);
+    }
+
     fetch(
-
-        `/tickets/search/?search=${encodeURIComponent(search)}&status=${status}&job_type=${jobType}`
-
+        `/tickets/search/?${params.toString()}`
     )
 
     .then(
@@ -559,59 +876,181 @@ function loadTickets(){
             data.count +
             " tickets found";
 
+        // --------------------------------
+        // Update pagination
+        // --------------------------------
+
+        const pageInput =
+            document.getElementById("page-input");
+
+        const pageTotal =
+            document.getElementById("page-total");
+
+        if (pageInput && pageTotal) {
+
+            pageInput.value = data.page;
+
+            pageInput.max = data.num_pages;
+
+            pageTotal.textContent =
+                `/ ${data.num_pages}`;
+        }
+
+        // --------------------------------
+        // Update previous button
+        // --------------------------------
+
+        const previousButton =
+            document.getElementById("previous-page-btn");
+
+        if (previousButton) {
+
+            if (data.has_previous) {
+
+                previousButton.classList.remove(
+                    "disabled"
+                );
+
+            } else {
+
+                previousButton.classList.add(
+                    "disabled"
+                );
+
+            }
+        }
+
+        // --------------------------------
+        // Update next button
+        // --------------------------------
+
+        const nextButton =
+            document.getElementById("next-page-btn");
+
+        if (nextButton) {
+
+            if (data.has_next) {
+
+                nextButton.classList.remove(
+                    "disabled"
+                );
+
+            } else {
+
+                nextButton.classList.add(
+                    "disabled"
+                );
+
+            }
+        }
+
+        // --------------------------------
+        // Display tickets
+        // --------------------------------
+
         data.tickets.forEach(ticket => {
 
             tbody.innerHTML += `
 
-<tr>
+<tr
+    onclick="window.location='/ticket/${ticket.id}/'"
+    class="clickable-row">
 
-<td>
+<td class="ticket-number">
 
-<a
-    href="/ticket/${ticket.id}/"
-    class="ticket-link"
->
-${ticket.ticket_number}
-</a>
+    ${
+        ticket.is_starred
+        ? `
+            <form
+                method="POST"
+                action="/ticket/${ticket.id}/toggle-star/"
+                class="ticket-star-form"
+                onclick="event.stopPropagation();"
+            >
+                <input
+                    type="hidden"
+                    name="csrfmiddlewaretoken"
+                    value="${getCSRFToken()}"
+                >
+
+                <button
+                    type="submit"
+                    class="ticket-star-btn starred"
+                    title="Unstar ticket"
+                    onclick="event.stopPropagation();"
+                >
+                    <i class="fa-solid fa-star"></i>
+                </button>
+
+            </form>
+        `
+        : ""
+    }
+
+    <a
+        href="/ticket/${ticket.id}/"
+        class="ticket-link"
+        onclick="event.stopPropagation();"
+    >
+        ${ticket.ticket_number}
+    </a>
+    ${
+        ticket.is_starred && ticket.latest_note
+        ? `
+            <div class="latest-ticket-note">
+                
+                ${ticket.latest_note}
+            </div>
+        `
+        : ""
+    }
 
 </td>
 
 <td>
-<strong>
-${ticket.customer}
-</strong>
-<br>
-<span class="phone">
-${ticket.phone}
-</span>
-</td>
 
-<td>
-${ticket.job_type}
-</td>
+    <strong>
+        ${ticket.customer}
+    </strong>
 
-<td>
+    <br>
 
-<span
-class="badge"
-style="
-background:${ticket.status_color}20;
-color:${ticket.status_color};
-"
->
-
-${ticket.status}
-
-</span>
+    <span class="phone">
+        ${ticket.phone}
+    </span>
 
 </td>
 
 <td>
-${ticket.due_date}
+    ${ticket.job_type}
 </td>
 
 <td>
-${ticket.created_date}
+
+    <span
+        class="badge"
+        style="
+        background:${ticket.status_color}20;
+        color:${ticket.status_color};
+        "
+    >
+
+        ${ticket.status}
+
+    </span>
+
+</td>
+
+<td>
+    ${
+        ticket.is_overdue
+        ? `<span class="overdue-date">${ticket.due_date}</span>`
+        : ticket.due_date
+    }
+</td>
+
+<td>
+    ${ticket.created_date}
 </td>
 
 </tr>
@@ -634,7 +1073,13 @@ searchInput.addEventListener(
 
         typingTimer =
             setTimeout(
-                loadTickets,
+                function(){
+
+                    // Always go back to page 1
+                    // when a new search is started
+                    loadTickets(1);
+
+                },
                 300
             );
 
@@ -643,13 +1088,128 @@ searchInput.addEventListener(
 
 statusFilter.addEventListener(
     "change",
-    loadTickets
+    function(){
+        loadTickets(1);
+    }
 );
 
 jobTypeFilter.addEventListener(
     "change",
-    loadTickets
+    function(){
+        loadTickets(1);
+    }
 );
+
+const pageInput =
+    document.getElementById("page-input");
+
+const goPageBtn =
+    document.getElementById("go-page-btn");
+
+const previousPageBtn =
+    document.getElementById("previous-page-btn");
+
+const nextPageBtn =
+    document.getElementById("next-page-btn");
+
+
+if (goPageBtn && pageInput) {
+
+    goPageBtn.addEventListener(
+        "click",
+        function(){
+
+            let page =
+                parseInt(pageInput.value);
+
+            const maxPage =
+                parseInt(pageInput.max);
+
+            if (isNaN(page)) {
+                return;
+            }
+
+            if (page < 1) {
+                page = 1;
+            }
+
+            if (page > maxPage) {
+                page = maxPage;
+            }
+
+            loadTickets(page);
+
+        }
+    );
+
+
+    pageInput.addEventListener(
+        "keydown",
+        function(event){
+
+            if (event.key === "Enter") {
+
+                goPageBtn.click();
+
+            }
+
+        }
+    );
+
+}
+
+
+if (previousPageBtn) {
+
+    previousPageBtn.addEventListener(
+        "click",
+        function(event){
+
+            event.preventDefault();
+
+            const currentPage =
+                parseInt(pageInput.value);
+
+            if (currentPage > 1) {
+
+                loadTickets(
+                    currentPage - 1
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+if (nextPageBtn) {
+
+    nextPageBtn.addEventListener(
+        "click",
+        function(event){
+
+            event.preventDefault();
+
+            const currentPage =
+                parseInt(pageInput.value);
+
+            const maxPage =
+                parseInt(pageInput.max);
+
+            if (currentPage < maxPage) {
+
+                loadTickets(
+                    currentPage + 1
+                );
+
+            }
+
+        }
+    );
+
+}
 
 </script>
 

@@ -7,6 +7,11 @@ class Customer(models.Model):
     email = models.EmailField(blank=True, null=True)
     note = models.TextField(blank=True)
 
+    wedding_date = models.DateField(
+        blank=True,
+        null=True
+    )
+
     created_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:

@@ -490,9 +490,32 @@ def all_tickets(request):
 
     tickets = Ticket.objects.select_related(
         'customer', 'job_type', 'status'
-    ).order_by('-created_date')
+    )
 
     search = request.GET.get('search')
+    sort = request.GET.get('sort', 'created_date')
+    direction = request.GET.get('direction', 'desc')
+
+    # --------------------------------
+    # Sorting
+    # --------------------------------
+
+    allowed_sorts = {
+        'ticket_number': 'ticket_number',
+        'customer': 'customer__name',
+        'job_type': 'job_type__type',
+        'status': 'status__status',
+        'due_date': 'due_date',
+        'created_date': 'created_date',
+    }
+
+    sort_field = allowed_sorts.get(sort, 'created_date')
+
+    if direction == 'asc':
+        tickets = tickets.order_by(sort_field)
+    else:
+        direction = 'desc'
+        tickets = tickets.order_by(f'-{sort_field}')
     status_id = request.GET.get('status')
     job_type_id = request.GET.get('job_type')
     open_jobs = request.GET.get("open")
@@ -554,6 +577,10 @@ def all_tickets(request):
         "selected_job_type": job_type_id,
         "search": search or "",
         "today": timezone.now().date(),
+
+        # Sorting
+        "sort": sort,
+        "direction": direction,
     }
 
     return render(request, "core/all_tickets.html", context)
@@ -566,6 +593,9 @@ def ticket_search(request):
     job_type = request.GET.get('job_type', '')
     page_number = request.GET.get('page', 1)
 
+    sort = request.GET.get('sort', 'created_date')
+    direction = request.GET.get('direction', 'desc')
+
     # Dashboard filters
     open_jobs = request.GET.get("open")
     due = request.GET.get("due")
@@ -574,7 +604,7 @@ def ticket_search(request):
 
     tickets = Ticket.objects.select_related(
         'customer', 'job_type', 'status'
-    ).order_by('-created_date')
+    )
 
     # --------------------------------
     # Search
@@ -692,6 +722,34 @@ def ticket_search(request):
                 "Ready for Pickup"
             ]
         )
+
+
+    # --------------------------------
+    # Sorting
+    # --------------------------------
+
+    allowed_sorts = {
+        'ticket_number': 'ticket_number',
+        'customer': 'customer__name',
+        'job_type': 'job_type__type',
+        'status': 'status__status',
+        'due_date': 'due_date',
+        'created_date': 'created_date',
+    }
+
+    sort_field = allowed_sorts.get(
+        sort,
+        'created_date'
+    )
+
+    if direction == 'asc':
+        tickets = tickets.order_by(sort_field)
+    else:
+        direction = 'desc'
+        tickets = tickets.order_by(
+            f'-{sort_field}'
+        )
+
 
     # --------------------------------
     # Ticket pagination

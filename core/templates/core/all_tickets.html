@@ -144,16 +144,55 @@
     <table class="ticket-table">
 
         <thead>
-
             <tr>
-                <th>TICKET #</th>
-                <th>CUSTOMER</th>
-                <th>JOB TYPE</th>
-                <th>STATUS</th>
-                <th>DUE DATE</th>
-                <th>CREATED</th>
-            </tr>
+                <th
+                    class="sortable-header"
+                    data-sort="ticket_number"
+                >
+                    TICKET #
+                    <i class="fa-solid fa-sort sort-icon"></i>
+                </th>
 
+                <th
+                    class="sortable-header"
+                    data-sort="customer"
+                >
+                    CUSTOMER
+                    <i class="fa-solid fa-sort sort-icon"></i>
+                </th>
+
+                <th
+                    class="sortable-header"
+                    data-sort="job_type"
+                >
+                    JOB TYPE
+                    <i class="fa-solid fa-sort sort-icon"></i>
+                </th>
+
+                <th
+                    class="sortable-header"
+                    data-sort="status"
+                >
+                    STATUS
+                    <i class="fa-solid fa-sort sort-icon"></i>
+                </th>
+
+                <th
+                    class="sortable-header"
+                    data-sort="due_date"
+                >
+                    DUE DATE
+                    <i class="fa-solid fa-sort sort-icon"></i>
+                </th>
+
+                <th
+                    class="sortable-header"
+                    data-sort="created_date"
+                >
+                    CREATED
+                    <i class="fa-solid fa-sort sort-icon"></i>
+                </th>
+            </tr>
         </thead>
 
         <tbody id="ticketTableBody">
@@ -732,6 +771,35 @@
     background:#b58b2f;
 }
 
+.sortable-header {
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.2s ease;
+}
+
+.sortable-header:hover {
+    color: #c79c3d;
+}
+
+.sort-icon {
+    margin-left: 6px;
+    font-size: 11px;
+    color: #aaa;
+    transition: color 0.2s ease;
+}
+
+.sortable-header:hover .sort-icon {
+    color: #c79c3d;
+}
+
+.sortable-header.active {
+    color: #c79c3d;
+}
+
+.sortable-header.active .sort-icon {
+    color: #c79c3d;
+}
+
 
 
 </style>
@@ -782,7 +850,8 @@ const jobTypeFilter =
     );
 
 let typingTimer;
-
+let currentSort = "{{ sort|default:'created_date' }}";
+let currentDirection = "{{ direction|default:'desc' }}";
 function loadTickets(page = 1){
 
     const search =
@@ -834,6 +903,16 @@ function loadTickets(page = 1){
     params.set(
         "page",
         page
+    );
+
+    params.set(
+        "sort",
+        currentSort
+    );
+
+    params.set(
+        "direction",
+        currentDirection
     );
 
     // Preserve Dashboard filter
@@ -1210,6 +1289,97 @@ if (nextPageBtn) {
     );
 
 }
+
+// --------------------------------
+// Sortable table headers
+// --------------------------------
+
+const sortableHeaders =
+    document.querySelectorAll(".sortable-header");
+
+
+function updateSortIcons(){
+
+    sortableHeaders.forEach(header => {
+
+        const icon =
+            header.querySelector(".sort-icon");
+
+        const field =
+            header.dataset.sort;
+
+        header.classList.remove("active");
+
+        icon.className =
+            "fa-solid fa-sort sort-icon";
+
+
+        if(field === currentSort){
+
+            header.classList.add("active");
+
+            if(currentDirection === "asc"){
+
+                icon.className =
+                    "fa-solid fa-sort-up sort-icon";
+
+            }else{
+
+                icon.className =
+                    "fa-solid fa-sort-down sort-icon";
+
+            }
+
+        }
+
+    });
+
+}
+
+
+sortableHeaders.forEach(header => {
+
+    header.addEventListener(
+        "click",
+        function(){
+
+            const field =
+                this.dataset.sort;
+
+
+            if(currentSort === field){
+
+                // Same column:
+                // switch direction
+
+                currentDirection =
+                    currentDirection === "asc"
+                        ? "desc"
+                        : "asc";
+
+            }else{
+
+                // New column:
+                // start ascending
+
+                currentSort = field;
+                currentDirection = "asc";
+
+            }
+
+
+            updateSortIcons();
+
+            // Always return to page 1
+            loadTickets(1);
+
+        }
+    );
+
+});
+
+
+updateSortIcons();
 
 </script>
 

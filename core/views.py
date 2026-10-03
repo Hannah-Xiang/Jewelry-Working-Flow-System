@@ -14,6 +14,8 @@ from django.urls import reverse_lazy
 from django.contrib.auth.views import PasswordResetConfirmView
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
+from django.db.models import IntegerField
+from django.db.models.functions import Substr, Cast
 from .models import (
     Ticket,
     Customer,
@@ -823,17 +825,99 @@ def calendar(request):
 def ticket_detail(request, ticket_id):
 
     ticket = get_object_or_404(Ticket, id=ticket_id)
+
     latest_note = ticket.notes.order_by("-created_at").first()
+
+    # =========================================
+    # Previous / Next Ticket Navigation
+    # Ordered by ticket number
+    # =========================================
+
+    ordered_tickets = list(
+        Ticket.objects
+        .annotate(
+            ticket_prefix=Substr("ticket_number", 1, 2),
+            ticket_year=Cast(
+                Substr("ticket_number", 4, 4),
+                IntegerField()
+            ),
+            ticket_sequence=Cast(
+                Substr("ticket_number", 9),
+                IntegerField()
+            ),
+        )
+        .order_by(
+            "ticket_prefix",
+            "ticket_year",
+            "ticket_sequence"
+        )
+        .values_list("id", "ticket_number")
+    )
+
+    current_index = next(
+        (
+            index
+            for index, (ticket_id_value, ticket_number) 
+            in enumerate(ordered_tickets)
+            if ticket_id_value == ticket.id
+        ),
+        None
+    )
+
+    previous_ticket = None
+    next_ticket = None
+
+    if current_index is not None:
+
+        # Previous ticket
+        if current_index > 0:
+            previous_id, previous_number = ordered_tickets[current_index - 1]
+
+            previous_ticket = {
+                "id": previous_id,
+                "ticket_number": previous_number,
+            }
+
+        # Next ticket
+        if current_index < len(ordered_tickets) - 1:
+            next_id, next_number = ordered_tickets[current_index + 1]
+
+            next_ticket = {
+                "id": next_id,
+                "ticket_number": next_number,
+            }
 
     context = {
         "ticket": ticket,
+
         "statuses": Status.objects.all(),
-        "ready_status": Status.objects.filter(status="Ready for Pickup").first(),
-        "completed_status": Status.objects.filter(status="Completed").first(),
+
+        "ready_status": Status.objects.filter(
+            status="Ready for Pickup"
+        ).first(),
+
+        "completed_status": Status.objects.filter(
+            status="Completed"
+        ).first(),
+
         "latest_note": latest_note,
+
+        # Navigation
+        "previous_ticket": previous_ticket,
+        "next_ticket": next_ticket,
+        "ticket_position": (
+            current_index + 1
+            if current_index is not None
+            else 0
+        ),
+        "ticket_total": len(ordered_tickets),
     }
 
-    return render(request, "core/ticket_detail.html", context)
+    return render(
+        request,
+        "core/ticket_detail.html",
+        context
+    )
 @login_required
 def toggle_ticket_star(request, ticket_id):
 

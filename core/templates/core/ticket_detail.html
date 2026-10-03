@@ -6,10 +6,53 @@
 
 <div class="ticket-detail-page">
 
-    <div class="back-link">
-        <a href="{% url 'all_tickets' %}">
-            ← All Tickets
-        </a>
+    <div class="ticket-top-navigation">
+
+        <div class="back-link">
+            <a href="{% url 'all_tickets' %}">
+                ← All Tickets
+            </a>
+        </div>
+
+        <!-- TICKET NAVIGATION -->
+        <div class="ticket-navigation">
+
+            {% if previous_ticket %}
+                <a
+                    href="{% url 'ticket_detail' previous_ticket.id %}"
+                    class="ticket-nav-btn"
+                >
+                    <span class="nav-arrow">←</span>
+                    <span>{{ previous_ticket.ticket_number }}</span>
+                </a>
+            {% else %}
+                <span class="ticket-nav-btn disabled">
+                    <span class="nav-arrow">←</span>
+                    <span>Previous</span>
+                </span>
+            {% endif %}
+
+            <span class="ticket-position">
+                {{ ticket_position }} / {{ ticket_total }}
+            </span>
+
+            {% if next_ticket %}
+                <a
+                    href="{% url 'ticket_detail' next_ticket.id %}"
+                    class="ticket-nav-btn"
+                >
+                    <span>{{ next_ticket.ticket_number }}</span>
+                    <span class="nav-arrow">→</span>
+                </a>
+            {% else %}
+                <span class="ticket-nav-btn disabled">
+                    <span>Next</span>
+                    <span class="nav-arrow">→</span>
+                </span>
+            {% endif %}
+
+        </div>
+
     </div>
 
     <div class="ticket-header">
@@ -75,37 +118,55 @@
 
         <!-- LEFT -->
 
-        <div>
+<div>
 
+    <!-- TOP SECTION -->
+    <div class="detail-top-left">
+
+        <!-- CUSTOMER + JOB -->
+        <div class="customer-job-column">
+
+            <!-- CUSTOMER INFORMATION -->
             <div class="card">
 
                 <h3>
                     Customer Information
                 </h3>
+
                 </br>
+
                 <div class="customer-box">
 
                     <div class="avatar">
                         {{ ticket.customer.name|slice:":2"|upper }}
                     </div>
-                    
+
                     <div>
 
                         <h4>
                             {{ ticket.customer.name }}
                         </h4>
+
                         {% if ticket.customer.phone %}
                             <p>
-                                <i class="fa-solid fa-phone" style="color:#999; font-size: 0.8em;"></i> {{ ticket.customer.phone }}
-                            </p>
-                        {% endif %}
-                        {% if ticket.customer.email %}
-                            <p>
-                                <i class="fa-solid fa-envelope" style="color:#999; font-size: 0.8em;"></i> {{ ticket.customer.email }}
+                                <i class="fa-solid fa-phone"
+                                   style="color:#999; font-size: 0.8em;">
+                                </i>
+                                {{ ticket.customer.phone }}
                             </p>
                         {% endif %}
 
-                        <a href="{% url 'customers' %}?customer={{ ticket.customer.id }}" class="history-link">
+                        {% if ticket.customer.email %}
+                            <p>
+                                <i class="fa-solid fa-envelope"
+                                   style="color:#999; font-size: 0.8em;">
+                                </i>
+                                {{ ticket.customer.email }}
+                            </p>
+                        {% endif %}
+
+                        <a href="{% url 'customers' %}?customer={{ ticket.customer.id }}"
+                           class="history-link">
                             View customer history →
                         </a>
 
@@ -115,182 +176,307 @@
 
             </div>
 
-            <div class="card">
+
+            <!-- JOB DESCRIPTION -->
+            <div class="card job-description-card">
 
                 <h3>
                     Job Description
                 </h3>
+
                 <br>
-                <p>
+
+                <div class="job-description-scroll">
                     {{ ticket.description|linebreaksbr }}
-                </p>
+                </div>
 
+                
+
+
+                {% if ticket.ring_finger %}
+
+                    <div class="ring-finger-detail">
+
+                        <div class="ring-finger-title">
+                            Ring Finger
+                        </div>
+
+                        <div class="hand-selector-detail">
+
+                            <div class="hand-wrapper-detail">
+
+                                <img
+                                    src="{% static 'images/hand.svg' %}"
+                                    class="hand-image-detail"
+                                    alt="Ring finger"
+                                >
+
+                                <!-- LEFT HAND -->
+
+                                <div
+                                    class="finger-zone-detail left-pinky-detail
+                                    {% if ticket.ring_finger == 'left_little' %}selected{% endif %}">
+                                </div>
+
+                                <div
+                                    class="finger-zone-detail left-ring-detail
+                                    {% if ticket.ring_finger == 'left_ring' %}selected{% endif %}">
+                                </div>
+
+                                <div
+                                    class="finger-zone-detail left-middle-detail
+                                    {% if ticket.ring_finger == 'left_middle' %}selected{% endif %}">
+                                </div>
+
+                                <div
+                                    class="finger-zone-detail left-index-detail
+                                    {% if ticket.ring_finger == 'left_index' %}selected{% endif %}">
+                                </div>
+
+                                <div
+                                    class="finger-zone-detail left-thumb-detail
+                                    {% if ticket.ring_finger == 'left_thumb' %}selected{% endif %}">
+                                </div>
+
+
+                                <!-- RIGHT HAND -->
+
+                                <div
+                                    class="finger-zone-detail right-pinky-detail
+                                    {% if ticket.ring_finger == 'right_little' %}selected{% endif %}">
+                                </div>
+
+                                <div
+                                    class="finger-zone-detail right-ring-detail
+                                    {% if ticket.ring_finger == 'right_ring' %}selected{% endif %}">
+                                </div>
+
+                                <div
+                                    class="finger-zone-detail right-middle-detail
+                                    {% if ticket.ring_finger == 'right_middle' %}selected{% endif %}">
+                                </div>
+
+                                <div
+                                    class="finger-zone-detail right-index-detail
+                                    {% if ticket.ring_finger == 'right_index' %}selected{% endif %}">
+                                </div>
+
+                                <div
+                                    class="finger-zone-detail right-thumb-detail
+                                    {% if ticket.ring_finger == 'right_thumb' %}selected{% endif %}">
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="selected-finger-detail">
+
+                            Selected:
+
+                            <strong>
+                                {{ ticket.get_ring_finger_display }}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                {% endif %}
+                
                 <div class="price-badge">
-    Value / Price:&nbsp;
-    <span>
-        {% if ticket.price is not None %}
-            ${{ ticket.price }}
-        {% else %}
-            N/A
-        {% endif %}
-    </span>
-</div>
 
-{% if ticket.ring_finger %}
-    <div class="ring-finger-detail">
+                    Value / Price:&nbsp;
 
-        <div class="ring-finger-title">
-            Ring Finger
-        </div>
+                    <span>
 
-        <div class="hand-selector-detail">
+                        {% if ticket.price is not None %}
+                            ${{ ticket.price }}
+                        {% else %}
+                            N/A
+                        {% endif %}
 
-            <div class="hand-wrapper-detail">
+                    </span>
 
-                <img
-                    src="{% static 'images/hand.svg' %}"
-                    class="hand-image-detail"
-                    alt="Ring finger"
-                >
-
-                <!-- LEFT HAND -->
-
-                <div
-                    class="finger-zone-detail left-pinky-detail {% if ticket.ring_finger == 'left_little' %}selected{% endif %}">
                 </div>
-
-                <div
-                    class="finger-zone-detail left-ring-detail {% if ticket.ring_finger == 'left_ring' %}selected{% endif %}">
-                </div>
-
-                <div
-                    class="finger-zone-detail left-middle-detail {% if ticket.ring_finger == 'left_middle' %}selected{% endif %}">
-                </div>
-
-                <div
-                    class="finger-zone-detail left-index-detail {% if ticket.ring_finger == 'left_index' %}selected{% endif %}">
-                </div>
-
-                <div
-                    class="finger-zone-detail left-thumb-detail {% if ticket.ring_finger == 'left_thumb' %}selected{% endif %}">
-                </div>
-
-
-                <!-- RIGHT HAND -->
-
-                <div
-                    class="finger-zone-detail right-pinky-detail {% if ticket.ring_finger == 'right_little' %}selected{% endif %}">
-                </div>
-
-                <div
-                    class="finger-zone-detail right-ring-detail {% if ticket.ring_finger == 'right_ring' %}selected{% endif %}">
-                </div>
-
-                <div
-                    class="finger-zone-detail right-middle-detail {% if ticket.ring_finger == 'right_middle' %}selected{% endif %}">
-                </div>
-
-                <div
-                    class="finger-zone-detail right-index-detail {% if ticket.ring_finger == 'right_index' %}selected{% endif %}">
-                </div>
-
-                <div
-                    class="finger-zone-detail right-thumb-detail {% if ticket.ring_finger == 'right_thumb' %}selected{% endif %}">
-                </div>
-
             </div>
 
         </div>
 
-        <div class="selected-finger-detail">
-            Selected:
-            <strong>{{ ticket.get_ring_finger_display }}</strong>
-        </div>
 
-    </div>
-{% endif %}
+        <!-- PHOTOS -->
+        <div class="card photo-card">
 
-            </div>
-
-            <div class="card">
+            <div class="photo-card-header">
 
                 <h3>
                     Photos
                 </h3>
-                </br>
 
                 {% if ticket.photos.all %}
-                    <div class="photo-grid">
-                        {% for photo in ticket.photos.all %}
-                            <img src="{{ photo.image.url }}" alt="Ticket photo" class="ticket-photo">
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="photo-placeholder">
-                        No photos attached
-                    </div>
+                    <span id="photo-counter">
+                        1 / {{ ticket.photos.all|length }}
+                    </span>
                 {% endif %}
 
             </div>
 
-            <div class="card">
 
-                <div class="card-header-row">
-                    <h3>Notes</h3>
+            {% if ticket.photos.all %}
 
-                    <button type="button" class="add-note-btn" onclick="document.getElementById('add-note-form').classList.toggle('hidden')">
-                        + Add Note
-                    </button>
+                <div class="photo-viewer">
+
+                    {% for photo in ticket.photos.all %}
+
+                        <img
+                            src="{{ photo.image.url }}"
+                            alt="Ticket photo"
+                            class="ticket-photo-slide {% if forloop.first %}active{% endif %}"
+                            data-index="{{ forloop.counter0 }}"
+                        >
+
+                    {% endfor %}
+
+
+                    {% if ticket.photos.all|length > 1 %}
+
+                        <button
+                            type="button"
+                            class="photo-nav photo-prev"
+                            onclick="changePhoto(-1)"
+                        >
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+
+                        <button
+                            type="button"
+                            class="photo-nav photo-next"
+                            onclick="changePhoto(1)"
+                        >
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+
+                    {% endif %}
+
                 </div>
 
-                <form
-                    id="add-note-form"
-                    method="POST"
-                    action="{% url 'add_note' ticket.id %}"
-                    class="inline-note-form hidden"
-                >
-                    {% csrf_token %}
-                    <input type="hidden" name="next" value="{{ request.path }}">
-                    <textarea name="content" rows="3" placeholder="Write a note..." required></textarea>
-                    <button type="submit" class="save-note-btn">Save Note</button>
-                </form>
+            {% else %}
 
-                {% if ticket.notes.all %}
-                    {% for note in ticket.notes.all %}
-                        <div class="note-card">
+                <div class="photo-placeholder">
+                    No photos attached
+                </div>
 
-                            <div class="note-header">
+            {% endif %}
 
-                                <div class="note-content">{{ note.content }}</div>
+        </div>
 
-                                <form
-    method="POST"
-    action="{% url 'delete_note' note.id %}"
-    style="display:inline;"
-    onsubmit="return confirm('Delete this note?');"
->
-    {% csrf_token %}
+    </div>
 
-    <button class="delete-note-btn" type="submit">
-        <i class="fa-solid fa-trash-can"></i>
-    </button>
-</form>
 
-     </div>
+    <!-- NOTES -->
+    <div class="card">
 
-    <div class="note-meta">
-        {{ note.created_at|date:"M d, Y" }}
+        <div class="card-header-row">
+
+            <h3>
+                Notes
+            </h3>
+
+            <button
+                type="button"
+                class="add-note-btn"
+                onclick="document.getElementById('add-note-form').classList.toggle('hidden')"
+            >
+                + Add Note
+            </button>
+
+        </div>
+
+
+        <form
+            id="add-note-form"
+            method="POST"
+            action="{% url 'add_note' ticket.id %}"
+            class="inline-note-form hidden"
+        >
+
+            {% csrf_token %}
+
+            <input
+                type="hidden"
+                name="next"
+                value="{{ request.path }}"
+            >
+
+            <textarea
+                name="content"
+                rows="3"
+                placeholder="Write a note..."
+                required
+            ></textarea>
+
+            <button
+                type="submit"
+                class="save-note-btn"
+            >
+                Save Note
+            </button>
+
+        </form>
+
+
+        {% if ticket.notes.all %}
+
+            {% for note in ticket.notes.all %}
+
+                <div class="note-card">
+
+                    <div class="note-header">
+
+                        <div class="note-content">
+                            {{ note.content }}
+                        </div>
+
+                        <form
+                            method="POST"
+                            action="{% url 'delete_note' note.id %}"
+                            style="display:inline;"
+                            onsubmit="return confirm('Delete this note?');"
+                        >
+
+                            {% csrf_token %}
+
+                            <button
+                                class="delete-note-btn"
+                                type="submit"
+                            >
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                    <div class="note-meta">
+                        {{ note.created_at|date:"M d, Y" }}
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p class="empty-note">
+                No notes yet.
+            </p>
+
+        {% endif %}
+
     </div>
 
 </div>
-                    {% endfor %}
-                {% else %}
-                    <p class="empty-note">No notes yet.</p>
-                {% endif %}
-
-            </div>
-
-        </div>
 
         <!-- RIGHT -->
 
@@ -546,13 +732,22 @@
 }
 
 .back-link{
-    margin-bottom:20px;
+    margin-bottom:0;
 }
 
 .back-link a{
     text-decoration:none;
     color:#666;
 }
+
+.ticket-top-navigation{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    width:100%;
+    margin-bottom:28px;
+}
+
 
 .ticket-header{
     display:flex;
@@ -619,6 +814,182 @@
     display:grid;
     grid-template-columns:2fr 1fr;
     gap:25px;
+}
+/* =========================================
+   TICKET DETAIL TOP LEFT
+========================================= */
+
+.detail-top-left {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap: 25px;
+    align-items: stretch;
+    margin-bottom: 25px;
+}
+
+
+/* Customer + Job column */
+
+.customer-job-column {
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* Make the two cards fit nicely */
+
+.customer-job-column .card {
+    margin-bottom: 25px;
+}
+
+
+/* =========================================
+   PHOTO VIEWER
+========================================= */
+
+.photo-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-sizing: border-box;
+    margin-bottom: 0;
+}
+.customer-job-column .card:last-child {
+    margin-bottom: 0;
+}
+
+
+.photo-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+
+.photo-card-header h3 {
+    margin: 0;
+}
+
+
+#photo-counter {
+    font-size: 13px;
+    color: #999;
+    font-weight: 500;
+}
+
+
+/* Main photo area */
+
+.photo-viewer {
+    position: relative;
+
+    width: 100%;
+
+    flex: 1;
+    min-height: 0;
+
+    background: #fafafa;
+
+    border-radius: 14px;
+
+    overflow: hidden;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* Every photo hidden by default */
+
+.ticket-photo-slide {
+    display: none;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+
+    border-radius: 12px;
+
+    cursor: pointer;
+
+    transition: opacity .2s ease;
+}
+
+
+/* Only current photo shown */
+
+.ticket-photo-slide.active {
+    display: block;
+}
+
+
+/* Previous / Next buttons */
+
+.photo-nav {
+    position: absolute;
+
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    width: 42px;
+    height: 42px;
+
+    border-radius: 50%;
+
+    border: 1px solid #e8dcc2;
+
+    background: rgba(255,255,255,.92);
+
+    color: #777;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    z-index: 5;
+
+    transition: all .2s ease;
+}
+
+
+.photo-nav:hover {
+    background: #c79c3d;
+    color: white;
+    border-color: #c79c3d;
+}
+
+
+.photo-prev {
+    left: 12px;
+}
+
+
+.photo-next {
+    right: 12px;
+}
+
+
+/* No photo */
+
+.photo-placeholder {
+    height: 475px;
+
+    background: #f7f7f7;
+
+    border-radius: 12px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    color: #999;
 }
 
 .card{
@@ -1117,6 +1488,17 @@
         flex-direction:column;
         gap:20px;
     }
+        .detail-top-left {
+        grid-template-columns: 1fr;
+    }
+
+    .photo-viewer {
+        height: 400px;
+    }
+
+    .photo-placeholder {
+        height: 400px;
+    }
 
 }
 
@@ -1315,23 +1697,232 @@
     }
 
 }
+
+
+/* =========================================
+   TICKET PREVIOUS / NEXT NAVIGATION
+========================================= */
+
+.ticket-navigation{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:0;
+}
+
+.ticket-nav-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+
+    padding:8px 14px;
+
+    border:1px solid #e8dcc2;
+    border-radius:10px;
+
+    background:#fffdf8;
+
+    color:#555;
+    text-decoration:none;
+
+    font-size:13px;
+    font-weight:500;
+
+    transition:all .2s ease;
+}
+
+.ticket-nav-btn:hover{
+    background:#faf7ef;
+    border-color:#c79c3d;
+    color:#c79c3d;
+}
+
+.ticket-nav-btn .nav-arrow{
+    font-size:16px;
+    line-height:1;
+}
+
+.ticket-position{
+    color:#777;
+    font-size:12px;
+    padding:0 2px;
+}
+
+.ticket-nav-btn.disabled{
+    opacity:.45;
+    cursor:default;
+    pointer-events:none;
+}
+
+/* =========================================
+   JOB DESCRIPTION CARD
+========================================= */
+
+/* =========================================
+   JOB DESCRIPTION
+========================================= */
+
+.job-description-card {
+    display: flex;
+    flex-direction: column;
+    height: 480px;
+    box-sizing: border-box;
+}
+
+
+/* Description area */
+
+.job-description-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 8px;
+    line-height: 1.5;
+    color: #222;
+    margin-bottom: 15px;
+}
+
+/* Scrollbar */
+
+.job-description-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.job-description-scroll::-webkit-scrollbar-track {
+    background: #f5f5f5;
+    border-radius: 10px;
+}
+
+.job-description-scroll::-webkit-scrollbar-thumb {
+    background: #d8c08b;
+    border-radius: 10px;
+}
+
+
+/* Price stays at bottom */
+
+.job-description-card .price-badge {
+    margin-top: auto;
+    flex-shrink: 0;
+}
+
+
+
 </style>
 
 <script>
 
-document.querySelectorAll(".ticket-photo").forEach(function(img){
+let currentPhotoIndex = 0;
 
-    img.addEventListener("click",function(){
+const photoSlides = document.querySelectorAll(".ticket-photo-slide");
 
-        document.getElementById("large-image").src=this.src;
+function showPhoto(index) {
 
-        document.getElementById("image-modal").style.display="flex";
+    if (photoSlides.length === 0) {
+        return;
+    }
+
+    if (index < 0) {
+        index = photoSlides.length - 1;
+    }
+
+    if (index >= photoSlides.length) {
+        index = 0;
+    }
+
+    currentPhotoIndex = index;
+
+
+    photoSlides.forEach(function(photo, i) {
+
+        photo.classList.toggle(
+            "active",
+            i === currentPhotoIndex
+        );
+
+    });
+
+
+    const counter = document.getElementById("photo-counter");
+
+    if (counter) {
+
+        counter.textContent =
+            (currentPhotoIndex + 1)
+            + " / "
+            + photoSlides.length;
+
+    }
+
+}
+
+
+function changePhoto(direction) {
+
+    showPhoto(
+        currentPhotoIndex + direction
+    );
+
+}
+
+
+/* =========================================
+   PHOTO CLICK → LARGE MODAL
+========================================= */
+
+photoSlides.forEach(function(img) {
+
+    img.addEventListener("click", function() {
+
+        document.getElementById("large-image").src =
+            this.src;
+
+        document.getElementById("image-modal").style.display =
+            "flex";
 
     });
 
 });
 
-document.getElementById("close-image").addEventListener("click",function(){
+
+/* =========================================
+   CLOSE IMAGE MODAL
+========================================= */
+
+document.getElementById("close-image").addEventListener(
+    "click",
+    function() {
+
+        document.getElementById("image-modal").style.display =
+            "none";
+
+    }
+);
+
+
+document.getElementById("image-modal").addEventListener(
+    "click",
+    function(e) {
+
+        if (e.target === this) {
+
+            this.style.display = "none";
+
+        }
+
+    }
+);
+
+
+/* =========================================
+   INITIAL PHOTO
+========================================= */
+
+showPhoto(0);
+
+</script>
+
+<!-- document.getElementById("close-image").addEventListener("click",function(){
 
     document.getElementById("image-modal").style.display="none";
 
@@ -1347,6 +1938,6 @@ document.getElementById("image-modal").addEventListener("click",function(e){
 
 });
 
-</script>
+</script> -->
 
 {% endblock %}

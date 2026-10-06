@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Customer, JobType, Note, Status, Ticket, TicketPhoto, StatusHistory, AuditLog
+from .models import Customer, JobType, Note, Status, Ticket, TicketPhoto, StatusHistory, AuditLog, MoldTag, MoldType, Mold
 
 # Register your models here.
 
@@ -9,6 +9,9 @@ admin.site.register(JobType)
 admin.site.register(Status)
 admin.site.register(Note)
 admin.site.register(StatusHistory)
+admin.site.register(MoldTag)
+admin.site.register(MoldType)
+admin.site.register(Mold)
 @admin.register(AuditLog)
 class AuditLogAdmin(admin.ModelAdmin):
     list_display = (

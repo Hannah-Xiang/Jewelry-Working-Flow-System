@@ -5,7 +5,7 @@ db.sqlite3
 .env
 .venv
 db.sqlite3
-media/tickets/
+media/
 logs/
 backup/
 django.log

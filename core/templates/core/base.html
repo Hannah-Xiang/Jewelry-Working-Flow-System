@@ -245,6 +245,11 @@
 
     overflow-y:auto;
 }
+    .sidebar-divider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.10);
+        margin: 18px 0;
+    }
 
     </style>
 
@@ -291,6 +296,13 @@
         <a href="/customers/" class="{% if request.path == '/customers/' %}active{% endif %}">
             <i class="fa-solid fa-users"></i>
             Customers
+        </a>
+
+        <div class="sidebar-divider"></div>
+
+        <a href="/molds/" class="{% if request.path == '/molds/' %}active{% endif %}">
+            <i class="fa-solid fa-layer-group"></i>
+            <span>Molds</span>
         </a>
 
     </div>

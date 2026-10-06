@@ -17,6 +17,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import IntegerField
 from django.db.models.functions import Substr, Cast
 from .models import (
+    Mold,
     Ticket,
     Customer,
     JobType,
@@ -24,7 +25,9 @@ from .models import (
     TicketPhoto,
     Note,
     StatusHistory,
-    AuditLog
+    AuditLog,
+    MoldTag,
+    MoldType,
 )
 import logging
 from .forms import CustomerForm, TicketForm
@@ -1678,3 +1681,140 @@ def base(request):
 
 def test_error(request):
     raise Exception("TEST ERROR - Jewelry System")
+
+@login_required
+def molds(request):
+
+    # -----------------------------------------
+    # Get all molds
+    # -----------------------------------------
+
+    molds_queryset = Mold.objects.select_related(
+        "type"
+    ).prefetch_related(
+        "tags"
+    ).order_by(
+        "mold_code"
+    )
+
+    # -----------------------------------------
+    # Search
+    # -----------------------------------------
+
+    keyword = request.GET.get("q", "").strip()
+
+    if keyword:
+        molds_queryset = molds_queryset.filter(
+            Q(mold_code__icontains=keyword)
+            | Q(file_name__icontains=keyword)
+            | Q(type__name__icontains=keyword)
+            | Q(tags__name__icontains=keyword)
+        ).distinct()
+
+    # -----------------------------------------
+    # Type filter
+    # -----------------------------------------
+
+    selected_type = request.GET.get(
+        "type",
+        "all"
+    )
+
+    if selected_type != "all":
+        molds_queryset = molds_queryset.filter(
+            type_id=selected_type
+        )
+
+    # -----------------------------------------
+    # Tag filter
+    # -----------------------------------------
+
+    selected_tags = request.GET.getlist(
+        "tag"
+    )
+
+    if selected_tags:
+
+        for tag_id in selected_tags:
+
+            molds_queryset = molds_queryset.filter(
+                tags__id=tag_id
+            )
+
+        molds_queryset = molds_queryset.distinct()
+
+    # -----------------------------------------
+    # Liked filter
+    # -----------------------------------------
+
+    liked = request.GET.get(
+        "liked",
+        ""
+    )
+
+    if liked == "1":
+        molds_queryset = molds_queryset.filter(
+            is_liked=True
+        )
+
+    # -----------------------------------------
+    # Get filter data
+    # -----------------------------------------
+
+    mold_types = MoldType.objects.all().order_by(
+        "name"
+    )
+
+    mold_tags = MoldTag.objects.all().order_by(
+        "name"
+    )
+
+    # -----------------------------------------
+    # Context
+    # -----------------------------------------
+
+    context = {
+        "molds": molds_queryset,
+        "mold_count": molds_queryset.count(),
+
+        "mold_types": mold_types,
+        "mold_tags": mold_tags,
+
+        "keyword": keyword,
+        "selected_type": selected_type,
+        "selected_tags": selected_tags,
+        "liked": liked,
+    }
+
+    return render(
+        request,
+        "core/all_molds.html",
+        context
+    )
+
+@login_required
+def mold_toggle_like(request):
+
+    if request.method != "POST":
+        return JsonResponse(
+            {"success": False},
+            status=405
+        )
+
+    mold_id = request.POST.get("mold_id")
+
+    mold = get_object_or_404(
+        Mold,
+        id=mold_id
+    )
+
+    mold.is_liked = not mold.is_liked
+
+    mold.save(
+        update_fields=["is_liked"]
+    )
+
+    return JsonResponse({
+        "success": True,
+        "is_liked": mold.is_liked
+    })

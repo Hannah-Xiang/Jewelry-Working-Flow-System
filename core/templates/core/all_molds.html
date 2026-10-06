@@ -1,0 +1,1159 @@
+{% extends "core/base.html" %}
+
+{% load static %}
+
+{% block title %}Molds{% endblock %}
+
+{% block content %}
+
+<style>
+
+    .page-header {
+        margin-bottom: 25px;
+    }
+
+    .page-header h1 {
+        font-size: 48px;
+    }
+
+    .page-tag {
+        color: #c79c3d;
+        letter-spacing: 2px;
+        font-size: 13px;
+        margin-bottom: 10px;
+    }
+
+
+    .molds-page {
+        padding: 36px;
+        max-width: 1500px;
+        margin: 0 auto;
+    }
+
+
+    /* -----------------------------------------
+       Header
+    ----------------------------------------- */
+
+    .molds-count {
+        color: #777777;
+        font-size: 15px;
+    }
+
+
+    /* -----------------------------------------
+       Search
+    ----------------------------------------- */
+
+    .molds-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+
+
+    .molds-search {
+        position: relative;
+        flex: 1;
+    }
+
+
+    .molds-search-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #777777;
+        font-size: 15px;
+    }
+
+
+    .molds-search input {
+        width: 100%;
+        height: 46px;
+        box-sizing: border-box;
+
+        border: 1px solid #e7ddc7;
+        border-radius: 10px;
+
+        background: #f9f7f1;
+
+        padding: 0 16px 0 40px;
+
+        font-size: 14px;
+        color: #222222;
+
+        outline: none;
+    }
+
+
+    .molds-search input:focus {
+        border-color: #c79c3d;
+        background: #ffffff;
+    }
+
+
+    /* -----------------------------------------
+       Type filter
+    ----------------------------------------- */
+
+    .molds-type-filter {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+
+        height: 46px;
+        padding: 4px;
+
+        border: 1px solid #e7ddc7;
+        border-radius: 10px;
+
+        background: #f9f7f1;
+
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+
+    .molds-type-filter a {
+        text-decoration: none;
+
+        color: #555555;
+
+        font-size: 14px;
+
+        padding: 9px 15px;
+
+        border-radius: 8px;
+
+        transition: 0.15s ease;
+    }
+
+
+    .molds-type-filter a:hover {
+        color: #111111;
+    }
+
+
+    .molds-type-filter a.active {
+        background: #ffffff;
+
+        color: #111111;
+
+        box-shadow:
+            0 1px 4px rgba(0,0,0,0.08);
+    }
+
+
+    /* -----------------------------------------
+       Tags
+    ----------------------------------------- */
+
+    .molds-tags {
+        display: flex;
+
+        flex-wrap: wrap;
+
+        gap: 8px;
+
+        margin-bottom: 26px;
+    }
+
+
+    .mold-tag-filter {
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 6px;
+
+        border: 1px solid #e7ddc7;
+
+        background: #f9f7f1;
+
+        color: #666666;
+
+        border-radius: 20px;
+
+        padding: 7px 12px;
+
+        font-size: 13px;
+
+        font-family: inherit;
+
+        cursor: pointer;
+
+        transition: 0.15s ease;
+    }
+
+
+    .mold-tag-filter:hover {
+        border-color: #c79c3d;
+
+        color: #333333;
+
+        background: #ffffff;
+    }
+
+
+    .mold-tag-filter.active {
+        background: #eee6d3;
+
+        border-color: #c79c3d;
+
+        color: #8f6c1c;
+    }
+
+
+    .mold-tag-icon {
+        font-size: 11px;
+    }
+
+
+    .mold-tag-filter.active .mold-tag-icon {
+        color: #c79c3d;
+    }
+
+
+    /* -----------------------------------------
+       Clear selected tags
+    ----------------------------------------- */
+
+    .clear-tags-button {
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 6px;
+
+        border: 1px solid #e7ddc7;
+
+        background: #ffffff;
+
+        color: #777777;
+
+        border-radius: 20px;
+
+        padding: 7px 12px;
+
+        font-size: 13px;
+
+        font-family: inherit;
+
+        cursor: pointer;
+
+        transition: 0.15s ease;
+    }
+
+
+    .clear-tags-button:hover {
+        border-color: #c79c3d;
+
+        color: #8f6c1c;
+
+        background: #f9f7f1;
+    }
+
+
+    /* -----------------------------------------
+       Mold grid
+    ----------------------------------------- */
+
+    .molds-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(5, minmax(0, 1fr));
+
+        gap: 14px;
+    }
+
+
+    /* -----------------------------------------
+       Mold card
+    ----------------------------------------- */
+
+    .mold-card {
+        background: #ffffff;
+
+        border: 1px solid #e8e1d3;
+
+        border-radius: 12px;
+
+        overflow: hidden;
+
+        transition:
+            transform 0.18s ease,
+            box-shadow 0.18s ease;
+    }
+
+
+    .mold-card:hover {
+        transform: translateY(-2px);
+
+        box-shadow:
+            0 8px 22px rgba(0,0,0,0.08);
+    }
+
+
+    /* -----------------------------------------
+       Image
+    ----------------------------------------- */
+
+    .mold-image-wrapper {
+        position: relative;
+
+        width: 100%;
+
+        aspect-ratio: 1 / 1;
+
+        background: #f5f2eb;
+
+        overflow: hidden;
+    }
+
+
+    .mold-image {
+        width: 100%;
+
+        height: 100%;
+
+        object-fit: cover;
+
+        display: block;
+    }
+
+
+    .mold-no-image {
+        width: 100%;
+
+        height: 100%;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        color: #aaa29a;
+
+        font-size: 13px;
+    }
+
+
+    /* -----------------------------------------
+       Like Button
+    ----------------------------------------- */
+
+    .mold-like {
+        position: absolute;
+
+        right: 10px;
+
+        top: 10px;
+
+        width: 34px;
+
+        height: 34px;
+
+        border: none;
+
+        border-radius: 50%;
+
+        background: rgba(255,255,255,0.94);
+
+        color: #777777;
+
+        cursor: pointer;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        font-size: 16px;
+
+        box-shadow:
+            0 2px 7px rgba(0,0,0,0.10);
+
+
+        /* Hidden by default */
+
+        opacity: 0;
+
+        visibility: hidden;
+
+        transform: scale(0.85);
+
+        transition:
+            opacity 0.18s ease,
+            visibility 0.18s ease,
+            transform 0.18s ease;
+    }
+
+
+    /* Show when hovering the image */
+
+    .mold-image-wrapper:hover .mold-like {
+        opacity: 1;
+
+        visibility: visible;
+
+        transform: scale(1);
+    }
+
+
+    /* Already liked = always visible */
+
+    .mold-like.liked {
+        opacity: 1;
+
+        visibility: visible;
+
+        transform: scale(1);
+
+        color: #c79c3d;
+    }
+
+
+    .mold-like:hover {
+        background: #ffffff;
+
+        transform: scale(1.08);
+    }
+
+
+    /* -----------------------------------------
+       Card information
+    ----------------------------------------- */
+
+    .mold-info {
+        padding: 13px 14px 15px;
+    }
+
+
+    .mold-code {
+        font-size: 13px;
+
+        font-weight: 600;
+
+        color: #c79c3d;
+
+        margin-bottom: 4px;
+    }
+
+
+    .mold-file-name {
+        font-size: 15px;
+
+        font-weight: 500;
+
+        color: #222222;
+
+        white-space: nowrap;
+
+        overflow: hidden;
+
+        text-overflow: ellipsis;
+
+        margin-bottom: 5px;
+    }
+
+
+    .mold-type {
+        font-size: 12px;
+
+        color: #777777;
+
+        margin-bottom: 10px;
+    }
+
+
+    .mold-card-tags {
+        display: flex;
+
+        flex-wrap: wrap;
+
+        gap: 5px;
+    }
+
+
+    .mold-card-tag {
+        font-size: 11px;
+
+        color: #6c604d;
+
+        background: #f5f0e5;
+
+        border: 1px solid #e9dfca;
+
+        border-radius: 12px;
+
+        padding: 4px 8px;
+    }
+
+
+    /* -----------------------------------------
+       Empty state
+    ----------------------------------------- */
+
+    .molds-empty {
+        grid-column: 1 / -1;
+
+        min-height: 300px;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        flex-direction: column;
+
+        color: #888888;
+    }
+
+
+    .molds-empty i {
+        font-size: 35px;
+
+        margin-bottom: 12px;
+
+        color: #c79c3d;
+    }
+
+
+    /* -----------------------------------------
+       Responsive
+    ----------------------------------------- */
+
+    @media (max-width: 1300px) {
+
+        .molds-grid {
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+        }
+
+    }
+
+
+    @media (max-width: 1050px) {
+
+        .molds-grid {
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+        }
+
+    }
+
+
+    @media (max-width: 750px) {
+
+        .molds-page {
+            padding: 20px;
+        }
+
+
+        .molds-toolbar {
+            flex-direction: column;
+
+            align-items: stretch;
+        }
+
+
+        .molds-grid {
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+        }
+
+    }
+
+</style>
+
+
+<div class="molds-page">
+
+
+    <!-- =========================================
+         Header
+    ========================================== -->
+
+    <div class="page-header">
+
+        <p class="page-tag">
+            CATEGORY
+        </p>
+
+        <h1>
+            Molds
+        </h1>
+
+    </div>
+
+
+    <!-- =========================================
+         Search + Type
+    ========================================== -->
+
+    <form method="get">
+
+        <div class="molds-toolbar">
+
+
+            <div class="molds-search">
+
+                <i
+                    class="fa-solid fa-magnifying-glass molds-search-icon"
+                ></i>
+
+
+                <input
+                    type="text"
+                    name="q"
+                    value="{{ keyword }}"
+                    placeholder="Search code, name, or tag..."
+                >
+
+            </div>
+
+
+            <div class="molds-type-filter">
+
+
+                <a
+                    href="?q={{ keyword|urlencode }}"
+                    class="{% if selected_type == 'all' %}active{% endif %}"
+                >
+                    All
+                </a>
+
+
+                {% for mold_type in mold_types %}
+
+                    <a
+                        href="?q={{ keyword|urlencode }}&type={{ mold_type.id }}"
+                        class="{% if selected_type == mold_type.id|stringformat:'s' %}active{% endif %}"
+                    >
+                        {{ mold_type.name }}
+                    </a>
+
+                {% endfor %}
+
+
+            </div>
+
+        </div>
+
+    </form>
+
+
+    <!-- =========================================
+         Tags - MULTIPLE SELECTION
+    ========================================== -->
+
+    <div class="molds-tags">
+
+
+        {% for tag in mold_tags %}
+
+            <button
+                type="button"
+                class="
+                    mold-tag-filter
+                    {% if tag.id|stringformat:'s' in selected_tags %}
+                        active
+                    {% endif %}
+                "
+                data-tag-id="{{ tag.id }}"
+                onclick="toggleMoldTag(this)"
+            >
+
+                <i
+                    class="fa-solid fa-tag mold-tag-icon"
+                ></i>
+
+                {{ tag.name }}
+
+            </button>
+
+        {% endfor %}
+
+
+        {% if selected_tags %}
+
+            <button
+                type="button"
+                class="clear-tags-button"
+                onclick="clearMoldTags()"
+            >
+
+                <i class="fa-solid fa-xmark"></i>
+
+                Clear
+
+            </button>
+
+        {% endif %}
+
+
+    </div>
+
+
+    <!-- =========================================
+         Mold Cards
+    ========================================== -->
+
+    <div class="molds-grid">
+
+
+        {% for mold in molds %}
+
+            <div class="mold-card">
+
+
+                <!-- Image -->
+
+                <div class="mold-image-wrapper">
+
+
+                    {% if mold.preview_image %}
+
+                        <img
+                            src="{{ mold.preview_image.url }}"
+                            alt="{{ mold.file_name }}"
+                            class="mold-image"
+                        >
+
+                    {% else %}
+
+                        <div class="mold-no-image">
+                            No Image
+                        </div>
+
+                    {% endif %}
+
+
+                    <!-- Like -->
+
+                    <button
+                        type="button"
+                        class="mold-like {% if mold.is_liked %}liked{% endif %}"
+                        onclick="toggleMoldLike({{ mold.id }}, this)"
+                        title="{% if mold.is_liked %}Unlike{% else %}Like{% endif %}"
+                    >
+
+                        <i
+                            class="
+                                {% if mold.is_liked %}
+                                    fa-solid
+                                {% else %}
+                                    fa-regular
+                                {% endif %}
+                                fa-heart
+                            "
+                        ></i>
+
+                    </button>
+
+
+                </div>
+
+
+                <!-- Information -->
+
+                <!--
+                <div class="mold-info">
+
+                    <div class="mold-code">
+                        {{ mold.mold_code }}
+                    </div>
+
+
+                    <div
+                        class="mold-file-name"
+                        title="{{ mold.file_name }}"
+                    >
+                        {{ mold.file_name }}
+                    </div>
+
+
+                    <div class="mold-type">
+                        {{ mold.type.name }}
+                    </div>
+
+
+                    {% if mold.tags.all %}
+
+                        <div class="mold-card-tags">
+
+                            {% for tag in mold.tags.all %}
+
+                                <span class="mold-card-tag">
+                                    {{ tag.name }}
+                                </span>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+
+                </div>
+                -->
+
+
+            </div>
+
+
+        {% empty %}
+
+            <div class="molds-empty">
+
+                <i class="fa-regular fa-images"></i>
+
+                <div>
+                    No molds found.
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   MULTIPLE TAG FILTER
+========================================================= */
+
+function toggleMoldTag(button) {
+
+    const tagId =
+        button.dataset.tagId;
+
+
+    /*
+     * Current URL
+     */
+
+    const url =
+        new URL(window.location.href);
+
+
+    /*
+     * Get ALL selected tags
+     *
+     * Example:
+     *
+     * ?tag=1&tag=3
+     *
+     * becomes:
+     *
+     * ["1", "3"]
+     */
+
+    let selectedTags =
+        url.searchParams.getAll("tag");
+
+
+    /*
+     * Toggle clicked tag
+     */
+
+    if (selectedTags.includes(tagId)) {
+
+        /*
+         * Remove tag
+         */
+
+        selectedTags =
+            selectedTags.filter(
+                function(id) {
+                    return id !== tagId;
+                }
+            );
+
+    } else {
+
+        /*
+         * Add tag
+         */
+
+        selectedTags.push(tagId);
+
+    }
+
+
+    /*
+     * Create a clean URL
+     */
+
+    const newUrl =
+        new URL(
+            window.location.pathname,
+            window.location.origin
+        );
+
+
+    /*
+     * Keep search keyword
+     */
+
+    const keyword =
+        url.searchParams.get("q");
+
+
+    if (keyword) {
+
+        newUrl.searchParams.set(
+            "q",
+            keyword
+        );
+
+    }
+
+
+    /*
+     * Keep type filter
+     */
+
+    const selectedType =
+        url.searchParams.get("type");
+
+
+    if (
+        selectedType &&
+        selectedType !== "all"
+    ) {
+
+        newUrl.searchParams.set(
+            "type",
+            selectedType
+        );
+
+    }
+
+
+    /*
+     * Add ALL selected tags
+     *
+     * Example:
+     *
+     * tag=1
+     * tag=2
+     * tag=5
+     *
+     * becomes:
+     *
+     * ?tag=1&tag=2&tag=5
+     */
+
+    selectedTags.forEach(
+        function(tag) {
+
+            newUrl.searchParams.append(
+                "tag",
+                tag
+            );
+
+        }
+    );
+
+
+    /*
+     * Reload page
+     */
+
+    window.location.href =
+        newUrl.toString();
+
+}
+
+
+/* =========================================================
+   CLEAR ALL TAGS
+========================================================= */
+
+function clearMoldTags() {
+
+    const url =
+        new URL(window.location.href);
+
+
+    /*
+     * Remove every tag
+     */
+
+    url.searchParams.delete(
+        "tag"
+    );
+
+
+    /*
+     * Reload page
+     */
+
+    window.location.href =
+        url.toString();
+
+}
+
+
+/* =========================================================
+   LIKE / UNLIKE
+========================================================= */
+
+function toggleMoldLike(
+    moldId,
+    button
+) {
+
+    fetch(
+        "{% url 'mold_toggle_like' %}",
+        {
+
+            method: "POST",
+
+            headers: {
+
+                "X-CSRFToken":
+                    getCookie("csrftoken"),
+
+                "X-Requested-With":
+                    "XMLHttpRequest"
+
+            },
+
+            body:
+                new URLSearchParams({
+                    "mold_id": moldId
+                })
+
+        }
+    )
+
+    .then(
+        response =>
+            response.json()
+    )
+
+    .then(
+        data => {
+
+            if (!data.success) {
+                return;
+            }
+
+
+            const icon =
+                button.querySelector("i");
+
+
+            if (data.is_liked) {
+
+                button.classList.add(
+                    "liked"
+                );
+
+
+                icon.classList.remove(
+                    "fa-regular"
+                );
+
+
+                icon.classList.add(
+                    "fa-solid"
+                );
+
+            } else {
+
+                button.classList.remove(
+                    "liked"
+                );
+
+
+                icon.classList.remove(
+                    "fa-solid"
+                );
+
+
+                icon.classList.add(
+                    "fa-regular"
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   CSRF COOKIE
+========================================================= */
+
+function getCookie(name) {
+
+    let cookieValue = null;
+
+
+    if (
+        document.cookie &&
+        document.cookie !== ""
+    ) {
+
+        const cookies =
+            document.cookie.split(";");
+
+
+        for (
+            let cookie of cookies
+        ) {
+
+            cookie =
+                cookie.trim();
+
+
+            if (
+                cookie.substring(
+                    0,
+                    name.length + 1
+                ) ===
+                (
+                    name + "="
+                )
+            ) {
+
+                cookieValue =
+                    decodeURIComponent(
+                        cookie.substring(
+                            name.length + 1
+                        )
+                    );
+
+
+                break;
+
+            }
+
+        }
+
+    }
+
+
+    return cookieValue;
+
+}
+
+</script>
+
+{% endblock %}

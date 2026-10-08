@@ -789,39 +789,98 @@
     Pagination
     ----------------------------------------- */
 
-    .molds-pagination {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 8px;
-        margin-top: 30px;
-    }
+    /* -----------------------------------------
+   Pagination
+----------------------------------------- */
 
-    .molds-pagination a {
-        text-decoration: none;
-        color: #555555;
-        background: #f9f7f1;
-        border: 1px solid #e7ddc7;
-        border-radius: 8px;
-        padding: 8px 13px;
-        font-size: 13px;
-        transition: 0.15s ease;
-    }
+.molds-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 30px;
+    padding: 12px;
+}
 
-    .molds-pagination a:hover {
-        background: #ffffff;
-        border-color: #c79c3d;
-        color: #8f6c1c;
-    }
+.molds-page-btn {
+    width: 32px;
+    height: 32px;
 
-    .molds-pagination .current {
-        background: #eee6d3;
-        border: 1px solid #c79c3d;
-        color: #8f6c1c;
-        border-radius: 8px;
-        padding: 8px 13px;
-        font-size: 13px;
-    }
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid #ddd;
+    border-radius: 8px;
+
+    background: white;
+    color: #444;
+
+    text-decoration: none;
+    cursor: pointer;
+
+    font-size: 14px;
+}
+
+.molds-page-btn:hover {
+    background: #faf7ef;
+    border-color: #c79c3d;
+    color: #c79c3d;
+}
+
+.molds-page-btn.disabled {
+    color: #ccc;
+    background: #f8f8f8;
+    cursor: not-allowed;
+}
+
+.molds-page-number {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    font-size: 13px;
+    color: #666;
+}
+
+#mold-page-input {
+    width: 55px;
+    height: 32px;
+
+    padding: 0 6px;
+
+    border: 1px solid #ddd;
+    border-radius: 8px;
+
+    text-align: center;
+    box-sizing: border-box;
+}
+
+#mold-page-input:focus {
+    outline: none;
+    border-color: #c79c3d;
+    width: 55px;
+}
+
+#mold-go-page-btn {
+    height: 32px;
+
+    padding: 0 10px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #c79c3d;
+    color: white;
+
+    cursor: pointer;
+
+    font-size: 13px;
+}
+
+#mold-go-page-btn:hover {
+    background: #b58b2f;
+}
 
     .mold-hover-info {
     position: absolute;
@@ -1238,24 +1297,67 @@
 
 {% if molds.has_other_pages %}
 
-    <div class="molds-pagination" id="molds-pagination">
+    <div class="molds-pagination">
 
         {% if molds.has_previous %}
-            <a href="{% querystring page=molds.previous_page_number %}#molds-grid">
-                Previous
+
+            <a
+                class="molds-page-btn"
+                href="{% querystring page=molds.previous_page_number %}#molds-grid"
+            >
+                <i class="fa-solid fa-chevron-left"></i>
             </a>
+
+        {% else %}
+
+            <span class="molds-page-btn disabled">
+                <i class="fa-solid fa-chevron-left"></i>
+            </span>
+
         {% endif %}
 
 
-        <span class="current">
-            Page {{ molds.number }} of {{ molds.paginator.num_pages }}
-        </span>
+        <div class="molds-page-number">
+
+            <input
+                type="number"
+                id="mold-page-input"
+                value="{{ molds.number }}"
+                min="1"
+                max="{{ molds.paginator.num_pages }}"
+            >
+
+            <span>
+                / {{ molds.paginator.num_pages }}
+            </span>
+
+        </div>
+
+
+        <button
+            type="button"
+            id="mold-go-page-btn"
+            onclick="goToMoldPage()"
+        >
+            Go
+        </button>
 
 
         {% if molds.has_next %}
-            <a href="{% querystring page=molds.next_page_number %}#molds-grid">
-                Next
+
+            <a
+                class="molds-page-btn"
+                href="{% querystring page=molds.next_page_number %}#molds-grid"
+            >
+                <i class="fa-solid fa-chevron-right"></i>
             </a>
+
+        {% else %}
+
+            <span class="molds-page-btn disabled">
+                <i class="fa-solid fa-chevron-right"></i>
+            </span>
+
         {% endif %}
 
     </div>
@@ -1836,6 +1938,57 @@ function resetMoldImageZoom() {
     image.style.transform =
         "scale(1)";
 }
+
+function goToMoldPage() {
+
+    const input =
+        document.getElementById(
+            "mold-page-input"
+        );
+
+    const page =
+        parseInt(input.value);
+
+    const maxPage =
+        parseInt(input.max);
+
+    if (
+        isNaN(page) ||
+        page < 1 ||
+        page > maxPage
+    ) {
+        return;
+    }
+
+    const url =
+        new URL(
+            window.location.href
+        );
+
+    url.searchParams.set(
+        "page",
+        page
+    );
+
+    window.location.href =
+        url.toString();
+}
+document
+    .getElementById("mold-page-input")
+    ?.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (event.key === "Enter") {
+
+                event.preventDefault();
+
+                goToMoldPage();
+
+            }
+
+        }
+    );
 </script>
 
 {% endblock %}

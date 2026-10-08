@@ -1683,7 +1683,7 @@ def test_error(request):
     raise Exception("TEST ERROR - Jewelry System")
 
 @login_required
-def molds(request):
+def all_molds(request):
 
     # -----------------------------------------
     # Get all molds
@@ -1717,12 +1717,16 @@ def molds(request):
 
     selected_type = request.GET.get(
         "type",
-        "all"
+        "all",
     )
 
-    if selected_type != "all":
+    if selected_type and selected_type != "all" and selected_type != "like":
         molds_queryset = molds_queryset.filter(
             type_id=selected_type
+        )
+    elif selected_type == "like":
+        molds_queryset = molds_queryset.filter(
+            is_liked=True
         )
 
     # -----------------------------------------
@@ -1734,14 +1738,16 @@ def molds(request):
     )
 
     if selected_tags:
+        tag_query = Q()
 
         for tag_id in selected_tags:
-
-            molds_queryset = molds_queryset.filter(
+            tag_query |= Q(
                 tags__id=tag_id
             )
 
-        molds_queryset = molds_queryset.distinct()
+        molds_queryset = molds_queryset.filter(
+            tag_query
+        ).distinct()
 
     # -----------------------------------------
     # Liked filter
@@ -1770,12 +1776,29 @@ def molds(request):
     )
 
     # -----------------------------------------
+    # Pagination
+    # -----------------------------------------
+
+    paginator = Paginator(
+        molds_queryset,
+        15
+    )
+
+    page_number = request.GET.get(
+        "page"
+    )
+
+    molds = paginator.get_page(
+        page_number
+    )
+
+    # -----------------------------------------
     # Context
     # -----------------------------------------
 
     context = {
-        "molds": molds_queryset,
-        "mold_count": molds_queryset.count(),
+        "molds": molds,
+        "mold_count": molds.paginator.count,
 
         "mold_types": mold_types,
         "mold_tags": mold_tags,
@@ -1792,6 +1815,7 @@ def molds(request):
         context
     )
 
+
 @login_required
 def mold_toggle_like(request):
 
@@ -1801,7 +1825,9 @@ def mold_toggle_like(request):
             status=405
         )
 
-    mold_id = request.POST.get("mold_id")
+    mold_id = request.POST.get(
+        "mold_id"
+    )
 
     mold = get_object_or_404(
         Mold,

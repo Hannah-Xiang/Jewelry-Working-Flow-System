@@ -131,7 +131,7 @@ path(
     name="delete_ticket",
 ),
 path("test-error/", views.test_error, name="test_error"),
-path("molds/", views.molds, name="molds"),
+path("molds/", views.all_molds, name="all_molds"),
 path(
     "molds/toggle-like/",
     views.mold_toggle_like,

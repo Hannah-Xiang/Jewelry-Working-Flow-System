@@ -8,6 +8,146 @@
 
 <style>
 
+    /* -----------------------------------------
+   Mold Image Zoom Button
+----------------------------------------- */
+
+.mold-zoom-button {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+
+    width: 32px;
+    height: 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.92);
+    color: #555555;
+
+    cursor: pointer;
+
+    z-index: 5;
+
+    opacity: 0;
+    transition: 0.15s ease;
+}
+
+.mold-image-wrapper:hover .mold-zoom-button {
+    opacity: 1;
+}
+
+.mold-zoom-button:hover {
+    background: #ffffff;
+    color: #b1872c;
+    transform: scale(1.05);
+}
+
+
+/* -----------------------------------------
+   Mold Image Viewer
+----------------------------------------- */
+
+.mold-image-viewer {
+    position: fixed;
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.82);
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 9999;
+}
+
+.mold-image-viewer.open {
+    display: flex;
+}
+
+
+/* Large image */
+
+.mold-viewer-image {
+    max-width: 85vw;
+    max-height: 85vh;
+
+    object-fit: contain;
+
+    transform: scale(1);
+    transition: transform 0.15s ease;
+
+    cursor: grab;
+
+    user-select: none;
+}
+
+.mold-viewer-image:active {
+    cursor: grabbing;
+}
+
+
+/* -----------------------------------------
+   Viewer buttons
+----------------------------------------- */
+
+.mold-viewer-close {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+
+    width: 40px;
+    height: 40px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.95);
+    color: #333333;
+
+    font-size: 18px;
+
+    cursor: pointer;
+}
+
+.mold-viewer-controls {
+    position: absolute;
+
+    bottom: 25px;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    display: flex;
+    gap: 8px;
+}
+
+.mold-viewer-controls button {
+    width: 40px;
+    height: 40px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.95);
+    color: #333333;
+
+    font-size: 16px;
+
+    cursor: pointer;
+}
+
+.mold-viewer-controls button:hover,
+.mold-viewer-close:hover {
+    background: #c79c3d;
+    color: #ffffff;
+}
+
     .page-header {
         margin-bottom: 25px;
     }
@@ -55,7 +195,7 @@
 
     .molds-search {
         position: relative;
-        flex: 1;
+        flex: 0 0 50%;
     }
 
 
@@ -150,70 +290,191 @@
        Tags
     ----------------------------------------- */
 
-    .molds-tags {
-        display: flex;
+    /* -----------------------------------------
+   Tags dropdown
+----------------------------------------- */
 
-        flex-wrap: wrap;
+.molds-tags {
+    position: relative;
+}
 
-        gap: 8px;
+.molds-tags-button {
+    height: 46px;
+    padding: 0 14px;
 
-        margin-bottom: 26px;
-    }
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 
+    border: 1px solid #e7ddc7;
+    border-radius: 10px;
 
-    .mold-tag-filter {
-        display: inline-flex;
+    background: #f9f7f1;
+    color: #555555;
 
-        align-items: center;
+    font-size: 14px;
+    font-family: inherit;
 
-        gap: 6px;
+    cursor: pointer;
+    transition: 0.15s ease;
+}
 
-        border: 1px solid #e7ddc7;
+.molds-tags-button:hover {
+    border-color: #c79c3d;
+    background: #ffffff;
+}
 
-        background: #f9f7f1;
+.molds-tags-button.active {
+    border-color: #c79c3d;
+    color: #8f6c1c;
+    background: #ffffff;
+}
 
-        color: #666666;
+.molds-tags-button .tag-button-icon {
+    font-size: 13px;
+}
 
-        border-radius: 20px;
-
-        padding: 7px 12px;
-
-        font-size: 13px;
-
-        font-family: inherit;
-
-        cursor: pointer;
-
-        transition: 0.15s ease;
-    }
-
-
-    .mold-tag-filter:hover {
-        border-color: #c79c3d;
-
-        color: #333333;
-
-        background: #ffffff;
-    }
-
-
-    .mold-tag-filter.active {
-        background: #eee6d3;
-
-        border-color: #c79c3d;
-
-        color: #8f6c1c;
-    }
+.molds-tags-button .tag-arrow {
+    font-size: 11px;
+    margin-left: 2px;
+}
 
 
-    .mold-tag-icon {
-        font-size: 11px;
-    }
+/* -----------------------------------------
+   Tags dropdown menu
+----------------------------------------- */
+
+.molds-tags-menu {
+    position: absolute;
+
+    top: calc(100% + 8px);
+    right: 0;
+
+    width: 240px;
+    max-height: 310px;
+
+    background: #ffffff;
+
+    border-radius: 14px;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.12);
+
+    overflow-y: auto;
+
+    z-index: 1000;
+
+    display: none;
+}
+
+.molds-tags-menu.open {
+    display: block;
+}
 
 
-    .mold-tag-filter.active .mold-tag-icon {
-        color: #c79c3d;
-    }
+/* -----------------------------------------
+   Clear all tags
+----------------------------------------- */
+
+.clear-tags-button {
+    width: 100%;
+
+    padding: 14px 16px;
+
+    border: none;
+    border-bottom: 1px solid #eee5d5;
+
+    background: #ffffff;
+
+    color: #555555;
+
+    text-align: left;
+
+    font-size: 13px;
+    font-family: inherit;
+
+    cursor: pointer;
+}
+
+.clear-tags-button:hover {
+    background: #f9f7f1;
+    color: #8f6c1c;
+}
+
+
+/* -----------------------------------------
+   Individual tag
+----------------------------------------- */
+
+.mold-tag-filter {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+
+    padding: 12px 16px;
+
+    border: none;
+
+    background: #ffffff;
+
+    color: #222222;
+
+    font-size: 14px;
+    font-family: inherit;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition: 0.15s ease;
+}
+
+.mold-tag-filter:hover {
+    background: #f9f7f1;
+}
+
+.mold-tag-icon {
+    margin-right: 10px;
+
+    font-size: 12px;
+
+    color: #777777;
+}
+
+.mold-tag-name {
+    flex: 1;
+}
+
+.mold-tag-check {
+    width: 18px;
+    height: 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    color: transparent;
+    background: transparent;
+
+    font-size: 10px;
+}
+
+.mold-tag-filter.active {
+    color: #b1872c;
+}
+
+.mold-tag-filter.active .mold-tag-icon {
+    color: #c79c3d;
+}
+
+.mold-tag-filter.active .mold-tag-check {
+    color: #ffffff;
+    background: #c79c3d;
+}
+
 
 
     /* -----------------------------------------
@@ -524,6 +785,80 @@
         color: #c79c3d;
     }
 
+    /* -----------------------------------------
+    Pagination
+    ----------------------------------------- */
+
+    .molds-pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        margin-top: 30px;
+    }
+
+    .molds-pagination a {
+        text-decoration: none;
+        color: #555555;
+        background: #f9f7f1;
+        border: 1px solid #e7ddc7;
+        border-radius: 8px;
+        padding: 8px 13px;
+        font-size: 13px;
+        transition: 0.15s ease;
+    }
+
+    .molds-pagination a:hover {
+        background: #ffffff;
+        border-color: #c79c3d;
+        color: #8f6c1c;
+    }
+
+    .molds-pagination .current {
+        background: #eee6d3;
+        border: 1px solid #c79c3d;
+        color: #8f6c1c;
+        border-radius: 8px;
+        padding: 8px 13px;
+        font-size: 13px;
+    }
+
+    .mold-hover-info {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    padding: 10px 12px;
+
+    background: rgba(0, 0, 0, 0.75);
+    color: #ffffff;
+
+    font-size: 12px;
+
+    opacity: 0;
+    visibility: hidden;
+
+    transition: 0.18s ease;
+}
+
+.mold-image-wrapper:hover .mold-hover-info {
+    opacity: 1;
+    visibility: visible;
+}
+
+.mold-hover-file-name {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mold-hover-type {
+    margin-top: 3px;
+    color: #dddddd;
+    font-size: 11px;
+}
 
     /* -----------------------------------------
        Responsive
@@ -629,7 +964,12 @@
                     All
                 </a>
 
-
+                <a
+                        href="?q={{ keyword|urlencode }}&type=like"
+                        class="{% if selected_type == 'like' %}active{% endif %}"
+                    >
+                        Like
+                    </a>
                 {% for mold_type in mold_types %}
 
                     <a
@@ -640,46 +980,44 @@
                     </a>
 
                 {% endfor %}
+                
 
 
             </div>
+                <!-- =========================================
+     Tags - MULTIPLE SELECTION
+========================================== -->
 
-        </div>
+<div class="molds-tags">
 
-    </form>
+    <button
+        type="button"
+        class="molds-tags-button"
+        onclick="toggleMoldTagsMenu()"
+    >
+
+        <i class="fa-solid fa-tag tag-button-icon"></i>
+
+        <span id="mold-tags-button-text">
+            {% if selected_tags %}
+                {{ selected_tags|length }} tags
+            {% else %}
+                Tags
+            {% endif %}
+        </span>
+
+        <i
+            class="fa-solid fa-chevron-up tag-arrow"
+            id="mold-tags-arrow"
+        ></i>
+
+    </button>
 
 
-    <!-- =========================================
-         Tags - MULTIPLE SELECTION
-    ========================================== -->
-
-    <div class="molds-tags">
-
-
-        {% for tag in mold_tags %}
-
-            <button
-                type="button"
-                class="
-                    mold-tag-filter
-                    {% if tag.id|stringformat:'s' in selected_tags %}
-                        active
-                    {% endif %}
-                "
-                data-tag-id="{{ tag.id }}"
-                onclick="toggleMoldTag(this)"
-            >
-
-                <i
-                    class="fa-solid fa-tag mold-tag-icon"
-                ></i>
-
-                {{ tag.name }}
-
-            </button>
-
-        {% endfor %}
-
+    <div
+        class="molds-tags-menu"
+        id="molds-tags-menu"
+    >
 
         {% if selected_tags %}
 
@@ -689,23 +1027,64 @@
                 onclick="clearMoldTags()"
             >
 
-                <i class="fa-solid fa-xmark"></i>
-
-                Clear
+                Clear all tags
 
             </button>
 
         {% endif %}
 
 
+        {% for tag in mold_tags %}
+
+            <button
+                type="button"
+
+                class="
+                    mold-tag-filter
+                    {% if tag.id|stringformat:'s' in selected_tags %}
+                        active
+                    {% endif %}
+                "
+
+                data-tag-id="{{ tag.id }}"
+
+                onclick="toggleMoldTag(this)"
+            >
+
+                <i class="fa-solid fa-tag mold-tag-icon"></i>
+
+                <span class="mold-tag-name">
+                    {{ tag.name }}
+                </span>
+
+                <span class="mold-tag-check">
+
+                    <i class="fa-solid fa-check"></i>
+
+                </span>
+
+            </button>
+
+        {% endfor %}
+
     </div>
+
+</div>
+
+        </div>
+
+    </form>
+
+
+
+
 
 
     <!-- =========================================
          Mold Cards
     ========================================== -->
 
-    <div class="molds-grid">
+    <div class="molds-grid" id="molds-grid">
 
 
         {% for mold in molds %}
@@ -733,6 +1112,30 @@
                         </div>
 
                     {% endif %}
+                    <div class="mold-hover-info">
+
+    <div
+        class="mold-hover-file-name"
+        title="{{ mold.file_name }}"
+    >
+        {{ mold.file_name }}
+    </div>
+
+    <div class="mold-hover-type">
+        {{ mold.type.name }}
+    </div>
+
+</div>
+<button
+    type="button"
+    class="mold-zoom-button"
+    onclick="openMoldImageViewer(
+        '{{ mold.preview_image.url }}'
+    )"
+    title="View larger"
+>
+    <i class="fa-solid fa-expand"></i>
+</button>
 
 
                     <!-- Like -->
@@ -820,8 +1223,104 @@
 
             </div>
 
-        {% endfor %}
+                {% endfor %}
 
+    </div>
+
+
+    <!-- =========================================
+         Pagination
+    ========================================== -->
+
+    <!-- =========================================
+     Pagination
+========================================== -->
+
+{% if molds.has_other_pages %}
+
+    <div class="molds-pagination" id="molds-pagination">
+
+        {% if molds.has_previous %}
+            <a href="{% querystring page=molds.previous_page_number %}#molds-grid">
+                Previous
+            </a>
+        {% endif %}
+
+
+        <span class="current">
+            Page {{ molds.number }} of {{ molds.paginator.num_pages }}
+        </span>
+
+
+        {% if molds.has_next %}
+            <a href="{% querystring page=molds.next_page_number %}#molds-grid">
+                Next
+            </a>
+        {% endif %}
+
+    </div>
+
+{% endif %}
+
+
+</div>
+
+<!-- =========================================
+     Mold Image Viewer
+========================================== -->
+
+<div
+    class="mold-image-viewer"
+    id="mold-image-viewer"
+    onclick="closeMoldImageViewer(event)"
+>
+
+    <button
+        type="button"
+        class="mold-viewer-close"
+        onclick="closeMoldImageViewer()"
+    >
+        <i class="fa-solid fa-xmark"></i>
+    </button>
+
+
+    <img
+        id="mold-viewer-image"
+        class="mold-viewer-image"
+        src=""
+        alt=""
+        onclick="event.stopPropagation()"
+    >
+
+
+    <div
+        class="mold-viewer-controls"
+        onclick="event.stopPropagation()"
+    >
+
+        <!-- <button
+            type="button"
+            onclick="zoomMoldImage(-0.2)"
+            title="Zoom out"
+        >
+            <i class="fa-solid fa-minus"></i>
+        </button> -->
+
+        <!-- <button
+            type="button"
+            onclick="resetMoldImageZoom()"
+            title="Reset"
+        >
+            <i class="fa-solid fa-arrows-to-circle"></i>
+        </button> -->
+
+        <!-- <button
+            type="button"
+            onclick="zoomMoldImage(0.2)"
+            title="Zoom in"
+        >
+            <i class="fa-solid fa-plus"></i>
+        </button> -->
 
     </div>
 
@@ -829,6 +1328,93 @@
 
 
 <script>
+
+window.addEventListener("load", function () {
+
+    const keepTagsOpen =
+        sessionStorage.getItem(
+            "keepMoldTagsOpen"
+        );
+
+    if (keepTagsOpen === "1") {
+
+        const menu =
+            document.getElementById(
+                "molds-tags-menu"
+            );
+
+        const button =
+            document.querySelector(
+                ".molds-tags-button"
+            );
+
+        const arrow =
+            document.getElementById(
+                "mold-tags-arrow"
+            );
+
+        if (menu && button && arrow) {
+
+            menu.classList.add("open");
+
+            button.classList.add("active");
+
+            arrow.classList.remove(
+                "fa-chevron-up"
+            );
+
+            arrow.classList.add(
+                "fa-chevron-down"
+            );
+        }
+
+        sessionStorage.removeItem(
+            "keepMoldTagsOpen"
+        );
+    }
+
+});
+
+function toggleMoldTagsMenu() {
+
+    const menu =
+        document.getElementById("molds-tags-menu");
+
+    const button =
+        document.querySelector(".molds-tags-button");
+
+    const arrow =
+        document.getElementById("mold-tags-arrow");
+
+    menu.classList.toggle("open");
+
+    button.classList.toggle(
+        "active"
+    );
+
+    if (menu.classList.contains("open")) {
+
+        arrow.classList.remove(
+            "fa-chevron-up"
+        );
+
+        arrow.classList.add(
+            "fa-chevron-down"
+        );
+
+    } else {
+
+        arrow.classList.remove(
+            "fa-chevron-down"
+        );
+
+        arrow.classList.add(
+            "fa-chevron-up"
+        );
+
+    }
+
+}
 
 /* =========================================================
    MULTIPLE TAG FILTER
@@ -972,8 +1558,13 @@ function toggleMoldTag(button) {
      * Reload page
      */
 
-    window.location.href =
-        newUrl.toString();
+    sessionStorage.setItem(
+    "keepMoldTagsOpen",
+    "1"
+);
+
+window.location.href =
+    newUrl.toString();
 
 }
 
@@ -1154,6 +1745,97 @@ function getCookie(name) {
 
 }
 
+function saveMoldScrollPosition() {
+    sessionStorage.setItem(
+        "moldScrollPosition",
+        window.scrollY
+    );
+}
+
+let moldImageZoom = 1;
+
+
+function openMoldImageViewer(imageUrl) {
+
+    const viewer =
+        document.getElementById(
+            "mold-image-viewer"
+        );
+
+    const image =
+        document.getElementById(
+            "mold-viewer-image"
+        );
+
+    image.src = imageUrl;
+
+    moldImageZoom = 1;
+
+    image.style.transform =
+        "scale(1)";
+
+    viewer.classList.add("open");
+
+    document.body.style.overflow = "hidden";
+}
+
+
+function closeMoldImageViewer(event) {
+
+    if (
+        event &&
+        event.target.id !==
+        "mold-image-viewer"
+    ) {
+        return;
+    }
+
+    const viewer =
+        document.getElementById(
+            "mold-image-viewer"
+        );
+
+    viewer.classList.remove("open");
+
+    document.body.style.overflow = "";
+
+}
+
+
+function zoomMoldImage(amount) {
+
+    moldImageZoom += amount;
+
+    if (moldImageZoom < 0.5) {
+        moldImageZoom = 0.5;
+    }
+
+    if (moldImageZoom > 4) {
+        moldImageZoom = 4;
+    }
+
+    const image =
+        document.getElementById(
+            "mold-viewer-image"
+        );
+
+    image.style.transform =
+        `scale(${moldImageZoom})`;
+}
+
+
+function resetMoldImageZoom() {
+
+    moldImageZoom = 1;
+
+    const image =
+        document.getElementById(
+            "mold-viewer-image"
+        );
+
+    image.style.transform =
+        "scale(1)";
+}
 </script>
 
 {% endblock %}

@@ -1,0 +1,2960 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+
+<style>
+    
+
+    /* =========================================================
+       GENERAL
+    ========================================================= */
+
+    .mold-detail-page {
+        max-width: 920px;
+        margin: 0 auto;
+        padding: 38px 40px 80px;
+    }
+
+
+    /* =========================================================
+       BACK LINK
+    ========================================================= */
+
+    .mold-back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+
+        color: #555;
+
+        text-decoration: none;
+
+        font-size: 14px;
+
+        margin-bottom: 28px;
+    }
+
+    .mold-back-link:hover {
+        color: #b78a24;
+    }
+
+
+    /* =========================================================
+       HEADER
+    ========================================================= */
+
+    .mold-detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+
+        margin-bottom: 30px;
+    }
+
+
+    .mold-meta {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+
+        margin-bottom: 12px;
+    }
+
+
+    .mold-code {
+        color: #b78a24;
+
+        font-size: 13px;
+
+        font-weight: 600;
+
+        letter-spacing: 0.4px;
+    }
+
+
+    .mold-type-badge {
+        background: #fff0f5;
+
+        color: #d6336c;
+
+        padding: 9px 15px;
+
+        border-radius: 20px;
+
+        font-size: 13px;
+
+        font-weight: 500;
+    }
+
+
+    .mold-detail-title {
+        margin: 0;
+
+        font-family: Georgia, "Times New Roman", serif;
+
+        font-size: 31px;
+
+        font-weight: 500;
+
+        color: #171717;
+
+        line-height: 1.2;
+    }
+
+
+    /* =========================================================
+       EDIT BUTTON
+    ========================================================= */
+
+    .mold-edit-button {
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 9px;
+
+        padding: 12px 17px;
+
+        border: 1px solid #ead9aa;
+
+        border-radius: 9px;
+
+        background: #fffdf8;
+
+        color: #b78a24;
+
+        text-decoration: none;
+
+        font-size: 14px;
+
+        font-weight: 500;
+
+        margin-top: 2px;
+    }
+
+
+    .mold-edit-button:hover {
+        background: #faf4e5;
+    }
+
+
+    /* =========================================================
+       DETAIL PAGE
+    ========================================================= */
+
+    .mold-detail-grid {
+        display: grid;
+
+        grid-template-columns: 350px 1fr;
+
+        gap: 28px;
+
+        align-items: start;
+    }
+
+
+    /* IMAGE */
+
+    .mold-detail-image {
+        width: 350px;
+
+        height: 350px;
+
+        border-radius: 16px;
+
+        overflow: hidden;
+
+        background: #f3f2ef;
+    }
+
+
+    .mold-detail-image img {
+        width: 100%;
+
+        height: 100%;
+
+        display: block;
+
+        object-fit: cover;
+    }
+
+
+    .mold-no-image {
+        width: 100%;
+
+        height: 100%;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        color: #999;
+
+        font-size: 14px;
+    }
+
+
+    /* RIGHT SIDE */
+
+    .mold-info-column {
+        display: flex;
+
+        flex-direction: column;
+
+        gap: 22px;
+    }
+
+
+    .mold-info-card {
+        border: 1px solid #eee2c9;
+
+        border-radius: 15px;
+
+        background: #fff;
+
+        padding: 22px;
+    }
+
+
+    .mold-description {
+        font-size: 15px;
+
+        line-height: 1.65;
+
+        color: #222;
+
+        margin: 0;
+    }
+
+
+    /* DETAIL CARD */
+
+    .mold-card-title {
+        display: flex;
+
+        align-items: center;
+
+        gap: 10px;
+
+        color: #555;
+
+        font-size: 13px;
+
+        font-weight: 500;
+
+        letter-spacing: 0.4px;
+
+        margin-bottom: 18px;
+    }
+
+
+    .mold-detail-row {
+        display: flex;
+
+        justify-content: space-between;
+
+        align-items: center;
+
+        padding: 11px 0;
+
+        border-bottom: 1px solid #f1eee8;
+
+        font-size: 14px;
+    }
+
+
+    .mold-detail-row:last-child {
+        border-bottom: none;
+
+        padding-bottom: 0;
+    }
+
+
+    .mold-detail-label {
+        color: #777;
+    }
+
+
+    .mold-detail-value {
+        color: #222;
+
+        font-weight: 500;
+
+        text-align: right;
+
+        max-width: 65%;
+
+        word-break: break-word;
+    }
+
+
+    /* =========================================================
+   TAGS
+========================================================= */
+
+.mold-tags-card {
+    padding-bottom: 22px;
+}
+
+
+/* Selected tags */
+
+.selected-mold-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+
+.edit-mold-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 8px 10px 8px 13px;
+
+    border: 1px solid #ead9aa;
+    border-radius: 18px;
+
+    background: #fffaf0;
+    color: #b78a24;
+
+    font-size: 13px;
+}
+
+
+.remove-mold-tag {
+    width: 18px;
+    height: 18px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border: none;
+    border-radius: 50%;
+
+    background: transparent;
+    color: #b78a24;
+
+    cursor: pointer;
+
+    font-size: 14px;
+}
+
+
+.remove-mold-tag:hover {
+    background: #ead9aa;
+}
+
+
+/* =========================================================
+   INPUT ROW
+========================================================= */
+
+.tag-input-row {
+    display: flex;
+    gap: 9px;
+    width: 100%;
+}
+
+
+.tag-input-wrapper {
+    position: relative;
+    flex: 1;
+}
+
+
+.tag-input {
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 13px 42px 13px 13px;
+
+    border: 1px solid #e8dcc4;
+    border-radius: 9px;
+
+    background: #fdfbf6;
+
+    color: #222;
+
+    font-size: 14px;
+    font-family: inherit;
+
+    outline: none;
+}
+
+
+.tag-input:focus {
+    border-color: #c9a646;
+    background: white;
+}
+
+
+/* =========================================================
+   DROPDOWN BUTTON
+========================================================= */
+
+.tag-dropdown-button {
+    position: absolute;
+
+    top: 0;
+    right: 0;
+
+    width: 42px;
+    height: 100%;
+
+    border: none;
+    background: transparent;
+
+    color: #777;
+
+    font-size: 17px;
+
+    cursor: pointer;
+
+    z-index: 2;
+}
+
+
+.tag-dropdown-button:hover {
+    color: #b78a24;
+}
+
+
+/* =========================================================
+   ADD BUTTON
+========================================================= */
+
+.add-tag-button {
+    flex-shrink: 0;
+
+    padding: 0 18px;
+
+    border: 1px solid #ead9aa;
+    border-radius: 9px;
+
+    background: #fffaf0;
+    color: #b78a24;
+
+    cursor: pointer;
+
+    font-size: 14px;
+    font-family: inherit;
+}
+
+
+.add-tag-button:hover {
+    background: #f8efd9;
+}
+
+
+/* =========================================================
+   DROPDOWN
+========================================================= */
+
+.tag-dropdown {
+
+    position: absolute;
+
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+
+    max-height: 220px;
+
+    overflow-y: auto;
+
+    display: none;
+
+    background: #ffffff;
+
+    border: 1px solid #e5dcc9;
+
+    border-radius: 10px;
+
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, 0.10);
+
+    z-index: 9999;
+}
+
+
+/* Individual option */
+
+.tag-dropdown-item {
+
+    width: 100%;
+
+    display: block;
+
+    padding: 11px 14px;
+
+    border: none;
+
+    background: white;
+
+    color: #444;
+
+    text-align: left;
+
+    font-size: 13px;
+
+    font-family: inherit;
+
+    cursor: pointer;
+}
+
+
+.tag-dropdown-item:hover {
+
+    background: #fff8e8;
+
+    color: #b78a24;
+}
+
+
+.tag-dropdown-empty {
+
+    padding: 12px 14px;
+
+    color: #999;
+
+    font-size: 13px;
+}
+
+
+    /* =========================================================
+       EDIT MODE
+    ========================================================= */
+
+    .mold-edit-form {
+        width: 100%;
+    }
+
+
+    /* EDIT HEADER */
+
+    .mold-edit-header {
+        display: flex;
+
+        justify-content: space-between;
+
+        align-items: flex-start;
+
+        margin-bottom: 30px;
+    }
+
+
+    .mold-edit-actions-top {
+        display: flex;
+
+        align-items: center;
+
+        gap: 9px;
+    }
+
+
+    /* CANCEL */
+
+    .mold-cancel-button {
+        display: inline-flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        gap: 8px;
+
+        padding: 12px 18px;
+
+        border: 1px solid #eadfca;
+
+        border-radius: 9px;
+
+        background: #fffdf9;
+
+        color: #222;
+
+        text-decoration: none;
+
+        font-size: 14px;
+
+        font-weight: 500;
+    }
+
+
+    .mold-cancel-button:hover {
+        background: #f8f5ee;
+    }
+
+
+    /* SAVE */
+
+    .mold-save-button {
+        display: inline-flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        gap: 8px;
+
+        padding: 13px 20px;
+
+        border: none;
+
+        border-radius: 9px;
+
+        background: #c9a646;
+
+        color: white;
+
+        font-size: 14px;
+
+        font-weight: 500;
+
+        cursor: pointer;
+    }
+
+
+    .mold-save-button:hover {
+        background: #b8943b;
+    }
+
+
+    /* =========================================================
+       EDIT MAIN LAYOUT
+    ========================================================= */
+
+    .mold-edit-main {
+        display: grid;
+
+        grid-template-columns: 350px minmax(0, 1fr);
+
+        gap: 27px;
+
+        align-items: start;
+    }
+
+
+    /* =========================================================
+       EDIT IMAGE
+    ========================================================= */
+
+    .mold-edit-left {
+        width: 350px;
+    }
+
+
+    .mold-edit-image {
+        width: 350px;
+
+        height: 350px;
+
+        overflow: hidden;
+
+        border-radius: 16px;
+
+        background: #f3f2ef;
+    }
+
+    /* =========================================================
+   IMAGE ACTION BUTTONS
+========================================================= */
+
+.mold-edit-image {
+    position: relative;
+}
+
+
+/* Image */
+
+.mold-edit-image img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+}
+
+
+/* Dark overlay when hovering */
+
+.mold-edit-image::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.18);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+
+/* Buttons container */
+
+.mold-image-actions {
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+
+    z-index: 5;
+
+    opacity: 0;
+
+    transition: opacity 0.2s ease;
+}
+
+
+/* Show buttons when hovering image */
+
+.mold-edit-image:hover::after,
+.mold-edit-image:hover .mold-image-actions {
+    opacity: 1;
+}
+
+
+/* Image button */
+
+.mold-image-button {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    padding: 9px 14px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    font-size: 13px;
+
+    font-family: inherit;
+
+    font-weight: 500;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+
+    transition:
+        background 0.15s ease,
+        transform 0.15s ease;
+}
+
+
+/* Replace */
+
+.replace-image-button {
+    background: white;
+    color: #222;
+}
+
+
+.replace-image-button:hover {
+    background: #f7f7f7;
+}
+
+
+/* Remove */
+
+.remove-image-button {
+    background: #d83c3c;
+    color: white;
+}
+
+
+.remove-image-button:hover {
+    background: #c83232;
+}
+
+
+.mold-image-button span:first-child {
+    font-size: 15px;
+    line-height: 1;
+}
+
+
+    .mold-edit-image img {
+        width: 100%;
+
+        height: 100%;
+
+        display: block;
+
+        object-fit: cover;
+    }
+
+
+    .mold-image-upload {
+        display: block;
+
+        margin-top: 14px;
+
+        color: #b78a24;
+
+        font-size: 13px;
+
+        cursor: pointer;
+    }
+
+
+    .mold-image-upload input {
+        display: block;
+
+        margin-top: 7px;
+
+        font-size: 13px;
+
+        color: #555;
+    }
+
+
+    /* =========================================================
+       EDIT RIGHT SIDE
+    ========================================================= */
+
+    .mold-edit-right {
+        display: flex;
+
+        flex-direction: column;
+
+        gap: 22px;
+    }
+
+
+    /* EDIT CARD */
+
+    .mold-edit-card {
+        padding: 23px;
+
+        border: 1px solid #eadfca;
+
+        border-radius: 15px;
+
+        background: white;
+    }
+
+
+    /* =========================================================
+       FORM FIELDS
+    ========================================================= */
+
+    .mold-form-grid {
+        display: grid;
+
+        grid-template-columns: 1fr 1fr;
+
+        gap: 18px;
+    }
+
+
+    .mold-form-group {
+        display: flex;
+
+        flex-direction: column;
+
+        gap: 8px;
+    }
+
+
+    .mold-form-group.full-width {
+        margin-top: 20px;
+    }
+
+
+    .mold-form-group label {
+        font-size: 13px;
+
+        color: #555;
+
+        font-weight: 500;
+
+        letter-spacing: 0.5px;
+    }
+
+
+    .mold-form-group input,
+    .mold-form-group select,
+    .mold-form-group textarea {
+
+        width: 100%;
+
+        box-sizing: border-box;
+
+        padding: 13px;
+
+        border: 1px solid #e8dcc4;
+
+        border-radius: 9px;
+
+        background: #fdfbf6;
+
+        color: #222;
+
+        font-size: 14px;
+
+        font-family: inherit;
+
+        outline: none;
+    }
+
+
+    .mold-form-group input:focus,
+    .mold-form-group select:focus,
+    .mold-form-group textarea:focus {
+
+        border-color: #c9a646;
+
+        background: white;
+    }
+
+
+    .mold-form-group textarea {
+
+        min-height: 100px;
+
+        resize: vertical;
+    }
+
+
+    /* =========================================================
+   TAGS
+========================================================= */
+
+.mold-tags-card {
+    padding-bottom: 22px;
+}
+
+
+/* Selected tags */
+
+.selected-mold-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+
+/* Individual selected tag */
+
+.edit-mold-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 8px 10px 8px 13px;
+
+    border: 1px solid #ead9aa;
+    border-radius: 18px;
+
+    background: #fffaf0;
+    color: #b78a24;
+
+    font-size: 13px;
+}
+
+
+/* Remove X */
+
+.remove-mold-tag {
+    width: 18px;
+    height: 18px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border: none;
+    border-radius: 50%;
+
+    background: transparent;
+    color: #b78a24;
+
+    cursor: pointer;
+
+    font-size: 14px;
+    line-height: 1;
+}
+
+
+.remove-mold-tag:hover {
+    background: #ead9aa;
+}
+
+
+
+/* =========================================================
+   TAG INPUT
+========================================================= */
+
+.tag-input-row {
+    display: flex;
+    align-items: stretch;
+    gap: 9px;
+    width: 100%;
+}
+
+.tag-input-wrapper {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+}
+
+.tag-input {
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 13px 42px 13px 13px;
+
+    border: 1px solid #e8dcc4;
+    border-radius: 9px;
+
+    background: #fdfbf6;
+
+    color: #222;
+    font-size: 14px;
+    font-family: inherit;
+
+    outline: none;
+}
+
+.tag-input:focus {
+    border-color: #c9a646;
+    background: white;
+}
+
+
+/* =========================================================
+   DROPDOWN ARROW BUTTON
+========================================================= */
+
+.tag-dropdown-button {
+    position: absolute;
+
+    top: 0;
+    right: 0;
+
+    width: 42px;
+    height: 100%;
+
+    border: none;
+    background: transparent;
+
+    color: #777;
+
+    font-size: 17px;
+
+    cursor: pointer;
+
+    z-index: 10;
+}
+
+.tag-dropdown-button:hover {
+    color: #b78a24;
+}
+
+
+/* =========================================================
+   ADD BUTTON
+========================================================= */
+
+.add-tag-button {
+    flex-shrink: 0;
+
+    padding: 0 18px;
+
+    border: 1px solid #ead9aa;
+    border-radius: 9px;
+
+    background: #fffaf0;
+    color: #b78a24;
+
+    cursor: pointer;
+
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.add-tag-button:hover {
+    background: #f8efd9;
+}
+
+
+/* =========================================================
+   TAG DROPDOWN
+========================================================= */
+
+.tag-dropdown {
+    position: absolute;
+
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+
+    max-height: 220px;
+
+    overflow-y: auto;
+
+    display: none;
+
+    background: white;
+
+    border: 1px solid #eadfca;
+
+    border-radius: 10px;
+
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, 0.10);
+
+    z-index: 9999;
+}
+
+
+/* Dropdown item */
+
+.tag-dropdown-item {
+    width: 100%;
+
+    display: block;
+
+    padding: 11px 13px;
+
+    border: none;
+
+    background: white;
+
+    color: #444;
+
+    text-align: left;
+
+    font-size: 13px;
+
+    font-family: inherit;
+
+    cursor: pointer;
+}
+
+.tag-dropdown-item:hover {
+    background: #fffaf0;
+    color: #b78a24;
+}
+
+
+/* Empty message */
+
+.tag-dropdown-empty {
+    padding: 12px 13px;
+
+    color: #999;
+
+    font-size: 13px;
+}
+
+
+
+
+    /* =========================================================
+       LIKE
+    ========================================================= */
+
+    .mold-like-card {
+        padding: 18px 23px;
+    }
+
+
+    .like-option {
+        display: flex;
+
+        align-items: center;
+
+        gap: 10px;
+
+        font-size: 14px;
+
+        color: #555;
+
+        cursor: pointer;
+    }
+
+
+    .like-option input {
+        width: 16px;
+
+        height: 16px;
+
+        accent-color: #c9a646;
+    }
+
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+    @media (max-width: 850px) {
+
+        .mold-detail-page {
+            padding: 30px 25px 60px;
+        }
+
+
+        .mold-detail-grid {
+            grid-template-columns: 1fr;
+        }
+
+
+        .mold-detail-image {
+            width: 100%;
+
+            max-width: 500px;
+
+            height: auto;
+
+            aspect-ratio: 1 / 1;
+        }
+
+
+        .mold-edit-main {
+            grid-template-columns: 1fr;
+        }
+
+
+        .mold-edit-left {
+            width: 100%;
+        }
+
+
+        .mold-edit-image {
+            width: 100%;
+
+            max-width: 500px;
+
+            height: auto;
+
+            aspect-ratio: 1 / 1;
+        }
+
+    }
+
+
+    @media (max-width: 600px) {
+
+        .mold-detail-page {
+            padding: 25px 18px 50px;
+        }
+
+
+        .mold-detail-header,
+        .mold-edit-header {
+            flex-direction: column;
+
+            gap: 20px;
+        }
+
+
+        .mold-detail-title {
+            font-size: 27px;
+        }
+
+
+        .mold-edit-actions-top {
+            width: 100%;
+        }
+
+
+        .mold-cancel-button,
+        .mold-save-button {
+            flex: 1;
+        }
+
+
+        .mold-form-grid {
+            grid-template-columns: 1fr;
+        }
+
+    }
+
+</style>
+
+
+<!-- ============================================================
+     NORMAL DETAIL MODE
+============================================================ -->
+
+{% if not edit_mode %}
+
+<div class="mold-detail-page">
+
+
+    <!-- BACK -->
+
+    <a
+        href="{% url 'all_molds' %}"
+        class="mold-back-link"
+    >
+
+        <span>←</span>
+
+        <span>All Molds</span>
+
+    </a>
+
+
+    <!-- HEADER -->
+
+    <div class="mold-detail-header">
+
+        <div>
+
+            <div class="mold-meta">
+
+                <span class="mold-code">
+                    {{ mold.mold_code }}
+                </span>
+
+                <span class="mold-type-badge">
+                    {{ mold.type.name }}
+                </span>
+
+            </div>
+
+
+            <h1 class="mold-detail-title">
+                {{ mold.file_name }}
+            </h1>
+
+        </div>
+
+
+        <!-- EDIT -->
+
+        <a
+            href="?edit=1"
+            class="mold-edit-button"
+        >
+
+            <span>✎</span>
+
+            <span>Edit Mold</span>
+
+        </a>
+
+    </div>
+
+
+    <!-- MAIN -->
+
+    <div class="mold-detail-grid">
+
+
+        <!-- IMAGE -->
+
+        <div class="mold-detail-image">
+
+            {% if mold.preview_image %}
+
+                <img
+                    src="{{ mold.preview_image.url }}"
+                    alt="{{ mold.file_name }}"
+                >
+
+            {% else %}
+
+                <div class="mold-no-image">
+                    No Preview Image
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- RIGHT -->
+
+        <div class="mold-info-column">
+
+
+            <!-- DESCRIPTION -->
+
+            {% if mold.description %}
+
+                <div class="mold-info-card">
+                    <div class="mold-card-title">
+                        <span>◇</span>
+                        <span>DESCRIPTION</span>
+                    </div>
+
+                    <p class="mold-detail-row">
+                        {{ mold.description }}
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- DETAILS -->
+
+            <div class="mold-info-card">
+
+                <div class="mold-card-title">
+
+                    <span>◇</span>
+
+                    <span>DETAILS</span>
+
+                </div>
+
+
+                <div class="mold-detail-row">
+
+                    <span class="mold-detail-label">
+                        Mold Code
+                    </span>
+
+                    <span class="mold-detail-value">
+                        {{ mold.mold_code }}
+                    </span>
+
+                </div>
+
+
+                <div class="mold-detail-row">
+
+                    <span class="mold-detail-label">
+                        File Name
+                    </span>
+
+                    <span class="mold-detail-value">
+                        {{ mold.file_name }}
+                    </span>
+
+                </div>
+
+
+                <div class="mold-detail-row">
+
+                    <span class="mold-detail-label">
+                        Type
+                    </span>
+
+                    <span class="mold-detail-value">
+                        {{ mold.type.name }}
+                    </span>
+
+                </div>
+
+
+                <div class="mold-detail-row">
+
+                    <span class="mold-detail-label">
+                        Status
+                    </span>
+
+                    <span class="mold-detail-value">
+
+                        {% if mold.is_liked %}
+                            Liked
+                        {% else %}
+                            Not Liked
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- TAGS -->
+
+            <!-- =================================================
+     TAGS
+================================================= -->
+
+<div class="mold-edit-card mold-tags-card">
+
+    <div class="mold-card-title">
+        <span>◇</span>
+        <span>TAGS</span>
+    </div>
+
+    <!-- Selected tags -->
+    <div
+        class="selected-mold-tags"
+        id="selectedMoldTags"
+    >
+        {% for tag in mold.tags.all %}
+
+            <span
+                class="edit-mold-tag"
+                data-tag-id="{{ tag.pk }}"
+            >
+                <span>{{ tag.name }}</span>
+
+                <!-- <button
+                    type="button"
+                    class="remove-mold-tag"
+                    onclick="removeMoldTag(this)"
+                >
+                    ×
+                </button> -->
+
+                <input
+                    type="hidden"
+                    name="tags"
+                    value="{{ tag.pk }}"
+                >
+            </span>
+
+        {% endfor %}
+    </div>
+
+
+    <!-- Input + Dropdown Button -->
+
+    <!-- <div class="tag-input-row">
+
+        <div class="tag-input-wrapper">
+
+            <input
+                type="text"
+                id="newTagInput"
+                class="tag-input"
+                placeholder="Search or add tag..."
+                autocomplete="off"
+            >
+
+             <button
+                type="button"
+                class="tag-dropdown-button"
+                id="tagDropdownButton"
+                onclick="toggleTagDropdown(event)"
+            >
+                ▾
+            </button> -->
+
+
+            <!-- Dropdown -->
+
+            <!-- <div
+                class="tag-dropdown"
+                id="tagDropdown"
+            >
+
+                {% for tag in mold_tags %}
+
+                    <button
+                        type="button"
+                        class="tag-dropdown-item"
+                        data-tag-id="{{ tag.pk }}"
+                        data-tag-name="{{ tag.name }}"
+                        onclick="selectExistingTag(this)"
+                    >
+                        {{ tag.name }}
+                    </button>
+
+                {% endfor %}
+
+            </div>
+
+        </div> -->
+
+
+        <!-- <button
+            type="button"
+            class="add-tag-button"
+            onclick="addMoldTag()"
+        >
+            Add
+        </button> -->
+
+    </div>
+
+</div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ============================================================
+     EDIT MODE
+============================================================ -->
+
+{% else %}
+
+<form
+    method="POST"
+    enctype="multipart/form-data"
+    class="mold-edit-form"
+>
+
+    {% csrf_token %}
+
+
+    <div class="mold-detail-page">
+
+
+        <!-- ====================================================
+             EDIT HEADER
+        ===================================================== -->
+
+        <div class="mold-edit-header">
+
+            <div>
+
+                <div class="mold-meta">
+
+                    <span class="mold-code">
+                        {{ mold.mold_code }}
+                    </span>
+
+                    <span class="mold-type-badge">
+                        {{ mold.type.name }}
+                    </span>
+
+                </div>
+
+
+                <h1 class="mold-detail-title">
+                    {{ mold.file_name }}
+                </h1>
+
+            </div>
+
+
+            <!-- BUTTONS -->
+
+            <div class="mold-edit-actions-top">
+
+
+                <!-- CANCEL -->
+
+                <a
+                    href="{% url 'mold_detail' mold.pk %}"
+                    class="mold-cancel-button"
+                >
+
+                    <span>×</span>
+
+                    <span>Cancel</span>
+
+                </a>
+
+
+                <!-- SAVE -->
+
+                <button
+                    type="submit"
+                    class="mold-save-button"
+                >
+
+                    <span>▣</span>
+
+                    <span>Save Changes</span>
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- ====================================================
+             EDIT MAIN
+        ===================================================== -->
+
+        <div class="mold-edit-main">
+
+
+            <!-- =================================================
+                 LEFT IMAGE
+            ================================================== -->
+
+            <div class="mold-edit-left">
+
+
+                <div class="mold-edit-image" id="moldImageContainer">
+
+    {% if mold.preview_image %}
+
+        <img
+            id="moldPreviewImage"
+            src="{{ mold.preview_image.url }}"
+            alt="{{ mold.file_name }}"
+        >
+
+    {% else %}
+
+        <div
+            class="mold-no-image"
+            id="moldNoImage"
+        >
+            No Preview Image
+        </div>
+
+    {% endif %}
+
+
+    <!-- IMAGE ACTIONS -->
+
+    <div class="mold-image-actions">
+
+        <!-- Replace -->
+
+        <button
+            type="button"
+            class="mold-image-button replace-image-button"
+            onclick="document.getElementById('previewImageInput').click()"
+        >
+            <span>↥</span>
+            <span>Replace</span>
+        </button>
+
+
+        <!-- Remove -->
+
+        <button
+            type="button"
+            class="mold-image-button remove-image-button"
+            onclick="removeMoldImage()"
+        >
+            <span>×</span>
+            <span>Remove</span>
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- Hidden file input -->
+
+<input
+    type="file"
+    id="previewImageInput"
+    name="preview_image"
+    accept="image/*"
+    hidden
+>
+
+
+<!-- Tell Django to remove the old image -->
+
+<input
+    type="hidden"
+    name="remove_preview_image"
+    id="removePreviewImage"
+    value="0"
+>
+
+
+                <!-- IMAGE UPLOAD -->
+
+                <!-- <label class="mold-image-upload">
+
+                    Change Preview Image
+
+                    <input
+                        type="file"
+                        name="preview_image"
+                        accept="image/*"
+                    >
+
+                </label> -->
+
+
+            </div>
+
+
+            <!-- =================================================
+                 RIGHT SIDE
+            ================================================== -->
+
+            <div class="mold-edit-right">
+
+
+                <!-- =================================================
+                     BASIC INFORMATION
+                ================================================== -->
+
+                <div class="mold-edit-card">
+
+
+                    <div class="mold-form-grid">
+
+
+                        <!-- MOLD CODE -->
+
+                        <div class="mold-form-group">
+
+                            <label>
+                                MOLD CODE
+                            </label>
+
+                            <input
+                                type="text"
+                                name="mold_code"
+                                value="{{ mold.mold_code }}"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- MOLD TYPE -->
+
+                        <div class="mold-form-group">
+
+                            <label>
+                                MOLD TYPE
+                            </label>
+
+                            <select
+                                name="type"
+                                required
+                            >
+
+                                {% for mold_type in mold_types %}
+
+                                    <option
+                                        value="{{ mold_type.pk }}"
+                                        {% if mold.type.pk == mold_type.pk %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        {{ mold_type.name }}
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <!-- FILE NAME -->
+
+                    <div class="mold-form-group full-width">
+
+                        <label>
+                            FILE NAME
+                        </label>
+
+                        <input
+                            type="text"
+                            name="file_name"
+                            value="{{ mold.file_name }}"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- DESCRIPTION -->
+
+                    <div class="mold-form-group full-width">
+
+                        <label>
+                            DESCRIPTION
+                        </label>
+
+                        <textarea
+                            name="description"
+                            rows="4"
+                        >{{ mold.description }}</textarea>
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- =================================================
+                     TAGS
+                ================================================== -->
+
+                <!-- =================================================
+     TAGS
+================================================= -->
+
+<div class="mold-edit-card mold-tags-card">
+
+    <div class="mold-card-title">
+        <span>◇</span>
+        <span>TAGS</span>
+    </div>
+
+
+    <!-- CURRENT SELECTED TAGS -->
+
+    <div
+        class="selected-mold-tags"
+        id="selectedMoldTags"
+    >
+
+        {% for tag in mold.tags.all %}
+
+            <span
+                class="edit-mold-tag"
+                data-tag-id="{{ tag.pk }}"
+            >
+
+                <span>
+                    {{ tag.name }}
+                </span>
+
+                <button
+                    type="button"
+                    class="remove-mold-tag"
+                    onclick="removeMoldTag(this)"
+                >
+                    ×
+                </button>
+
+                <input
+                    type="hidden"
+                    name="tags"
+                    value="{{ tag.pk }}"
+                >
+
+            </span>
+
+        {% endfor %}
+
+    </div>
+
+
+   <!-- ADD / SEARCH TAG -->
+
+<div class="tag-input-row">
+
+    <div class="tag-input-wrapper">
+
+        <input
+            type="text"
+            id="newTagInput"
+            class="tag-input"
+            placeholder="Search or add tag..."
+            autocomplete="off"
+        >
+
+
+        <!-- DROPDOWN BUTTON -->
+
+        <!-- <button
+            type="button"
+            class="tag-dropdown-button"
+            id="tagDropdownButton"
+            onclick="toggleTagDropdown(event)"
+        >
+            ▾
+        </button> -->
+
+
+        <!-- EXISTING TAG DROPDOWN -->
+
+        <div
+            class="tag-dropdown"
+            id="tagDropdown"
+        >
+
+            {% for tag in mold_tags %}
+
+                <button
+                    type="button"
+                    class="tag-dropdown-item"
+                    data-tag-id="{{ tag.pk }}"
+                    data-tag-name="{{ tag.name }}"
+                    onclick="selectExistingTag(this)"
+                >
+                    {{ tag.name }}
+                </button>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+
+    <!-- ADD BUTTON -->
+
+    <button
+        type="button"
+        class="add-tag-button"
+        onclick="addMoldTag()"
+    >
+        Add
+    </button>
+
+</div>
+
+</div>
+
+
+                <!-- =================================================
+                     LIKE
+                ================================================== -->
+
+                <div class="mold-edit-card mold-like-card">
+
+                    <label class="like-option">
+
+                        <input
+                            type="checkbox"
+                            name="is_liked"
+                            {% if mold.is_liked %}
+                                checked
+                            {% endif %}
+                        >
+
+                        <span>
+                            Keep this mold liked
+                        </span>
+
+                    </label>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+</form>
+
+
+<script>
+
+/* =========================================================
+   TAG DROPDOWN
+========================================================= */
+
+const tagInput =
+    document.getElementById("newTagInput");
+
+const tagDropdown =
+    document.getElementById("tagDropdown");
+
+
+/* =========================================================
+   TOGGLE DROPDOWN
+========================================================= */
+
+function toggleTagDropdown(event) {
+
+    event.stopPropagation();
+
+    if (!tagDropdown) {
+        return;
+    }
+
+
+    if (tagDropdown.style.display === "block") {
+
+        tagDropdown.style.display = "none";
+
+    } else {
+
+        filterTagDropdown();
+
+        tagDropdown.style.display = "block";
+    }
+}
+
+
+if (tagInput) {
+
+    /* =========================================
+       CLICK / TYPE IN INPUT
+    ========================================= */
+
+    tagInput.addEventListener(
+        "input",
+        function () {
+
+            filterTagDropdown();
+
+            tagDropdown.style.display = "block";
+
+        }
+    );
+
+
+    /* =========================================
+       CLICK INTO INPUT
+    ========================================= */
+
+    tagInput.addEventListener(
+        "focus",
+        function () {
+
+            filterTagDropdown();
+
+            tagDropdown.style.display = "block";
+
+        }
+    );
+
+
+    /* =========================================
+       CLICK INPUT AGAIN
+    ========================================= */
+
+    tagInput.addEventListener(
+        "click",
+        function (event) {
+
+            event.stopPropagation();
+
+            filterTagDropdown();
+
+            tagDropdown.style.display = "block";
+
+        }
+    );
+
+
+    /* =========================================
+       PRESS ENTER
+    ========================================= */
+
+    tagInput.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (event.key === "Enter") {
+
+                event.preventDefault();
+
+                addMoldTag();
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   FILTER
+========================================================= */
+
+function filterTagDropdown() {
+
+    if (!tagDropdown) {
+        return;
+    }
+
+
+    const search =
+        tagInput.value
+            .trim()
+            .toLowerCase();
+
+
+    const items =
+        tagDropdown.querySelectorAll(
+            ".tag-dropdown-item"
+        );
+
+
+    let visibleCount = 0;
+
+
+    items.forEach(function (item) {
+
+        const tagName =
+            item.dataset.tagName
+                .toLowerCase();
+
+        const tagId =
+            item.dataset.tagId;
+
+
+        /*
+         * Check whether already selected
+         */
+
+        const alreadySelected =
+            document.querySelector(
+                '#selectedMoldTags input[value="' +
+                tagId +
+                '"]'
+            );
+
+
+        const matches =
+            !search ||
+            tagName.includes(search);
+
+
+        if (
+            matches &&
+            !alreadySelected
+        ) {
+
+            item.style.display =
+                "block";
+
+            visibleCount++;
+
+        } else {
+
+            item.style.display =
+                "none";
+        }
+
+    });
+
+
+    /*
+     * Empty message
+     */
+
+    let empty =
+        tagDropdown.querySelector(
+            ".tag-dropdown-empty"
+        );
+
+
+    if (visibleCount === 0) {
+
+        if (!empty) {
+
+            empty =
+                document.createElement(
+                    "div"
+                );
+
+            empty.className =
+                "tag-dropdown-empty";
+
+            tagDropdown.appendChild(
+                empty
+            );
+        }
+
+
+        if (search) {
+
+            empty.textContent =
+                'No existing tag found. Click "Add" to create "' +
+                tagInput.value.trim() +
+                '".';
+
+        } else {
+
+            empty.textContent =
+                "No more tags available.";
+        }
+
+
+        empty.style.display =
+            "block";
+
+    } else {
+
+        if (empty) {
+
+            empty.style.display =
+                "none";
+        }
+    }
+}
+
+
+/* =========================================================
+   SELECT EXISTING TAG
+========================================================= */
+
+function selectExistingTag(button) {
+
+    const tagId =
+        button.dataset.tagId;
+
+    const tagName =
+        button.dataset.tagName;
+
+
+    addSelectedTag(
+        tagId,
+        tagName
+    );
+
+
+    tagInput.value = "";
+
+    tagDropdown.style.display =
+        "none";
+}
+
+
+/* =========================================================
+   ADD TAG
+========================================================= */
+
+function addMoldTag() {
+
+    const value =
+        tagInput.value.trim();
+
+
+    if (!value) {
+        return;
+    }
+
+
+    /*
+     * Check if tag already exists
+     */
+
+    const items =
+        tagDropdown.querySelectorAll(
+            ".tag-dropdown-item"
+        );
+
+
+    let existingTag = null;
+
+
+    items.forEach(function (item) {
+
+        if (
+            item.dataset.tagName
+                .trim()
+                .toLowerCase() ===
+            value.toLowerCase()
+        ) {
+
+            existingTag = item;
+        }
+
+    });
+
+
+    /*
+     * Existing tag
+     */
+
+    if (existingTag) {
+
+        selectExistingTag(
+            existingTag
+        );
+
+        return;
+    }
+
+
+    /*
+     * New tag
+     */
+
+    createNewTag(value);
+}
+
+
+/* =========================================================
+   ADD SELECTED TAG
+========================================================= */
+
+function addSelectedTag(
+    tagId,
+    tagName
+) {
+
+    const container =
+        document.getElementById(
+            "selectedMoldTags"
+        );
+
+
+    const existing =
+        container.querySelector(
+            'input[value="' +
+            tagId +
+            '"]'
+        );
+
+
+    if (existing) {
+        return;
+    }
+
+
+    const tag =
+        document.createElement(
+            "span"
+        );
+
+
+    tag.className =
+        "edit-mold-tag";
+
+
+    tag.innerHTML = `
+
+        <span>
+            ${escapeHtml(tagName)}
+        </span>
+
+        <button
+            type="button"
+            class="remove-mold-tag"
+            onclick="removeMoldTag(this)"
+        >
+            ×
+        </button>
+
+        <input
+            type="hidden"
+            name="tags"
+            value="${tagId}"
+        >
+
+    `;
+
+
+    container.appendChild(tag);
+
+
+    filterTagDropdown();
+}
+
+
+/* =========================================================
+   REMOVE TAG
+========================================================= */
+
+function removeMoldTag(button) {
+
+    const tag =
+        button.closest(
+            ".edit-mold-tag"
+        );
+
+
+    if (tag) {
+
+        tag.remove();
+    }
+
+
+    filterTagDropdown();
+}
+
+
+/* =========================================================
+   CREATE NEW TAG
+========================================================= */
+
+function createNewTag(tagName) {
+
+    fetch(
+        "{% url 'create_mold_tag' %}",
+        {
+            method: "POST",
+
+            headers: {
+                "Content-Type":
+                    "application/x-www-form-urlencoded",
+
+                "X-CSRFToken":
+                    getCookie("csrftoken")
+            },
+
+            body:
+                "name=" +
+                encodeURIComponent(tagName)
+        }
+    )
+
+    .then(function (response) {
+
+        return response.json();
+
+    })
+
+    .then(function (data) {
+
+        if (!data.success) {
+
+            alert(
+                data.error ||
+                "Unable to create tag."
+            );
+
+            return;
+        }
+
+
+        /*
+         * Add the newly created/existing
+         * tag to selected tags.
+         */
+
+        addSelectedTag(
+            data.id,
+            data.name
+        );
+
+
+        /*
+         * Also add it to dropdown if
+         * it wasn't already there.
+         */
+
+        const existing =
+            tagDropdown.querySelector(
+                '[data-tag-id="' +
+                data.id +
+                '"]'
+            );
+
+
+        if (!existing) {
+
+            const option =
+                document.createElement(
+                    "button"
+                );
+
+            option.type =
+                "button";
+
+            option.className =
+                "tag-dropdown-item";
+
+            option.dataset.tagId =
+                data.id;
+
+            option.dataset.tagName =
+                data.name;
+
+            option.textContent =
+                data.name;
+
+            option.onclick =
+                function () {
+
+                    selectExistingTag(
+                        option
+                    );
+                };
+
+
+            tagDropdown.appendChild(
+                option
+            );
+        }
+
+
+        tagInput.value = "";
+
+        tagDropdown.style.display =
+            "none";
+
+    })
+
+    .catch(function (error) {
+
+        console.error(error);
+
+        alert(
+            "Unable to create tag."
+        );
+
+    });
+}
+
+
+/* =========================================================
+   CLOSE DROPDOWN
+========================================================= */
+
+document.addEventListener(
+    "click",
+    function (event) {
+
+        if (
+            tagDropdown &&
+            !tagDropdown.contains(
+                event.target
+            ) &&
+            !tagInput.contains(
+                event.target
+            )
+        ) {
+
+            tagDropdown.style.display =
+                "none";
+        }
+
+    }
+);
+
+
+/* =========================================================
+   CSRF
+========================================================= */
+
+function getCookie(name) {
+
+    let cookieValue = null;
+
+
+    if (document.cookie) {
+
+        const cookies =
+            document.cookie.split(";");
+
+
+        for (
+            let i = 0;
+            i < cookies.length;
+            i++
+        ) {
+
+            const cookie =
+                cookies[i].trim();
+
+
+            if (
+                cookie.substring(
+                    0,
+                    name.length + 1
+                ) ===
+                name + "="
+            ) {
+
+                cookieValue =
+                    decodeURIComponent(
+                        cookie.substring(
+                            name.length + 1
+                        )
+                    );
+
+                break;
+            }
+        }
+    }
+
+
+    return cookieValue;
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHtml(text) {
+
+    const div =
+        document.createElement("div");
+
+    div.textContent = text;
+
+    return div.innerHTML;
+}
+
+
+/* =========================================================
+   CSRF COOKIE
+========================================================= */
+
+function getCookie(name) {
+
+    let cookieValue = null;
+
+
+    if (document.cookie) {
+
+        const cookies =
+            document.cookie.split(";");
+
+
+        for (
+            let i = 0;
+            i < cookies.length;
+            i++
+        ) {
+
+            const cookie =
+                cookies[i].trim();
+
+
+            if (
+                cookie.substring(
+                    0,
+                    name.length + 1
+                ) ===
+                (name + "=")
+            ) {
+
+                cookieValue =
+                    decodeURIComponent(
+                        cookie.substring(
+                            name.length + 1
+                        )
+                    );
+
+                break;
+            }
+        }
+    }
+
+
+    return cookieValue;
+}
+
+
+/* =========================================================
+   HTML ESCAPE
+========================================================= */
+
+function escapeHtml(text) {
+
+    const div =
+        document.createElement("div");
+
+    div.textContent = text;
+
+    return div.innerHTML;
+}
+
+
+  
+
+
+
+
+    
+
+    /* =========================================================
+   MOLD IMAGE REPLACE
+========================================================= */
+
+const previewImageInput =
+    document.getElementById("previewImageInput");
+
+
+if (previewImageInput) {
+
+    previewImageInput.addEventListener(
+        "change",
+        function () {
+
+            const file = this.files[0];
+
+            if (!file) {
+                return;
+            }
+
+
+            const reader = new FileReader();
+
+
+            reader.onload = function (event) {
+
+                const container =
+                    document.getElementById(
+                        "moldImageContainer"
+                    );
+
+
+                let image =
+                    document.getElementById(
+                        "moldPreviewImage"
+                    );
+
+
+                const noImage =
+                    document.getElementById(
+                        "moldNoImage"
+                    );
+
+
+                /*
+                 * If there was previously
+                 * no image, create one.
+                 */
+
+                if (!image) {
+
+                    image =
+                        document.createElement("img");
+
+                    image.id =
+                        "moldPreviewImage";
+
+                    image.alt =
+                        "{{ mold.file_name|escapejs }}";
+
+
+                    if (noImage) {
+                        noImage.remove();
+                    }
+
+
+                    container.prepend(image);
+                }
+
+
+                /*
+                 * Show the new image
+                 */
+
+                image.src = event.target.result;
+
+
+                /*
+                 * Since the user selected
+                 * a replacement image,
+                 * don't remove the image.
+                 */
+
+                const removeInput =
+                    document.getElementById(
+                        "removePreviewImage"
+                    );
+
+                if (removeInput) {
+
+                    removeInput.value = "0";
+                }
+
+            };
+
+
+            reader.readAsDataURL(file);
+        }
+    );
+}
+
+/* =========================================================
+   REMOVE MOLD IMAGE
+========================================================= */
+
+function removeMoldImage() {
+
+    const image =
+        document.getElementById(
+            "moldPreviewImage"
+        );
+
+
+    const container =
+        document.getElementById(
+            "moldImageContainer"
+        );
+
+
+    const removeInput =
+        document.getElementById(
+            "removePreviewImage"
+        );
+
+
+    const fileInput =
+        document.getElementById(
+            "previewImageInput"
+        );
+
+
+    /*
+     * Clear selected replacement image
+     */
+
+    if (fileInput) {
+
+        fileInput.value = "";
+    }
+
+
+    /*
+     * Tell Django that the existing
+     * image should be deleted.
+     */
+
+    if (removeInput) {
+
+        removeInput.value = "1";
+    }
+
+
+    /*
+     * Remove image from preview
+     */
+
+    if (image) {
+
+        image.remove();
+    }
+
+
+    /*
+     * Add "No Preview Image"
+     */
+
+    if (
+        !document.getElementById(
+            "moldNoImage"
+        )
+    ) {
+
+        const noImage =
+            document.createElement("div");
+
+        noImage.id =
+            "moldNoImage";
+
+        noImage.className =
+            "mold-no-image";
+
+        noImage.textContent =
+            "No Preview Image";
+
+
+        container.prepend(noImage);
+    }
+}
+
+</script>
+
+{% endif %}
+
+{% endblock %}

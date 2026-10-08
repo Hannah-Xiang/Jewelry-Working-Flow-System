@@ -1172,6 +1172,10 @@
 
                     {% endif %}
                     <div class="mold-hover-info">
+                        <a
+    href="{% url 'mold_detail' mold.pk %}"
+    class="mold-hover-info"
+>
 
     <div
         class="mold-hover-file-name"
@@ -1183,6 +1187,7 @@
     <div class="mold-hover-type">
         {{ mold.type.name }}
     </div>
+    </a>
 
 </div>
 <button

@@ -515,10 +515,10 @@ def all_tickets(request):
     sort_field = allowed_sorts.get(sort, 'created_date')
 
     if direction == 'asc':
-        tickets = tickets.order_by(sort_field)
+        tickets = tickets.order_by(sort_field, 'id')
     else:
         direction = 'desc'
-        tickets = tickets.order_by(f'-{sort_field}')
+        tickets = tickets.order_by(f'-{sort_field}', '-id')
     status_id = request.GET.get('status')
     job_type_id = request.GET.get('job_type')
     open_jobs = request.GET.get("open")
@@ -746,11 +746,12 @@ def ticket_search(request):
     )
 
     if direction == 'asc':
-        tickets = tickets.order_by(sort_field)
+        tickets = tickets.order_by(sort_field, 'id')
     else:
         direction = 'desc'
         tickets = tickets.order_by(
-            f'-{sort_field}'
+            f'-{sort_field}',
+            '-id'
         )
 
 

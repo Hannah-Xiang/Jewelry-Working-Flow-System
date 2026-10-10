@@ -64,22 +64,37 @@
          to that record instead of creating a duplicate customer -->
     <input type="hidden" name="existing_customer_id" id="id_existing_customer_id" value="">
 
-    <div class="form-group customer-field-wrapper" id="name-wrapper">
+    <div class="form-row">
+        <div class="form-group customer-field-wrapper" id="name-wrapper">
 
-        <label>
-            Customer Name *
-        </label>
+            <label>
+                Customer Name *
+            </label>
 
-        {{ form.customer_name }}
+            {{ form.customer_name }}
 
-        <div id="name-results" class="customer-dropdown" style="display:none;"></div>
+            <div id="name-results" class="customer-dropdown" style="display:none;"></div>
 
-        {% if form.customer_name.errors %}
-            <small class="error">
-                {{ form.customer_name.errors.0 }}
-            </small>
-        {% endif %}
+            {% if form.customer_name.errors %}
+                <small class="error">
+                    {{ form.customer_name.errors.0 }}
+                </small>
+            {% endif %}
 
+        </div>
+        <div class="form-group customer-field-wrapper" id="wedding-date-wrapper">
+
+            <label>
+                Wedding Date
+            </label>
+
+            {{ form.wedding_date }}
+            {% if form.wedding_date.errors %}
+                <small class="error">
+                    {{ form.wedding_date.errors.0 }}
+                </small>
+            {% endif %}
+        </div>
     </div>
 
     <div class="form-row">

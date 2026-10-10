@@ -137,6 +137,16 @@ path(
     views.mold_toggle_like,
     name="mold_toggle_like"
 ),
+path(
+    "molds/<int:pk>/",
+    views.mold_detail,
+    name="mold_detail"
+),
+path(
+    "api/mold-tags/create/",
+    views.create_mold_tag,
+    name="create_mold_tag"
+),
 
 ]
 

@@ -25,6 +25,21 @@ class TicketForm(forms.ModelForm):
         required=False,
         label="Email Address"
     )
+
+    
+    wedding_date = forms.DateField(
+        required=False,
+        label="Wedding Date",
+        widget=forms.DateInput(
+            attrs={
+                "type": "date",
+                "class": "form-control",
+                "id": "id_wedding_date",
+            }
+        ),
+    )
+
+
     
 
     class Meta:
@@ -194,6 +209,7 @@ class CustomerForm(forms.ModelForm):
             "phone",
             "email",
             "note",
+            "wedding_date",
         ]
 
         widgets = {
@@ -223,6 +239,13 @@ class CustomerForm(forms.ModelForm):
                     "class": "form-input",
                     "rows": 5,
                     "placeholder": "Preferences, allergies, special notes...",
+                }
+            ),
+
+            "wedding_date": forms.DateInput(
+                attrs={
+                    "class": "form-input",
+                    "type": "date",
                 }
             ),
         }

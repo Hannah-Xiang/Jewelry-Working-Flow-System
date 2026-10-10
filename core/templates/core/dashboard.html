@@ -216,59 +216,55 @@
 
             </div>
 
-            <!-- Upcoming Due Dates -->
-            <div class="panel">
+            
+<!-- Upcoming Weddings -->
+<div class="panel weddings-panel">
 
-                <div class="panel-header">
-                    <h3>Upcoming Due Dates</h3>
-                </div>
-
-                <div class="due-list">
-
-{% for ticket in upcoming_due_dates %}
-
-<div
-    class="due-item clickable-card"
-    onclick="window.location='{% url 'ticket_detail' ticket.id %}'"
->
-
-    <div>
-        <p class="ticket-number">
- 
-        {% if ticket.is_starred %}
-            <i class="fa-solid fa-star ticket-star"></i>
-        {% endif %}
-
-        {{ ticket.ticket_number }}
-        </p>
-
-        <strong>
-            {{ ticket.customer.name }}
-        </strong>
-
-        <p>
-            {{ ticket.job_type.type }}
-        </p>
-
+    <div class="panel-header">
+        <h3>Upcoming Weddings</h3>
     </div>
 
-    <span>
-        {{ ticket.due_date|date:"M d" }}
-    </span>
+    <div class="weddings-list">
+        {% for wedding in upcoming_wedding_dates %}
+        <div class="wedding-item"
+     onclick="window.location.href='{% url 'customers' %}'">
 
-</div>
-
-{% empty %}
-
-<div class="due-item">
-    No upcoming jobs
-</div>
-
-{% endfor %}
-
-</div>
-
+            <div class="wedding-date-badge">
+                <span class="wedding-day">
+                    {{ wedding.wedding_date|date:"j" }}
+                </span>
+                <span class="wedding-month">
+                    {{ wedding.wedding_date|date:"M"|upper }}
+                </span>
             </div>
+
+            <div class="wedding-info">
+                <div class="wedding-name">
+                    {{ wedding.name }}
+                </div>
+                <div class="wedding-anniversary">
+                    {{ wedding.wedding_date|date:" Y" }}
+                </div>
+            </div>
+
+            <div class="wedding-countdown">
+                {% if wedding.days_remaining <= 0 %}
+                    Today
+                {% else %}
+                {{ wedding.days_remaining }} Days Left
+                {% endif %}
+            </div>
+
+        </div>
+        {% empty %}
+        <div class="weddings-empty">
+            No upcoming weddings
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
 
         </div>
 
@@ -620,6 +616,125 @@
     color:#c79c3d;
     font-weight:600;
     letter-spacing:.2px;
+}
+
+
+/* Upcoming Weddings Panel */
+/* .weddings-panel {
+    background: #fff;
+    border: 1px solid #f0e7d8;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: none;
+}
+
+.weddings-panel .panel-header {
+    padding: 20px 22px;
+    border-bottom: 1px solid #f0e7d8;
+}
+
+.weddings-panel .panel-header h3 {
+    margin: 0;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #171717;
+} */
+
+.weddings-list {
+    padding: 10px 22px 12px;
+}
+
+.wedding-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 60px;
+    padding: 8px 9px;
+    margin: 0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.wedding-item:hover {
+    background: #f4f1eb;
+}
+
+.wedding-date-badge {
+    flex: 0 0 35px;
+    width: 35px;
+    height: 35px;
+    border: 1px solid #eadfc8;
+    border-radius: 9px;
+    background: #faf7f0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    line-height: 1.1;
+}
+
+.wedding-day {
+    font-size: 14px;
+    font-weight: 500;
+    color: #62543f;
+}
+
+.wedding-month {
+    margin-top: 2px;
+    font-size: 9px;
+    font-weight: 500;
+    color: #8f806b;
+}
+
+.wedding-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.wedding-name {
+    color: #171717;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.wedding-anniversary {
+    margin-top: 2px;
+    color: #777;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.wedding-countdown {
+    flex: 0 0 auto;
+    margin-left: auto;
+    padding-left: 6px;
+    color: #82796f;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.weddings-empty {
+    padding: 22px 8px;
+    text-align: center;
+    color: #888;
+    font-size: 13px;
+}
+
+@media (max-width: 480px) {
+    .weddings-list {
+        padding-right: 12px;
+        padding-left: 12px;
+    }
+
+    .wedding-item {
+        gap: 10px;
+    }
 }
 
 /* Responsive */

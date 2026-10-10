@@ -131,11 +131,19 @@ def dashboard(request):
             int(item["count"] / max_count * 160)
         )
 
-    upcoming_due_dates = Ticket.objects.filter(
-        due_date__gte=today
-    ).exclude(
-        status__status="Completed"
-    ).order_by('due_date')[:5]
+    upcoming_wedding_dates = Customer.objects.filter(
+        wedding_date__gte=today
+    ).order_by("wedding_date")[:10]
+
+    upcoming_wedding_dates = [
+        {
+            "id": customer.id,
+            "name": customer.name,
+            "wedding_date": customer.wedding_date,
+            "days_remaining": (customer.wedding_date - today).days,
+        }
+        for customer in upcoming_wedding_dates
+    ]
 
     context = {
         "recent_tickets": recent_tickets,
@@ -144,7 +152,7 @@ def dashboard(request):
         "ready_for_pickup": ready_for_pickup,
         "overdue": overdue,
         "status_summary": status_summary,
-        "upcoming_due_dates": upcoming_due_dates,
+        "upcoming_wedding_dates": upcoming_wedding_dates,
     }
 
     return render(request, "core/dashboard.html", context)
@@ -167,7 +175,8 @@ def new_ticket(request):
                 customer = get_or_create_customer(
                     form.cleaned_data["customer_name"],
                     form.cleaned_data["phone"],
-                    form.cleaned_data["email"]
+                    form.cleaned_data["email"],
+                    form.cleaned_data["wedding_date"]
                 )
 
             ticket = form.save(commit=False)
@@ -1845,3 +1854,438 @@ def mold_toggle_like(request):
         "success": True,
         "is_liked": mold.is_liked
     })
+
+
+@login_required
+def mold_detail(request, pk):
+
+    mold = get_object_or_404(
+        Mold.objects.prefetch_related("tags"),
+        pk=pk
+    )
+
+    # =========================================================
+    # EDIT MODE
+    # =========================================================
+
+    edit_mode = request.GET.get("edit") == "1"
+
+
+    # =========================================================
+    # SAVE CHANGES
+    # =========================================================
+
+    if request.method == "POST":
+
+        # -----------------------------------------------------
+        # Mold Code
+        # -----------------------------------------------------
+
+        mold_code = request.POST.get(
+            "mold_code",
+            ""
+        ).strip()
+
+
+        # Check required field
+        if not mold_code:
+
+            messages.error(
+                request,
+                "Mold code is required."
+            )
+
+            return render(
+                request,
+                "core/mold_detail.html",
+                {
+                    "mold": mold,
+                    "edit_mode": True,
+                    "mold_types": MoldType.objects.all().order_by("name"),
+                    "mold_tags": MoldTag.objects.all().order_by("name"),
+                }
+            )
+
+
+        # Check duplicate mold code
+        if Mold.objects.filter(
+            mold_code__iexact=mold_code
+        ).exclude(
+            pk=mold.pk
+        ).exists():
+
+            messages.error(
+                request,
+                "Mold code already exists."
+            )
+
+            return render(
+                request,
+                "core/mold_detail.html",
+                {
+                    "mold": mold,
+                    "edit_mode": True,
+                    "mold_types": MoldType.objects.all().order_by("name"),
+                    "mold_tags": MoldTag.objects.all().order_by("name"),
+                }
+            )
+
+
+        # -----------------------------------------------------
+        # Mold Type
+        # -----------------------------------------------------
+
+        type_id = request.POST.get("type")
+
+        if not type_id:
+
+            messages.error(
+                request,
+                "Please select a mold type."
+            )
+
+            return render(
+                request,
+                "core/mold_detail.html",
+                {
+                    "mold": mold,
+                    "edit_mode": True,
+                    "mold_types": MoldType.objects.all().order_by("name"),
+                    "mold_tags": MoldTag.objects.all().order_by("name"),
+                }
+            )
+
+
+        mold_type = get_object_or_404(
+            MoldType,
+            pk=type_id
+        )
+
+
+        # -----------------------------------------------------
+        # File Name
+        # -----------------------------------------------------
+
+        file_name = request.POST.get(
+            "file_name",
+            ""
+        ).strip()
+
+
+        if not file_name:
+
+            messages.error(
+                request,
+                "File name is required."
+            )
+
+            return render(
+                request,
+                "core/mold_detail.html",
+                {
+                    "mold": mold,
+                    "edit_mode": True,
+                    "mold_types": MoldType.objects.all().order_by("name"),
+                    "mold_tags": MoldTag.objects.all().order_by("name"),
+                }
+            )
+
+
+        # -----------------------------------------------------
+        # Description
+        # -----------------------------------------------------
+
+        description = request.POST.get(
+            "description",
+            ""
+        ).strip()
+
+
+        # -----------------------------------------------------
+        # Save basic information
+        # -----------------------------------------------------
+
+        old_mold_code = mold.mold_code
+        old_file_name = mold.file_name
+        old_type = mold.type
+        old_description = mold.description
+        old_is_liked = mold.is_liked
+
+
+        mold.mold_code = mold_code
+        mold.file_name = file_name
+        mold.type = mold_type
+        mold.description = description
+
+
+        # -----------------------------------------------------
+        # Like / Unlike
+        # -----------------------------------------------------
+
+        mold.is_liked = (
+            request.POST.get("is_liked") == "on"
+        )
+
+
+        # -----------------------------------------------------
+        # Preview Image
+        # -----------------------------------------------------
+
+        # -----------------------------------------------------
+        # Preview Image
+        # -----------------------------------------------------
+
+        remove_preview_image = (
+            request.POST.get("remove_preview_image")
+            == "1"
+        )
+
+
+        if remove_preview_image:
+
+            # Delete the old physical image file
+            if mold.preview_image:
+
+                mold.preview_image.delete(
+                    save=False
+                )
+
+            mold.preview_image = None
+
+
+        elif "preview_image" in request.FILES:
+
+            # Replace with new image
+            mold.preview_image = request.FILES[
+                "preview_image"
+            ]
+
+
+        # -----------------------------------------------------
+        # Save Mold
+        # -----------------------------------------------------
+
+        mold.save()
+
+
+        # =====================================================
+        # TAGS
+        # =====================================================
+
+        tag_ids = request.POST.getlist("tags")
+
+
+        # Only use valid integer IDs
+        valid_tag_ids = []
+
+        for tag_id in tag_ids:
+
+            try:
+
+                valid_tag_ids.append(
+                    int(tag_id)
+                )
+
+            except (TypeError, ValueError):
+
+                continue
+
+
+        # Make sure all IDs actually exist
+        tags = MoldTag.objects.filter(
+            id__in=valid_tag_ids
+        )
+
+
+        mold.tags.set(tags)
+
+
+        # =====================================================
+        # AUDIT LOG
+        # =====================================================
+
+        changes = []
+
+
+        if old_mold_code != mold.mold_code:
+
+            changes.append(
+                f"Mold code: "
+                f"{old_mold_code} -> "
+                f"{mold.mold_code}"
+            )
+
+
+        if old_file_name != mold.file_name:
+
+            changes.append(
+                f"File name: "
+                f"{old_file_name} -> "
+                f"{mold.file_name}"
+            )
+
+
+        if old_type != mold.type:
+
+            changes.append(
+                f"Type: "
+                f"{old_type.name} -> "
+                f"{mold.type.name}"
+            )
+
+
+        if old_description != mold.description:
+
+            changes.append(
+                "Description changed"
+            )
+
+
+        if old_is_liked != mold.is_liked:
+
+            if mold.is_liked:
+
+                changes.append(
+                    "Mold liked"
+                )
+
+            else:
+
+                changes.append(
+                    "Mold unliked"
+                )
+
+
+        # Image changed
+        if "preview_image" in request.FILES:
+
+            changes.append(
+                "Preview image changed"
+            )
+
+
+        if changes:
+
+            create_audit_log(
+                request,
+                "UPDATE",
+                "Mold",
+                mold.id,
+                "; ".join(changes)
+            )
+
+
+        # =====================================================
+        # SUCCESS
+        # =====================================================
+
+        messages.success(
+            request,
+            "Mold updated successfully."
+        )
+
+
+        return redirect(
+            "mold_detail",
+            pk=mold.pk
+        )
+
+
+    # =========================================================
+    # GET / DISPLAY PAGE
+    # =========================================================
+
+    context = {
+
+        "mold": mold,
+
+        "edit_mode": edit_mode,
+
+        # Used by the mold type dropdown
+        "mold_types": MoldType.objects.all().order_by(
+            "name"
+        ),
+
+        # Used by the tags section
+        "mold_tags": MoldTag.objects.all().order_by(
+            "name"
+        ),
+    }
+
+
+    return render(
+        request,
+        "core/mold_detail.html",
+        context
+    )
+
+
+@login_required
+def create_mold_tag(request):
+
+    if request.method != "POST":
+
+        return JsonResponse(
+            {
+                "success": False,
+                "error": "POST request required."
+            },
+            status=405
+        )
+
+
+    name = request.POST.get(
+        "name",
+        ""
+    ).strip()
+
+
+    if not name:
+
+        return JsonResponse(
+            {
+                "success": False,
+                "error": "Tag name is required."
+            },
+            status=400
+        )
+
+
+    # ---------------------------------------------------------
+    # Check if tag already exists
+    # ---------------------------------------------------------
+
+    existing_tag = MoldTag.objects.filter(
+        name__iexact=name
+    ).first()
+
+
+    if existing_tag:
+
+        return JsonResponse(
+            {
+                "success": True,
+                "id": existing_tag.id,
+                "name": existing_tag.name,
+                "created": False,
+            }
+        )
+
+
+    # ---------------------------------------------------------
+    # Create new tag
+    # ---------------------------------------------------------
+
+    tag = MoldTag.objects.create(
+        name=name
+    )
+
+
+    return JsonResponse(
+        {
+            "success": True,
+            "id": tag.id,
+            "name": tag.name,
+            "created": True,
+        }
+    )

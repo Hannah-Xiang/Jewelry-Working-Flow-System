@@ -193,9 +193,101 @@
                 
 
 
-                {% if ticket.ring_finger %}
+                
+                
+                <div class="price-badge">
 
-                    <div class="ring-finger-detail">
+                    Value / Price:&nbsp;
+
+                    <span>
+
+                        {% if ticket.price is not None %}
+                            ${{ ticket.price }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+
+                    </span>
+
+                </div>
+            </div>
+            
+
+        </div>
+
+
+        <!-- PHOTOS -->
+        <div class="card photo-card">
+
+            <div class="photo-card-header">
+
+                <h3>
+                    Photos
+                </h3>
+
+                {% if ticket.photos.all %}
+                    <span id="photo-counter">
+                        1 / {{ ticket.photos.all|length }}
+                    </span>
+                {% endif %}
+
+            </div>
+
+
+            {% if ticket.photos.all %}
+
+                <div class="photo-viewer">
+
+                    {% for photo in ticket.photos.all %}
+
+                        <img
+                            src="{{ photo.image.url }}"
+                            alt="Ticket photo"
+                            class="ticket-photo-slide {% if forloop.first %}active{% endif %}"
+                            data-index="{{ forloop.counter0 }}"
+                        >
+
+                    {% endfor %}
+
+
+                    {% if ticket.photos.all|length > 1 %}
+
+                        <button
+                            type="button"
+                            class="photo-nav photo-prev"
+                            onclick="changePhoto(-1)"
+                        >
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+
+                        <button
+                            type="button"
+                            class="photo-nav photo-next"
+                            onclick="changePhoto(1)"
+                        >
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+
+                    {% endif %}
+
+                </div>
+
+            {% else %}
+
+                <div class="photo-placeholder">
+                    No photos attached
+                </div>
+
+            {% endif %}
+
+        </div>
+
+        
+
+    </div>
+    {% if ticket.ring_finger %}
+
+                    <div class="card">
 
                         <div class="ring-finger-title">
                             Ring Finger
@@ -284,94 +376,6 @@
                     </div>
 
                 {% endif %}
-                
-                <div class="price-badge">
-
-                    Value / Price:&nbsp;
-
-                    <span>
-
-                        {% if ticket.price is not None %}
-                            ${{ ticket.price }}
-                        {% else %}
-                            N/A
-                        {% endif %}
-
-                    </span>
-
-                </div>
-            </div>
-
-        </div>
-
-
-        <!-- PHOTOS -->
-        <div class="card photo-card">
-
-            <div class="photo-card-header">
-
-                <h3>
-                    Photos
-                </h3>
-
-                {% if ticket.photos.all %}
-                    <span id="photo-counter">
-                        1 / {{ ticket.photos.all|length }}
-                    </span>
-                {% endif %}
-
-            </div>
-
-
-            {% if ticket.photos.all %}
-
-                <div class="photo-viewer">
-
-                    {% for photo in ticket.photos.all %}
-
-                        <img
-                            src="{{ photo.image.url }}"
-                            alt="Ticket photo"
-                            class="ticket-photo-slide {% if forloop.first %}active{% endif %}"
-                            data-index="{{ forloop.counter0 }}"
-                        >
-
-                    {% endfor %}
-
-
-                    {% if ticket.photos.all|length > 1 %}
-
-                        <button
-                            type="button"
-                            class="photo-nav photo-prev"
-                            onclick="changePhoto(-1)"
-                        >
-                            <i class="fa-solid fa-chevron-left"></i>
-                        </button>
-
-                        <button
-                            type="button"
-                            class="photo-nav photo-next"
-                            onclick="changePhoto(1)"
-                        >
-                            <i class="fa-solid fa-chevron-right"></i>
-                        </button>
-
-                    {% endif %}
-
-                </div>
-
-            {% else %}
-
-                <div class="photo-placeholder">
-                    No photos attached
-                </div>
-
-            {% endif %}
-
-        </div>
-
-    </div>
 
 
     <!-- NOTES -->

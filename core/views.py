@@ -131,11 +131,19 @@ def dashboard(request):
             int(item["count"] / max_count * 160)
         )
 
-    upcoming_due_dates = Ticket.objects.filter(
-        due_date__gte=today
-    ).exclude(
-        status__status="Completed"
-    ).order_by('due_date')[:5]
+    upcoming_wedding_dates = Customer.objects.filter(
+        wedding_date__gte=today
+    ).order_by("wedding_date")[:10]
+
+    upcoming_wedding_dates = [
+        {
+            "id": customer.id,
+            "name": customer.name,
+            "wedding_date": customer.wedding_date,
+            "days_remaining": (customer.wedding_date - today).days,
+        }
+        for customer in upcoming_wedding_dates
+    ]
 
     context = {
         "recent_tickets": recent_tickets,
@@ -144,7 +152,7 @@ def dashboard(request):
         "ready_for_pickup": ready_for_pickup,
         "overdue": overdue,
         "status_summary": status_summary,
-        "upcoming_due_dates": upcoming_due_dates,
+        "upcoming_wedding_dates": upcoming_wedding_dates,
     }
 
     return render(request, "core/dashboard.html", context)
@@ -167,7 +175,8 @@ def new_ticket(request):
                 customer = get_or_create_customer(
                     form.cleaned_data["customer_name"],
                     form.cleaned_data["phone"],
-                    form.cleaned_data["email"]
+                    form.cleaned_data["email"],
+                    form.cleaned_data["wedding_date"]
                 )
 
             ticket = form.save(commit=False)

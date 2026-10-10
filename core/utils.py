@@ -55,7 +55,7 @@ def calculate_due_date(job_type):
     return date.today() + timedelta(days=duration)
 
 
-def get_or_create_customer(name, phone, email=""):
+def get_or_create_customer(name, phone, email="", wedding_date=None):
 
     Customer = apps.get_model("core", "Customer")
 
@@ -69,7 +69,8 @@ def get_or_create_customer(name, phone, email=""):
     return Customer.objects.create(
         name=name.strip(),
         phone=phone.strip(),
-        email=email.strip()
+        email=email.strip(),
+        wedding_date=wedding_date
     )
 
 from PIL import Image, ImageOps

@@ -204,23 +204,42 @@ action="{% url 'add_customer' %}"
 
 
     <!-- Name -->
+    <div class="two-column">
 
-    <div class="form-group">
+        <div class="form-group">
 
-        <label>FULL NAME *</label>
+            <label>FULL NAME *</label>
 
-        {{ customer_form.name }}
+            {{ customer_form.name }}
 
-        {% if customer_form.name.errors %}
+            {% if customer_form.name.errors %}
 
-            <div class="field-error">
+                <div class="field-error">
 
-                {{ customer_form.name.errors.0 }}
+                    {{ customer_form.name.errors.0 }}
 
-            </div>
+                </div>
 
-        {% endif %}
+            {% endif %}
 
+        </div>
+
+        <div class="form-group">
+
+            <label>WEDDING DATE</label>
+
+            {{ customer_form.wedding_date }}
+
+            {% if customer_form.wedding_date.errors %}
+
+                <div class="field-error">
+
+                    {{ customer_form.wedding_date.errors.0 }}
+
+                </div>
+
+            {% endif %}
+        </div>
     </div>
 
 
@@ -342,6 +361,15 @@ action="{% url 'add_customer' %}"
                         <p class="since">
                             <i class="fa-solid fa-calendar" style="color:#999; font-size: 0.8em;"></i>
                             Customer since {{ customer.created_date|date:"M d, Y" }}
+                        </p>
+                        
+                        {% endif %}
+                        {% if customer.wedding_date %}
+
+                        <p class="since">
+                            
+                            <i class="fa-solid fa-ring" style="color:#ddcf0f; font-size: 0.8em;"></i>
+                            Wedding date: {{ customer.wedding_date|date:"M d, Y" }}
                         </p>
                         
                         {% endif %}

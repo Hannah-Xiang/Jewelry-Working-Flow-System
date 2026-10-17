@@ -1599,6 +1599,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const nameInput  = document.getElementById("id_customer_name");
     const phoneInput = document.getElementById("id_phone");
     const emailInput = document.getElementById("id_email");
+    const weddingDateInput = document.getElementById("id_wedding_date");
 
     const nameResults  = document.getElementById("name-results");
     const phoneResults = document.getElementById("phone-results");
@@ -1737,9 +1738,19 @@ nameInput.addEventListener("input", function () {
             .then(res => res.json())
             .then(customer => {
 
-                nameInput.value  = customer.name;
-                phoneInput.value = customer.phone;
-                emailInput.value = customer.email || "";
+                
+            nameInput.value  = customer.name;
+            phoneInput.value = customer.phone;
+            emailInput.value = customer.email || "";
+
+            // Load wedding date from the database
+            weddingDateInput.value = customer.wedding_date || "";
+
+            // Lock the selected customer's information
+            nameInput.readOnly = true;
+            phoneInput.readOnly = true;
+            emailInput.readOnly = true;
+            weddingDateInput.readOnly = true;
 
                 // lock the fields so the picked record can't be edited by accident
                 nameInput.readOnly  = true;
@@ -1777,21 +1788,25 @@ nameInput.addEventListener("input", function () {
     });
 
     // ---------- "Change" button: unlock fields, clear selection ----------
+    
     changeBtn.addEventListener("click", function () {
 
         existingIdInp.value = "";
 
-        nameInput.value  = "";
+        nameInput.value = "";
         phoneInput.value = "";
         emailInput.value = "";
+        weddingDateInput.value = "";
 
-        nameInput.readOnly  = false;
+        nameInput.readOnly = false;
         phoneInput.readOnly = false;
         emailInput.readOnly = false;
+        weddingDateInput.readOnly = false;
 
         selectedBox.style.display = "none";
         nameInput.focus();
     });
+
 
     // close whichever dropdown is open when clicking elsewhere
     document.addEventListener("click", function (e) {

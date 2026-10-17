@@ -133,7 +133,7 @@ def dashboard(request):
 
     upcoming_wedding_dates = Customer.objects.filter(
         wedding_date__gte=today
-    ).order_by("wedding_date")[:10]
+    ).order_by("wedding_date")[:5]
 
     upcoming_wedding_dates = [
         {
@@ -332,6 +332,7 @@ def customer_search(request):
             "name": customer.name,
             "phone": customer.phone,
             "email": customer.email,
+            "wedding_date": customer.wedding_date.isoformat() if customer.wedding_date else None,
             "ticket_count": customer.tickets.count(),
         })
 
@@ -382,6 +383,7 @@ def customer_live_search(request):
             "phone": customer.phone,
             "email": customer.email,
             "ticket_count": customer.tickets.count(),
+            "wedding_date": customer.wedding_date.isoformat() if customer.wedding_date else None,
             "created_date": created_date.isoformat() if created_date else None,
         })
 
@@ -480,6 +482,7 @@ def customer_detail(request, pk):
         "name": customer.name,
         "phone": customer.phone,
         "email": customer.email,
+        "wedding_date": customer.wedding_date.isoformat() if customer.wedding_date else None,
     })
 
 @login_required
@@ -813,6 +816,7 @@ def ticket_search(request):
         "has_next": page_obj.has_next(),
     })
 
+
 @login_required
 def calendar(request):
 
@@ -824,6 +828,9 @@ def calendar(request):
     pycalendar.setfirstweekday(pycalendar.SUNDAY)
     cal = pycalendar.monthcalendar(year, month)
 
+    # -----------------------------------------
+    # Ticket due dates (existing functionality)
+    # -----------------------------------------
     tickets = Ticket.objects.select_related(
         "customer", "status", "job_type",
     ).filter(
@@ -836,9 +843,12 @@ def calendar(request):
 
     for ticket in tickets:
         day = ticket.due_date.day
+
         tickets_by_day.setdefault(day, []).append(ticket)
 
-        latest_note = ticket.notes.order_by("-created_at").first()
+        latest_note = ticket.notes.order_by(
+            "-created_at"
+        ).first()
 
         tickets_json.setdefault(day, []).append({
             "id": ticket.id,
@@ -855,6 +865,33 @@ def calendar(request):
             ),
         })
 
+    # -----------------------------------------
+    # Customer wedding dates (new functionality)
+    # -----------------------------------------
+    customers = Customer.objects.filter(
+        wedding_date__year=year,
+        wedding_date__month=month,
+    ).order_by("wedding_date", "name")
+
+    weddings_by_day = {}
+    weddings_json = {}
+
+    for customer in customers:
+        day = customer.wedding_date.day
+
+        weddings_by_day.setdefault(day, []).append(customer)
+
+        weddings_json.setdefault(day, []).append({
+            "id": customer.id,
+            "customer": customer.name,
+            "date": customer.wedding_date.isoformat(),
+            "url": f"/customers/?customer={customer.id}",
+        })
+
+
+    # -----------------------------------------
+    # Previous / next month
+    # -----------------------------------------
     if month == 1:
         prev_month, prev_year = 12, year - 1
     else:
@@ -875,6 +912,11 @@ def calendar(request):
         "calendar_weeks": cal,
         "tickets_by_day": tickets_by_day,
         "tickets_json": json.dumps(tickets_json),
+
+        # New wedding-date data
+        "weddings_by_day": weddings_by_day,
+        "weddings_json": json.dumps(weddings_json),
+
         "month": month,
         "year": year,
         "month_name": months[month - 1],
@@ -887,10 +929,13 @@ def calendar(request):
         "today": today.day,
         "today_month": today.month,
         "today_year": today.year,
-        "is_current_month": (month == today.month and year == today.year),
+        "is_current_month": (
+            month == today.month and year == today.year
+        ),
     }
 
     return render(request, "core/calendar.html", context)
+
 
 @login_required
 def ticket_detail(request, ticket_id):
@@ -1082,12 +1127,11 @@ def customers(request):
     # --------------------------------
     # Selected customer
     # --------------------------------
-    customer_id = request.GET.get("customer")
+    customer_id = request.GET.get("customer", "").strip().rstrip("/")
 
-    if customer_id:
-        customer = Customer.objects.get(id=customer_id)
+    if customer_id.isdigit():
+        customer = Customer.objects.filter(id=int(customer_id)).first()
     else:
-        # Select the first customer on the current page
         customer = customers.object_list.first()
 
     # All job types

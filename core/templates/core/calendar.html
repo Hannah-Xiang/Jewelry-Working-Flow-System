@@ -103,6 +103,18 @@
                                         </div>
                                 {% endfor %}
                             {% endif %}
+                            {% if day in weddings_by_day %}
+                                {% for customer in weddings_by_day|get_item:day %}
+                                    <div class="event wedding-event"
+                                        title="Wedding date: {{ customer.name }}"
+                                        data-wedding-date="{{ customer.wedding_date|date:'Y-m-d' }}">
+
+                                        <i class="fa-solid fa-ring"></i>
+                                        <span>{{ customer.name }}</span>
+
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
                         </div>
                     {% endif %}
                 {% endfor %}
@@ -497,6 +509,52 @@
     font-size:11px;
 }
 
+
+/* Customer wedding dates */
+.wedding-event {
+    background: #fce7f3;
+    color: #be185d;
+    border-left: 3px solid #ec4899;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 6px;
+}
+
+.wedding-event i {
+    color: #ec4899;
+    font-size: 11px;
+    flex-shrink: 0;
+}
+
+.wedding-event span {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    min-width: 0;
+}
+
+
+.wedding-card {
+    border-color: #fbcfe8;
+    background: #fffafd;
+}
+
+.wedding-label {
+    color: #be185d;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.wedding-label i {
+    margin-right: 5px;
+    color: #ec4899;
+}
+
+
+
 </style>
 
 <script>
@@ -557,6 +615,7 @@
 
 const jobs =
     JSON.parse('{{ tickets_json|escapejs }}');
+const weddings = JSON.parse('{{ weddings_json|escapejs }}');
 
 const monthName =
     "{{ month_name }}";
@@ -583,94 +642,85 @@ document.querySelectorAll(".day").forEach(day=>{
         ).innerHTML=
             `${monthName} ${number}, ${year}`;
 
-        const list=
-            document.getElementById("jobList");
+        
+        const list = document.getElementById("jobList");
+        list.innerHTML = "";
 
-        list.innerHTML="";
+        const dayJobs = jobs[number] || [];
+        const dayWeddings = weddings[number] || [];
 
-        if(!(number in jobs)){
-
-            list.innerHTML=`
-
-<div class="empty-state">
-
-<h4>No jobs</h4>
-
-<p>Nothing due this day.</p>
-
-</div>
-
-`;
-
+        if (dayJobs.length === 0 && dayWeddings.length === 0) {
+            list.innerHTML = `
+                <div class="empty-state">
+                    <h4>No events</h4>
+                    <p>Nothing scheduled for this day.</p>
+                </div>
+            `;
             return;
-
         }
 
-        jobs[number].forEach(ticket=>{
+        // ----------------------------------
+        // Wedding dates
+        // ----------------------------------
+        dayWeddings.forEach(wedding => {
+            list.innerHTML += `
+                <div class="job-card wedding-card" onclick="window.location.href='${wedding.url}'">
+                    <div class="wedding-label">
+                        <i class="fa-solid fa-ring"></i>
+                        CUSTOMER WEDDING DATE
+                    </div>
 
-            list.innerHTML+=`
+                    <div class="job-name">
+                        ${wedding.customer}
+                    </div>
 
-<a
-class="job-card"
-href="/ticket/${ticket.id}/"
->
-
-<div class="job-number">
-
-    <span class="job-number-left">
-
-        ${
-            ticket.is_starred
-            ? `<i class="fa-solid fa-star calendar-job-star"></i>`
-            : ""
-        }
-
-        ${ticket.ticket_number}
-
-    </span>
-
-    <span
-        class="job-status"
-        style="
-            background:${ticket.color}20;
-            color:${ticket.color};
-        "
-    >
-        ${ticket.status}
-    </span>
-
-</div>
-
-${
-    ticket.is_starred && ticket.latest_note
-    ? `
-        <div class="calendar-latest-note">
-            
-            ${ticket.latest_note}
-        </div>
-    `
-    : ""
-} 
-
-<div class="job-name">
-
-${ticket.customer}
-
-</div>
-
-<div class="job-type">
-
-${ticket.job_type}
-
-</div>
-
-</a>
-
-`;
-
+                    <div class="job-type">
+                        Wedding date: ${wedding.date}
+                    </div>
+                </div>
+            `;
         });
 
-    };
+        // ----------------------------------
+        // Ticket due dates
+        // Preserve existing ticket cards
+        // ----------------------------------
+        dayJobs.forEach(ticket => {
+            list.innerHTML += `
+                <a class="job-card" href="/ticket/${ticket.id}/">
+
+                    <div class="job-number">
+                        <span class="job-number-left">
+                            ${
+                                ticket.is_starred
+                                ? '<i class="fa-solid fa-star calendar-job-star"></i>'
+                                : ''
+                            }
+                            ${ticket.ticket_number}
+                        </span>
+
+                        <span class="job-status"
+                            style="background:${ticket.color}20;color:${ticket.color};">
+                            ${ticket.status}
+                        </span>
+                    </div>
+
+                    ${
+                        ticket.is_starred && ticket.latest_note
+                        ? `<div class="calendar-latest-note">
+                            ${ticket.latest_note}
+                        </div>`
+                        : ''
+                    }
+
+                    <div class="job-name">${ticket.customer}</div>
+                    <div class="job-type">${ticket.job_type}</div>
+
+                </a>
+            `;
+        });
+
+            };
 
 });
 

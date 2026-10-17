@@ -6,8 +6,12 @@
 
     <!-- Header -->
     <div class="dashboard-header">
-        <p class="date">THURSDAY, JUNE 11, 2026</p>
+        <p class="date">{{ today|date:"l, F j, Y" }}</p>
+        {%if user.first_name %}
         <h1>Good Morning, {{ user.first_name }}!</h1>
+        {%else%}
+        <h1>Good Morning!</h1>
+        {%endif%}
         <p class="subtitle">Here's what needs your attention today.</p>
     </div>
 
@@ -227,7 +231,7 @@
     <div class="weddings-list">
         {% for wedding in upcoming_wedding_dates %}
         <div class="wedding-item"
-     onclick="window.location.href='{% url 'customers' %}'">
+     onclick="window.location.href='{{ wedding.url }}'">
 
             <div class="wedding-date-badge">
                 <span class="wedding-day">

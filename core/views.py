@@ -141,6 +141,7 @@ def dashboard(request):
             "name": customer.name,
             "wedding_date": customer.wedding_date,
             "days_remaining": (customer.wedding_date - today).days,
+            "url": f"/customers/?customer={customer.id}",
         }
         for customer in upcoming_wedding_dates
     ]

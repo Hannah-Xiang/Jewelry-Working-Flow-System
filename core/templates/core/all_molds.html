@@ -575,14 +575,13 @@
     }
 
 
+    
     .mold-image {
         width: 100%;
-
         height: 100%;
-
         object-fit: cover;
-
         display: block;
+        cursor: pointer;
     }
 
 
@@ -919,6 +918,89 @@
     font-size: 11px;
 }
 
+
+/* Previous / Next buttons */
+.mold-viewer-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+
+    width: 48px;
+    height: 48px;
+    border: none;
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.95);
+    color: #333;
+    font-size: 18px;
+
+    cursor: pointer;
+    z-index: 2;
+    transition: 0.15s ease;
+}
+
+.mold-viewer-prev {
+    left: 25px;
+}
+
+.mold-viewer-next {
+    right: 25px;
+}
+
+.mold-viewer-nav:hover {
+    background: #c79c3d;
+    color: #fff;
+    transform: translateY(-50%) scale(1.05);
+}
+
+/* Like button inside the viewer */
+.mold-viewer-like {
+    position: absolute;
+    top: 20px;
+    right: 85px;
+
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.95);
+    color: #777;
+    font-size: 20px;
+
+    cursor: pointer;
+    z-index: 2;
+}
+
+.mold-viewer-like.liked {
+    color: #c79c3d;
+}
+
+.mold-viewer-like:hover {
+    background: #c79c3d;
+    color: #fff;
+}
+
+@media (max-width: 600px) {
+    .mold-viewer-prev {
+        left: 10px;
+    }
+
+    .mold-viewer-next {
+        right: 10px;
+    }
+
+    .mold-viewer-nav {
+        width: 38px;
+        height: 38px;
+    }
+
+    .mold-viewer-like {
+        right: 65px;
+    }
+}
+
+
     /* -----------------------------------------
        Responsive
     ----------------------------------------- */
@@ -1157,13 +1239,14 @@
 
 
                     {% if mold.preview_image %}
-
                         <img
                             src="{{ mold.preview_image.url }}"
                             alt="{{ mold.file_name }}"
                             class="mold-image"
+                            data-mold-id="{{ mold.id }}"
+                           onclick="openMoldImageViewer({{ mold.id }})"
+                            title="Click to enlarge"
                         >
-
                     {% else %}
 
                         <div class="mold-no-image">
@@ -1173,56 +1256,49 @@
                     {% endif %}
                     <div class="mold-hover-info">
                         <a
-    href="{% url 'mold_detail' mold.pk %}"
-    class="mold-hover-info"
->
+                            href="{% url 'mold_detail' mold.pk %}"
+                            class="mold-hover-info"
+                        >
 
-    <div
-        class="mold-hover-file-name"
-        title="{{ mold.file_name }}"
-    >
-        {{ mold.file_name }}
-    </div>
+                            <div
+                                class="mold-hover-file-name"
+                                title="{{ mold.file_name }}"
+                            >
+                                {{ mold.file_name }}
+                            </div>
 
-    <div class="mold-hover-type">
-        {{ mold.type.name }}
-    </div>
-    </a>
+                            <div class="mold-hover-type">
+                                {{ mold.type.name }}
+                            </div>
+                            </a>
 
-</div>
-<button
-    type="button"
-    class="mold-zoom-button"
-    onclick="openMoldImageViewer(
-        '{{ mold.preview_image.url }}'
-    )"
-    title="View larger"
->
-    <i class="fa-solid fa-expand"></i>
-</button>
+                    </div>
+                    <!-- <button
+                        type="button"
+                        class="mold-zoom-button"
+                        onclick="openMoldImageViewer(
+                            '{{ mold.preview_image.url }}'
+                        )"
+                        title="View larger"
+                    >
+                        <i class="fa-solid fa-expand"></i>
+                    </button> -->
 
 
                     <!-- Like -->
 
+                    
                     <button
                         type="button"
                         class="mold-like {% if mold.is_liked %}liked{% endif %}"
+                        data-mold-id="{{ mold.id }}"
+                        data-mold-like-button="true"
                         onclick="toggleMoldLike({{ mold.id }}, this)"
                         title="{% if mold.is_liked %}Unlike{% else %}Like{% endif %}"
                     >
-
-                        <i
-                            class="
-                                {% if mold.is_liked %}
-                                    fa-solid
-                                {% else %}
-                                    fa-regular
-                                {% endif %}
-                                fa-heart
-                            "
-                        ></i>
-
+                        <i class="{% if mold.is_liked %}fa-solid{% else %}fa-regular{% endif %} fa-heart"></i>
                     </button>
+
 
 
                 </div>
@@ -1376,21 +1452,33 @@
      Mold Image Viewer
 ========================================== -->
 
+
+<!-- Mold Image Viewer -->
 <div
     class="mold-image-viewer"
     id="mold-image-viewer"
     onclick="closeMoldImageViewer(event)"
 >
-
     <button
         type="button"
         class="mold-viewer-close"
         onclick="closeMoldImageViewer()"
+        title="Close"
     >
         <i class="fa-solid fa-xmark"></i>
     </button>
 
+    <!-- Previous -->
+    <button
+        type="button"
+        class="mold-viewer-nav mold-viewer-prev"
+        onclick="event.stopPropagation(); showPreviousMoldImage()"
+        title="Previous mold"
+    >
+        <i class="fa-solid fa-chevron-left"></i>
+    </button>
 
+    <!-- Large image -->
     <img
         id="mold-viewer-image"
         class="mold-viewer-image"
@@ -1398,41 +1486,66 @@
         alt=""
         onclick="event.stopPropagation()"
     >
-
-
+    
+    <!-- Zoom controls -->
     <div
         class="mold-viewer-controls"
         onclick="event.stopPropagation()"
     >
-
-        <!-- <button
+        <button
             type="button"
-            onclick="zoomMoldImage(-0.2)"
+            onclick="zoomMoldImage(-0.25)"
             title="Zoom out"
+            aria-label="Zoom out"
         >
             <i class="fa-solid fa-minus"></i>
-        </button> -->
+        </button>
 
-        <!-- <button
+        <button
             type="button"
             onclick="resetMoldImageZoom()"
-            title="Reset"
+            title="Reset zoom"
+            aria-label="Reset zoom"
         >
             <i class="fa-solid fa-arrows-to-circle"></i>
-        </button> -->
+        </button>
 
-        <!-- <button
+        <button
             type="button"
-            onclick="zoomMoldImage(0.2)"
+            onclick="zoomMoldImage(0.25)"
             title="Zoom in"
+            aria-label="Zoom in"
         >
             <i class="fa-solid fa-plus"></i>
-        </button> -->
-
+        </button>
     </div>
 
+
+    <!-- Next -->
+    <button
+        type="button"
+        class="mold-viewer-nav mold-viewer-next"
+        onclick="event.stopPropagation(); showNextMoldImage()"
+        title="Next mold"
+    >
+        <i class="fa-solid fa-chevron-right"></i>
+    </button>
+
+    <!-- Like -->
+    <button
+        type="button"
+        id="mold-viewer-like"
+        class="mold-viewer-like"
+        data-mold-like-button="true"
+        data-mold-id=""
+        onclick="event.stopPropagation(); toggleMoldLike(this.dataset.moldId, this)"
+        title="Like"
+    >
+        <i class="fa-regular fa-heart"></i>
+    </button>
 </div>
 
+{{ mold_viewer_images|json_script:"mold-viewer-images-data" }}
 
 <script>
 
@@ -1709,89 +1822,69 @@ function clearMoldTags() {
    LIKE / UNLIKE
 ========================================================= */
 
-function toggleMoldLike(
-    moldId,
-    button
-) {
 
-    fetch(
-        "{% url 'mold_toggle_like' %}",
-        {
-
-            method: "POST",
-
-            headers: {
-
-                "X-CSRFToken":
-                    getCookie("csrftoken"),
-
-                "X-Requested-With":
-                    "XMLHttpRequest"
-
-            },
-
-            body:
-                new URLSearchParams({
-                    "mold_id": moldId
-                })
-
+function toggleMoldLike(moldId, button) {
+    fetch("{% url 'mold_toggle_like' %}", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+            "X-Requested-With": "XMLHttpRequest"
+        },
+        body: new URLSearchParams({
+            mold_id: moldId
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Unable to update like status.");
         }
-    )
+        return response.json();
+    })
+    .then(data => {
+        if (!data.success) return;
+        const mold = moldImages.find(
+            item => String(item.id) === String(moldId)
+        );
 
-    .then(
-        response =>
-            response.json()
-    )
+        if (mold) {
+            mold.is_liked = data.is_liked;
+        }
 
-    .then(
-        data => {
-
-            if (!data.success) {
+        // Update the card heart and viewer heart together.
+        document.querySelectorAll(
+            '[data-mold-like-button="true"]'
+        ).forEach(likeButton => {
+            if (likeButton.dataset.moldId !== String(moldId)) {
                 return;
             }
 
+            likeButton.classList.toggle(
+                "liked",
+                data.is_liked
+            );
 
-            const icon =
-                button.querySelector("i");
+            likeButton.title = data.is_liked
+                ? "Unlike"
+                : "Like";
 
+            const icon = likeButton.querySelector("i");
 
-            if (data.is_liked) {
+            if (!icon) return;
 
-                button.classList.add(
-                    "liked"
-                );
+            icon.classList.toggle(
+                "fa-solid",
+                data.is_liked
+            );
 
-
-                icon.classList.remove(
-                    "fa-regular"
-                );
-
-
-                icon.classList.add(
-                    "fa-solid"
-                );
-
-            } else {
-
-                button.classList.remove(
-                    "liked"
-                );
-
-
-                icon.classList.remove(
-                    "fa-solid"
-                );
-
-
-                icon.classList.add(
-                    "fa-regular"
-                );
-
-            }
-
-        }
-    );
-
+            icon.classList.toggle(
+                "fa-regular",
+                !data.is_liked
+            );
+        });
+    })
+    .catch(error => {
+        console.error("Like update failed:", error);
+    });
 }
 
 
@@ -1859,90 +1952,148 @@ function saveMoldScrollPosition() {
     );
 }
 
+
+
 let moldImageZoom = 1;
+let moldImages = [];
+let currentMoldImageIndex = 0;
 
+// Read the complete, filtered image list from Django.
+const moldViewerDataElement = document.getElementById(
+    "mold-viewer-images-data"
+);
 
-function openMoldImageViewer(imageUrl) {
-
-    const viewer =
-        document.getElementById(
-            "mold-image-viewer"
-        );
-
-    const image =
-        document.getElementById(
-            "mold-viewer-image"
-        );
-
-    image.src = imageUrl;
-
-    moldImageZoom = 1;
-
-    image.style.transform =
-        "scale(1)";
-
-    viewer.classList.add("open");
-
-    document.body.style.overflow = "hidden";
+try {
+    moldImages = moldViewerDataElement
+        ? JSON.parse(moldViewerDataElement.textContent)
+        : [];
+} catch (error) {
+    console.error("Unable to load mold viewer images:", error);
 }
 
+function openMoldImageViewer(moldId) {
+    currentMoldImageIndex = moldImages.findIndex(
+        item => String(item.id) === String(moldId)
+    );
+
+    if (currentMoldImageIndex === -1) {
+        console.error("Mold image not found:", moldId);
+        return;
+    }
+
+    const viewer = document.getElementById("mold-image-viewer");
+
+    if (!viewer) {
+        console.error("Mold image viewer element not found.");
+        return;
+    }
+
+    viewer.classList.add("open");
+    document.body.style.overflow = "hidden";
+
+    displayCurrentMoldImage();
+}
+
+function displayCurrentMoldImage() {
+    const image = document.getElementById("mold-viewer-image");
+    const likeButton = document.getElementById("mold-viewer-like");
+    const previousButton = document.querySelector(".mold-viewer-prev");
+    const nextButton = document.querySelector(".mold-viewer-next");
+
+    const currentImage = moldImages[currentMoldImageIndex];
+
+    if (!currentImage || !image) return;
+
+    image.src = currentImage.image_url;
+    image.alt = currentImage.file_name;
+    image.style.transform = "scale(1)";
+    moldImageZoom = 1;
+
+    if (likeButton) {
+        const isLiked = currentImage.is_liked;
+        const icon = likeButton.querySelector("i");
+
+        likeButton.dataset.moldId = currentImage.id;
+        likeButton.classList.toggle("liked", isLiked);
+        likeButton.title = isLiked ? "Unlike" : "Like";
+
+        if (icon) {
+            icon.classList.toggle("fa-solid", isLiked);
+            icon.classList.toggle("fa-regular", !isLiked);
+        }
+    }
+
+    const hasMultipleImages = moldImages.length > 1;
+
+    if (previousButton) {
+        previousButton.disabled = !hasMultipleImages;
+    }
+
+    if (nextButton) {
+        nextButton.disabled = !hasMultipleImages;
+    }
+}
+
+function showPreviousMoldImage() {
+    if (moldImages.length <= 1) return;
+
+    currentMoldImageIndex =
+        (currentMoldImageIndex - 1 + moldImages.length) %
+        moldImages.length;
+
+    displayCurrentMoldImage();
+}
+
+function showNextMoldImage() {
+    if (moldImages.length <= 1) return;
+
+    currentMoldImageIndex =
+        (currentMoldImageIndex + 1) % moldImages.length;
+
+    displayCurrentMoldImage();
+}
 
 function closeMoldImageViewer(event) {
-
     if (
         event &&
-        event.target.id !==
-        "mold-image-viewer"
+        event.target.id !== "mold-image-viewer"
     ) {
         return;
     }
 
-    const viewer =
-        document.getElementById(
-            "mold-image-viewer"
-        );
+    const viewer = document.getElementById("mold-image-viewer");
 
-    viewer.classList.remove("open");
+    if (viewer) {
+        viewer.classList.remove("open");
+    }
 
     document.body.style.overflow = "";
-
 }
-
 
 function zoomMoldImage(amount) {
+    moldImageZoom = Math.max(
+        0.5,
+        Math.min(4, moldImageZoom + amount)
+    );
 
-    moldImageZoom += amount;
+    const image = document.getElementById("mold-viewer-image");
 
-    if (moldImageZoom < 0.5) {
-        moldImageZoom = 0.5;
+    if (image) {
+        image.style.transform = `scale(${moldImageZoom})`;
     }
-
-    if (moldImageZoom > 4) {
-        moldImageZoom = 4;
-    }
-
-    const image =
-        document.getElementById(
-            "mold-viewer-image"
-        );
-
-    image.style.transform =
-        `scale(${moldImageZoom})`;
 }
-
 
 function resetMoldImageZoom() {
-
     moldImageZoom = 1;
 
-    const image =
-        document.getElementById(
-            "mold-viewer-image"
-        );
+    const image = document.getElementById("mold-viewer-image");
 
-    image.style.transform =
-        "scale(1)";
+    if (image) {
+        image.style.transform = "scale(1)";
+    }
 }
+
+
 
 function goToMoldPage() {
 
@@ -1994,6 +2145,36 @@ document
 
         }
     );
+
+
+document.addEventListener("keydown", function(event) {
+    const viewer = document.getElementById("mold-image-viewer");
+
+    // Only respond when the image viewer is open.
+    if (!viewer || !viewer.classList.contains("open")) {
+        return;
+    }
+
+    // Avoid interfering with text inputs.
+    if (
+        event.target.matches("input, textarea, select") ||
+        event.target.isContentEditable
+    ) {
+        return;
+    }
+
+    if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        showPreviousMoldImage();
+    } else if (event.key === "ArrowRight") {
+        event.preventDefault();
+        showNextMoldImage();
+    } else if (event.key === "Escape") {
+        event.preventDefault();
+        closeMoldImageViewer();
+    }
+});
+
 </script>
 
 {% endblock %}

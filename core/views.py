@@ -1836,18 +1836,37 @@ def all_molds(request):
     # not just the current pagination page.
     # -----------------------------------------
 
+    
+# -----------------------------------------
+# Images for the zoom viewer
+# Include every image matching the current filters,
+# and record the page containing each mold.
+# -----------------------------------------
+
+    
+    # -----------------------------------------
+    # Images for the zoom viewer
+    # Build the list once to avoid repeated database queries.
+    # -----------------------------------------
+
+    page_size = 15
+
+    all_filtered_molds = list(
+        molds_queryset.order_by("mold_code", "id")
+    )
+
     mold_viewer_images = []
 
-    for mold in molds_queryset.exclude(
-        preview_image__isnull=True
-    ).exclude(
-        preview_image=""
-    ):
+    for index, mold in enumerate(all_filtered_molds, start=1):
+        if not mold.preview_image:
+            continue
+
         mold_viewer_images.append({
             "id": mold.id,
             "file_name": mold.file_name,
             "image_url": mold.preview_image.url,
             "is_liked": mold.is_liked,
+            "page": ((index - 1) // page_size) + 1,
         })
 
     # -----------------------------------------
@@ -1855,17 +1874,13 @@ def all_molds(request):
     # -----------------------------------------
 
     paginator = Paginator(
-        molds_queryset,
-        15
+        all_filtered_molds,
+        page_size
     )
 
-    page_number = request.GET.get(
-        "page"
-    )
+    page_number = request.GET.get("page")
+    molds = paginator.get_page(page_number)
 
-    molds = paginator.get_page(
-        page_number
-    )
 
     # -----------------------------------------
     # Context

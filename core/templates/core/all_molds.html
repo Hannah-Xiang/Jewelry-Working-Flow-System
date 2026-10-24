@@ -1225,7 +1225,12 @@
          Mold Cards
     ========================================== -->
 
-    <div class="molds-grid" id="molds-grid">
+    <div
+        class="molds-grid"
+        id="molds-grid"
+        data-current-page="{{ molds.number }}"
+        data-page-size="{{ molds.paginator.per_page }}"
+    >
 
 
         {% for mold in molds %}
@@ -1994,6 +1999,26 @@ function openMoldImageViewer(moldId) {
     displayCurrentMoldImage();
 }
 
+window.addEventListener("load", function () {
+    const pendingId = sessionStorage.getItem(
+        "pendingMoldImageId"
+    );
+
+    if (!pendingId) return;
+
+    // Remove it first so it won't reopen repeatedly.
+    sessionStorage.removeItem("pendingMoldImageId");
+
+    const imageExists = moldImages.some(
+        item => String(item.id) === pendingId
+    );
+
+    if (imageExists) {
+        openMoldImageViewer(pendingId);
+    }
+});
+
+
 function displayCurrentMoldImage() {
     const image = document.getElementById("mold-viewer-image");
     const likeButton = document.getElementById("mold-viewer-like");
@@ -2034,24 +2059,57 @@ function displayCurrentMoldImage() {
     }
 }
 
-function showPreviousMoldImage() {
+
+function navigateToMoldImage(direction) {
     if (moldImages.length <= 1) return;
 
-    currentMoldImageIndex =
-        (currentMoldImageIndex - 1 + moldImages.length) %
-        moldImages.length;
+    const nextIndex =
+        (currentMoldImageIndex + direction + moldImages.length)
+        % moldImages.length;
 
+    const targetImage = moldImages[nextIndex];
+
+    if (!targetImage) return;
+
+    const grid = document.getElementById("molds-grid");
+    const currentPage = Number(grid.dataset.currentPage);
+    const pageSize = Number(grid.dataset.pageSize);
+
+    // The Django view must provide the correct page for each image.
+    const targetPage = Number(targetImage.page);
+
+    if (!targetPage || !pageSize) {
+        console.error("Missing image page information:", targetImage);
+        return;
+    }
+
+    if (targetPage !== currentPage) {
+        // Remember which image to reopen after navigation.
+        sessionStorage.setItem(
+            "pendingMoldImageId",
+            String(targetImage.id)
+        );
+
+        const url = new URL(window.location.href);
+        url.searchParams.set("page", targetPage);
+        url.hash = "molds-grid";
+
+        window.location.href = url.toString();
+        return;
+    }
+
+    currentMoldImageIndex = nextIndex;
     displayCurrentMoldImage();
+}
+
+function showPreviousMoldImage() {
+    navigateToMoldImage(-1);
 }
 
 function showNextMoldImage() {
-    if (moldImages.length <= 1) return;
-
-    currentMoldImageIndex =
-        (currentMoldImageIndex + 1) % moldImages.length;
-
-    displayCurrentMoldImage();
+    navigateToMoldImage(1);
 }
+
 
 function closeMoldImageViewer(event) {
     if (

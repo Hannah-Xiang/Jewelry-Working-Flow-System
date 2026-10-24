@@ -1830,6 +1830,26 @@ def all_molds(request):
         "name"
     )
 
+        # -----------------------------------------
+    # Images for the zoom viewer
+    # Include every image matching the current filters,
+    # not just the current pagination page.
+    # -----------------------------------------
+
+    mold_viewer_images = []
+
+    for mold in molds_queryset.exclude(
+        preview_image__isnull=True
+    ).exclude(
+        preview_image=""
+    ):
+        mold_viewer_images.append({
+            "id": mold.id,
+            "file_name": mold.file_name,
+            "image_url": mold.preview_image.url,
+            "is_liked": mold.is_liked,
+        })
+
     # -----------------------------------------
     # Pagination
     # -----------------------------------------
@@ -1862,6 +1882,7 @@ def all_molds(request):
         "selected_type": selected_type,
         "selected_tags": selected_tags,
         "liked": liked,
+        "mold_viewer_images": mold_viewer_images,
     }
 
     return render(

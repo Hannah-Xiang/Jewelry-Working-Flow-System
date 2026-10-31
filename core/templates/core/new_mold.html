@@ -1,0 +1,1589 @@
+
+{% extends "core/base.html" %}
+
+{% block content %}
+
+<style>
+/* =========================================================
+   GENERAL
+========================================================= */
+
+.new-mold-page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 38px 40px 80px;
+    color: #222;
+}
+
+.new-mold-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 25px;
+    color: #555;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.new-mold-back:hover {
+    color: #b78a24;
+}
+
+.new-mold-heading {
+    margin-bottom: 30px;
+}
+
+.new-mold-eyebrow {
+    color: #b78a24;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    margin-bottom: 9px;
+}
+
+.new-mold-title {
+    margin: 0;
+    color: #171717;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 34px;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+/* =========================================================
+   FORM LAYOUT
+========================================================= */
+
+.new-mold-form {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.new-mold-card {
+    padding: 27px;
+    border: 1px solid #eee2c9;
+    border-radius: 15px;
+    background: #fff;
+}
+
+.new-mold-card-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 22px;
+    color: #222;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 19px;
+    font-weight: 600;
+}
+
+.new-mold-card-title .gold-icon {
+    color: #c9a646;
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+}
+
+.new-mold-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.new-mold-field {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.new-mold-field.full-width {
+    grid-column: 1 / -1;
+}
+
+.new-mold-field label {
+    color: #444;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.new-mold-field label .required {
+    color: #b78a24;
+}
+
+.new-mold-field input[type="text"],
+.new-mold-field select,
+.new-mold-field textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 13px 14px;
+    border: 1px solid #e8dcc4;
+    border-radius: 9px;
+    background: #f5f2eb;
+    color: #222;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color .18s, background .18s;
+}
+
+.new-mold-field input[type="text"],
+.new-mold-field select {
+    min-height: 47px;
+}
+
+.new-mold-field textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.new-mold-field input:focus,
+.new-mold-field select:focus,
+.new-mold-field textarea:focus {
+    border-color: #c9a646;
+    background: #fff;
+}
+
+.new-mold-field input::placeholder,
+.new-mold-field textarea::placeholder {
+    color: #948a7d;
+}
+
+.new-mold-help {
+    color: #999;
+    font-size: 12px;
+}
+
+/* =========================================================
+   PHOTO UPLOAD
+========================================================= */
+
+.new-mold-photo-card {
+    padding: 27px;
+}
+
+.new-mold-photo-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.new-mold-photo-wrapper {
+    position: relative;
+    width: 310px;
+    height: 310px;
+    max-width: 100%;
+    overflow: hidden;
+    border: 1px dashed #e7d9b8;
+    border-radius: 14px;
+    background: #f5f2eb;
+}
+
+.new-mold-photo-placeholder {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: #77715f;
+    cursor: pointer;
+}
+
+.new-mold-upload-icon {
+    font-size: 30px;
+    line-height: 1;
+}
+
+.new-mold-upload-text {
+    color: #665c49;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.new-mold-upload-hint {
+    color: #9b9385;
+    font-size: 12px;
+}
+
+.new-mold-photo-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Make sure hidden elements really stay hidden */
+.new-mold-photo-preview[hidden],
+.new-mold-photo-placeholder[hidden],
+.new-mold-photo-overlay[hidden] {
+    display: none !important;
+}
+
+.new-mold-photo-wrapper.has-image {
+    border-style: solid;
+    background: #f3f2ef;
+}
+
+.new-mold-photo-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    background: rgba(0, 0, 0, .22);
+    opacity: 0;
+    transition: opacity .2s ease;
+}
+
+.new-mold-photo-wrapper.has-image:hover
+.new-mold-photo-overlay,
+.new-mold-photo-wrapper.has-image:focus-within
+.new-mold-photo-overlay {
+    opacity: 1;
+}
+
+.new-mold-image-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 10px 13px;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.new-mold-replace-button {
+    background: #fff;
+    color: #222;
+}
+
+.new-mold-replace-button:hover {
+    background: #f7f7f7;
+}
+
+.new-mold-remove-button {
+    background: #d83c3c;
+    color: #fff;
+}
+
+.new-mold-remove-button:hover {
+    background: #c83232;
+}
+
+.new-mold-photo-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 5px;
+}
+
+.new-mold-photo-note {
+    max-width: 220px;
+    color: #888;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.new-mold-photo-upload {
+    display: none;
+}
+
+/* =========================================================
+   TAGS
+========================================================= */
+
+.new-mold-tags-card {
+    padding-bottom: 25px;
+}
+
+.new-mold-selected-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.new-mold-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 10px 8px 13px;
+    border: 1px solid #ead9aa;
+    border-radius: 18px;
+    background: #fffaf0;
+    color: #b78a24;
+    font-size: 13px;
+}
+
+.new-mold-tag-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: #b78a24;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.new-mold-tag-remove:hover {
+    background: #ead9aa;
+}
+
+.new-mold-tag-input-row {
+    display: flex;
+    align-items: stretch;
+    gap: 9px;
+    width: 100%;
+}
+
+.new-mold-tag-input-wrapper {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+}
+
+.new-mold-tag-input {
+    width: 100%;
+    min-height: 47px;
+    box-sizing: border-box;
+    padding: 13px 14px;
+    border: 1px solid #e8dcc4;
+    border-radius: 9px;
+    background: #fdfbf6;
+    color: #222;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+}
+
+.new-mold-tag-input:focus {
+    border-color: #c9a646;
+    background: #fff;
+}
+
+.new-mold-tag-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: none;
+    max-height: 220px;
+    overflow-y: auto;
+    border: 1px solid #eadfca;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, .10);
+}
+
+.new-mold-tag-dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 11px 13px;
+    border: none;
+    background: #fff;
+    color: #444;
+    font-family: inherit;
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.new-mold-tag-dropdown-item:hover {
+    background: #fff8e8;
+    color: #b78a24;
+}
+
+.new-mold-tag-dropdown-empty {
+    padding: 12px 13px;
+    color: #999;
+    font-size: 13px;
+}
+
+.new-mold-add-tag-button {
+    flex-shrink: 0;
+    padding: 0 18px;
+    border: 1px solid #ead9aa;
+    border-radius: 9px;
+    background: #fffaf0;
+    color: #b78a24;
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.new-mold-add-tag-button:hover {
+    background: #f8efd9;
+}
+
+/* =========================================================
+   LIKE OPTION
+========================================================= */
+
+.new-mold-like-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #555;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.new-mold-like-option input {
+    width: 16px;
+    height: 16px;
+    accent-color: #c9a646;
+}
+
+/* =========================================================
+   ERRORS
+========================================================= */
+
+.new-mold-error-box {
+    padding: 13px 15px;
+    border: 1px solid #fecaca;
+    border-radius: 9px;
+    background: #fff1f1;
+    color: #b91c1c;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.new-mold-field-error {
+    color: #dc2626;
+    font-size: 12px;
+}
+
+/* =========================================================
+   BOTTOM BUTTONS
+========================================================= */
+
+.new-mold-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 14px;
+    margin-top: 0;
+}
+
+.new-mold-cancel-button,
+.new-mold-save-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 48px;
+    box-sizing: border-box;
+    padding: 12px 25px;
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.new-mold-cancel-button {
+    border: 1px solid #eadfca;
+    background: #fffdf9;
+    color: #222;
+}
+
+.new-mold-cancel-button:hover {
+    background: #f8f5ee;
+}
+
+.new-mold-save-button {
+    min-width: 155px;
+    border: 1px solid #c9a646;
+    background: #c9a646;
+    color: #fff;
+}
+
+.new-mold-save-button:hover {
+    border-color: #b8943b;
+    background: #b8943b;
+}
+
+.new-mold-save-button:disabled {
+    opacity: .6;
+    cursor: wait;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 850px) {
+    .new-mold-page {
+        padding: 30px 25px 60px;
+    }
+
+    .new-mold-photo-wrapper {
+        width: 280px;
+        height: 280px;
+    }
+}
+
+@media (max-width: 600px) {
+    .new-mold-page {
+        padding: 25px 18px 50px;
+    }
+
+    .new-mold-title {
+        font-size: 29px;
+    }
+
+    .new-mold-card,
+    .new-mold-photo-card {
+        padding: 20px;
+    }
+
+    .new-mold-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .new-mold-field.full-width {
+        grid-column: auto;
+    }
+
+    .new-mold-photo-wrapper {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1 / 1;
+    }
+
+    .new-mold-photo-actions {
+        width: 100%;
+    }
+
+    .new-mold-photo-note {
+        max-width: none;
+    }
+
+    .new-mold-tag-input-row {
+        flex-wrap: wrap;
+    }
+
+    .new-mold-tag-input-wrapper {
+        flex-basis: 100%;
+    }
+
+    .new-mold-add-tag-button {
+        min-height: 43px;
+        margin-left: auto;
+    }
+
+    .new-mold-form-actions {
+        gap: 10px;
+    }
+
+    .new-mold-cancel-button,
+    .new-mold-save-button {
+        flex: 1;
+        padding: 12px 14px;
+    }
+}
+</style>
+
+
+<div class="new-mold-page">
+
+    <!-- BACK LINK -->
+
+    <a href="{% url 'all_molds' %}" class="new-mold-back">
+        <span>←</span>
+        <span>Back to Molds</span>
+    </a>
+
+
+    <!-- PAGE HEADER -->
+
+    <div class="new-mold-heading">
+        <div class="new-mold-eyebrow">NEW MOLD</div>
+
+        <h1 class="new-mold-title">Add Mold</h1>
+    </div>
+
+
+    <form
+        method="POST"
+        enctype="multipart/form-data"
+        class="new-mold-form"
+        id="newMoldForm"
+    >
+
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+            <div class="new-mold-error-box">
+                {% for error in form.non_field_errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+
+        <!-- =================================================
+             PHOTO
+        ================================================== -->
+
+        <section class="new-mold-card new-mold-photo-card">
+
+            <h2 class="new-mold-card-title">
+                <span class="gold-icon">◇</span>
+                <span>Photo</span>
+            </h2>
+
+            <div class="new-mold-photo-layout">
+
+                <div
+                    class="new-mold-photo-wrapper"
+                    id="newMoldPhotoWrapper"
+                >
+
+                    <!-- Initial upload placeholder -->
+
+                    <label
+                        class="new-mold-photo-placeholder"
+                        id="newMoldPhotoPlaceholder"
+                        for="newMoldPreviewInput"
+                    >
+                        <span class="new-mold-upload-icon">⇧</span>
+
+                        <span class="new-mold-upload-text">
+                            Upload photo
+                        </span>
+
+                        <span class="new-mold-upload-hint">
+                            Click to choose an image
+                        </span>
+                    </label>
+
+
+                    <!-- Image preview -->
+
+                    <img
+                        id="newMoldPreviewImage"
+                        class="new-mold-photo-preview"
+                        alt="Mold preview"
+                        hidden
+                    >
+
+
+                    <!-- Actions shown when an image exists -->
+
+                    <div
+                        class="new-mold-photo-overlay"
+                        id="newMoldPhotoOverlay"
+                        hidden
+                    >
+
+                        <button
+                            type="button"
+                            class="new-mold-image-button new-mold-replace-button"
+                            onclick="chooseNewMoldImage()"
+                        >
+                            <span>↥</span>
+                            <span>Replace</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            class="new-mold-image-button new-mold-remove-button"
+                            onclick="removeNewMoldImage()"
+                        >
+                            <span>×</span>
+                            <span>Remove</span>
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="new-mold-photo-actions">
+
+                    <div class="new-mold-photo-note">
+                        Upload a preview image to help identify this mold
+                        in your mold library. You can replace or remove
+                        the selected image before saving.
+                    </div>
+
+                    <label
+                        for="newMoldPreviewInput"
+                        style="color:#b78a24;font-size:13px;cursor:pointer;"
+                    >
+                        Choose an image
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <input
+                type="file"
+                id="newMoldPreviewInput"
+                class="new-mold-photo-upload"
+                name="preview_image"
+                accept="image/*"
+            >
+
+        </section>
+
+
+
+        <!-- =================================================
+             MOLD INFORMATION
+        ================================================== -->
+
+        <section class="new-mold-card">
+
+            <h2 class="new-mold-card-title">
+                <span class="gold-icon">◇</span>
+                <span>Mold Information</span>
+            </h2>
+
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="new-mold-error-box" style="margin-bottom:14px;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+
+            {% if form_errors %}
+                <div class="new-mold-error-box" style="margin-bottom:18px;">
+                    {% for error in form_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+
+            <div class="new-mold-form-grid">
+
+                <!-- MOLD CODE -->
+
+                <div class="new-mold-field">
+
+                    <label for="newMoldCode">
+                        Mold Code <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        id="newMoldCode"
+                        name="mold_code"
+                        placeholder="e.g. M001"
+                        value="{{ request.POST.mold_code|default:'' }}"
+                        maxlength="50"
+                        required
+                    >
+
+                    {% for error in form.mold_code.errors %}
+                        <div class="new-mold-field-error">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- MOLD TYPE -->
+
+                <div class="new-mold-field">
+
+                    <label for="newMoldType">
+                        Mold Type <span class="required">*</span>
+                    </label>
+
+                    <select
+                        id="newMoldType"
+                        name="type"
+                        required
+                    >
+
+                        <option value="">Select a mold type</option>
+
+                        {% for mold_type in mold_types %}
+
+                            <option
+                                value="{{ mold_type.pk }}"
+                                {% if request.POST.type == mold_type.pk|stringformat:"s" %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ mold_type.name }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                    {% for error in form.type.errors %}
+                        <div class="new-mold-field-error">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                </div>
+
+
+                <!-- FILE NAME -->
+
+                <div class="new-mold-field full-width">
+
+                    <label for="newMoldFileName">
+                        File Name <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        id="newMoldFileName"
+                        name="file_name"
+                        placeholder="e.g. Classic_Solitaire_Ring"
+                        value="{{ request.POST.file_name|default:'' }}"
+                        maxlength="255"
+                        required
+                    >
+
+                    {% for error in form.file_name.errors %}
+                        <div class="new-mold-field-error">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- DESCRIPTION -->
+
+                <div class="new-mold-field full-width">
+
+                    <label for="newMoldDescription">
+                        Description
+                    </label>
+
+                    <textarea
+                        id="newMoldDescription"
+                        name="description"
+                        rows="4"
+                        placeholder="Describe the mold..."
+                    >{{ request.POST.description|default:'' }}</textarea>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             TAGS
+        ================================================== -->
+
+        <section class="new-mold-card new-mold-tags-card">
+
+            <h2 class="new-mold-card-title">
+                <span class="gold-icon">♧</span>
+                <span>Tags</span>
+            </h2>
+
+
+            <!-- Selected tags are submitted as repeated tags fields -->
+
+            <div
+                class="new-mold-selected-tags"
+                id="newMoldSelectedTags"
+            ></div>
+
+
+            <!-- Search / add tag -->
+
+            <div class="new-mold-tag-input-row">
+
+                <div class="new-mold-tag-input-wrapper">
+
+                    <input
+                        type="text"
+                        id="newMoldTagInput"
+                        class="new-mold-tag-input"
+                        placeholder="Search or add tag..."
+                        autocomplete="off"
+                    >
+
+
+                    <!-- Existing tags dropdown -->
+
+                    <div
+                        class="new-mold-tag-dropdown"
+                        id="newMoldTagDropdown"
+                    >
+
+                        {% for tag in mold_tags %}
+
+                            <button
+                                type="button"
+                                class="new-mold-tag-dropdown-item"
+                                data-tag-id="{{ tag.pk }}"
+                                data-tag-name="{{ tag.name }}"
+                            >
+                                {{ tag.name }}
+                            </button>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="new-mold-add-tag-button"
+                    id="newMoldAddTagButton"
+                >
+                    Add
+                </button>
+
+            </div>
+
+            <div
+                class="new-mold-help"
+                style="margin-top:10px;"
+            >
+                Select an existing tag or type a new name and click Add.
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             LIKE
+        ================================================== -->
+
+        <section class="new-mold-card">
+
+            <label class="new-mold-like-option">
+
+                <input
+                    type="checkbox"
+                    name="is_liked"
+                    value="1"
+                    checked
+                >
+
+                <span>Keep this mold liked</span>
+
+            </label>
+
+        </section>
+
+
+
+        <!-- =================================================
+             ACTION BUTTONS
+        ================================================== -->
+
+        <div class="new-mold-form-actions">
+
+            <a
+                href="{% url 'all_molds' %}"
+                class="new-mold-cancel-button"
+            >
+                Cancel
+            </a>
+
+            <button
+                type="submit"
+                class="new-mold-save-button"
+                id="newMoldSaveButton"
+            >
+                <span>▣</span>
+                <span>Save Mold</span>
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+
+<script>
+/* =========================================================
+   IMAGE UPLOAD AND PREVIEW
+========================================================= */
+
+const newMoldFileInput =
+    document.getElementById("newMoldPreviewInput");
+
+const newMoldPhotoWrapper =
+    document.getElementById("newMoldPhotoWrapper");
+
+const newMoldPhotoPlaceholder =
+    document.getElementById("newMoldPhotoPlaceholder");
+
+const newMoldPreviewImage =
+    document.getElementById("newMoldPreviewImage");
+
+const newMoldPhotoOverlay =
+    document.getElementById("newMoldPhotoOverlay");
+
+
+let newMoldImageObjectUrl = null;
+
+
+function chooseNewMoldImage() {
+    newMoldFileInput.click();
+}
+
+
+function showNewMoldImage(file) {
+
+    if (!file) {
+        return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+        alert("Please select a valid image file.");
+        newMoldFileInput.value = "";
+        return;
+    }
+
+    if (newMoldImageObjectUrl) {
+        URL.revokeObjectURL(newMoldImageObjectUrl);
+    }
+
+    newMoldImageObjectUrl = URL.createObjectURL(file);
+
+    newMoldPreviewImage.src = newMoldImageObjectUrl;
+    newMoldPreviewImage.hidden = false;
+
+    newMoldPhotoPlaceholder.hidden = true;
+    newMoldPhotoOverlay.hidden = false;
+
+    newMoldPhotoWrapper.classList.add("has-image");
+}
+
+
+newMoldFileInput.addEventListener("change", function () {
+
+    const file = this.files[0];
+
+    if (!file) {
+        return;
+    }
+
+    showNewMoldImage(file);
+
+});
+
+
+function removeNewMoldImage() {
+
+    newMoldFileInput.value = "";
+
+    newMoldPreviewImage.removeAttribute("src");
+    newMoldPreviewImage.hidden = true;
+
+    newMoldPhotoPlaceholder.hidden = false;
+    newMoldPhotoOverlay.hidden = true;
+
+    newMoldPhotoWrapper.classList.remove("has-image");
+
+    if (newMoldImageObjectUrl) {
+        URL.revokeObjectURL(newMoldImageObjectUrl);
+        newMoldImageObjectUrl = null;
+    }
+
+}
+
+
+
+/* =========================================================
+   TAG ELEMENTS
+========================================================= */
+
+const newMoldTagInput =
+    document.getElementById("newMoldTagInput");
+
+const newMoldTagDropdown =
+    document.getElementById("newMoldTagDropdown");
+
+const newMoldSelectedTags =
+    document.getElementById("newMoldSelectedTags");
+
+const newMoldAddTagButton =
+    document.getElementById("newMoldAddTagButton");
+
+const newMoldForm =
+    document.getElementById("newMoldForm");
+
+
+/* =========================================================
+   TAG DROPDOWN
+========================================================= */
+
+function filterNewMoldTagDropdown() {
+
+    const search =
+        newMoldTagInput.value.trim().toLowerCase();
+
+    const items =
+        newMoldTagDropdown.querySelectorAll(
+            ".new-mold-tag-dropdown-item"
+        );
+
+    let visibleCount = 0;
+
+    items.forEach(function (item) {
+
+        const tagName =
+            item.dataset.tagName.toLowerCase();
+
+        const tagId =
+            item.dataset.tagId;
+
+        const alreadySelected =
+            newMoldSelectedTags.querySelector(
+                'input[name="tags"][value="' +
+                tagId +
+                '"]'
+            );
+
+        const matches =
+            !search || tagName.includes(search);
+
+        if (matches && !alreadySelected) {
+
+            item.style.display = "block";
+            visibleCount++;
+
+        } else {
+
+            item.style.display = "none";
+
+        }
+
+    });
+
+
+    let emptyMessage =
+        newMoldTagDropdown.querySelector(
+            ".new-mold-tag-dropdown-empty"
+        );
+
+    if (visibleCount === 0) {
+
+        if (!emptyMessage) {
+
+            emptyMessage =
+                document.createElement("div");
+
+            emptyMessage.className =
+                "new-mold-tag-dropdown-empty";
+
+            newMoldTagDropdown.appendChild(emptyMessage);
+
+        }
+
+        if (search) {
+
+            emptyMessage.textContent =
+                'No existing tag found. Click "Add" to create "' +
+                newMoldTagInput.value.trim() +
+                '".';
+
+        } else {
+
+            emptyMessage.textContent =
+                "No more tags available.";
+
+        }
+
+        emptyMessage.style.display = "block";
+
+    } else if (emptyMessage) {
+
+        emptyMessage.style.display = "none";
+
+    }
+
+}
+
+
+function openNewMoldTagDropdown() {
+
+    filterNewMoldTagDropdown();
+
+    newMoldTagDropdown.style.display = "block";
+
+}
+
+
+newMoldTagInput.addEventListener("focus", function () {
+    openNewMoldTagDropdown();
+});
+
+
+newMoldTagInput.addEventListener("input", function () {
+    openNewMoldTagDropdown();
+});
+
+
+newMoldTagInput.addEventListener("click", function (event) {
+    event.stopPropagation();
+    openNewMoldTagDropdown();
+});
+
+
+/* =========================================================
+   ADD SELECTED TAG
+========================================================= */
+
+function addNewMoldSelectedTag(tagId, tagName) {
+
+    const existing =
+        newMoldSelectedTags.querySelector(
+            'input[name="tags"][value="' + tagId + '"]'
+        );
+
+    if (existing) {
+        return;
+    }
+
+    const tag = document.createElement("span");
+
+    tag.className = "new-mold-tag";
+
+    const name = document.createElement("span");
+    name.textContent = tagName;
+
+    const removeButton = document.createElement("button");
+
+    removeButton.type = "button";
+    removeButton.className = "new-mold-tag-remove";
+    removeButton.textContent = "×";
+    removeButton.title = "Remove tag";
+    removeButton.setAttribute("aria-label", "Remove " + tagName);
+
+    removeButton.addEventListener("click", function () {
+        tag.remove();
+        filterNewMoldTagDropdown();
+    });
+
+    const hiddenInput = document.createElement("input");
+
+    hiddenInput.type = "hidden";
+    hiddenInput.name = "tags";
+    hiddenInput.value = tagId;
+
+    tag.appendChild(name);
+    tag.appendChild(removeButton);
+    tag.appendChild(hiddenInput);
+
+    newMoldSelectedTags.appendChild(tag);
+
+    filterNewMoldTagDropdown();
+
+}
+
+
+/* =========================================================
+   SELECT EXISTING TAG
+========================================================= */
+
+function selectNewMoldExistingTag(button) {
+
+    addNewMoldSelectedTag(
+        button.dataset.tagId,
+        button.dataset.tagName
+    );
+
+    newMoldTagInput.value = "";
+
+    newMoldTagDropdown.style.display = "none";
+
+}
+
+
+newMoldTagDropdown.addEventListener("click", function (event) {
+
+    const button = event.target.closest(
+        ".new-mold-tag-dropdown-item"
+    );
+
+    if (!button) {
+        return;
+    }
+
+    selectNewMoldExistingTag(button);
+
+});
+
+
+/* =========================================================
+   CSRF COOKIE
+========================================================= */
+
+function getNewMoldCookie(name) {
+
+    let cookieValue = null;
+
+    if (document.cookie && document.cookie !== "") {
+
+        const cookies = document.cookie.split(";");
+
+        for (let cookie of cookies) {
+
+            cookie = cookie.trim();
+
+            if (cookie.startsWith(name + "=")) {
+
+                cookieValue = decodeURIComponent(
+                    cookie.substring(name.length + 1)
+                );
+
+                break;
+
+            }
+
+        }
+
+    }
+
+    return cookieValue;
+
+}
+
+
+/* =========================================================
+   ADD TAG
+   Existing tag -> select it
+   New tag -> call create_mold_tag
+========================================================= */
+
+async function addNewMoldTag() {
+
+    const value = newMoldTagInput.value.trim();
+
+    if (!value) {
+        newMoldTagInput.focus();
+        return;
+    }
+
+
+    // If the tag already exists, select it instead of creating a duplicate.
+
+    const items =
+        newMoldTagDropdown.querySelectorAll(
+            ".new-mold-tag-dropdown-item"
+        );
+
+    let existingTag = null;
+
+    items.forEach(function (item) {
+
+        if (
+            item.dataset.tagName.trim().toLowerCase() ===
+            value.toLowerCase()
+        ) {
+            existingTag = item;
+        }
+
+    });
+
+
+    if (existingTag) {
+
+        selectNewMoldExistingTag(existingTag);
+        return;
+
+    }
+
+
+    // Create a new tag through the existing Django endpoint.
+
+    newMoldAddTagButton.disabled = true;
+
+    try {
+
+        const response = await fetch(
+            "{% url 'create_mold_tag' %}",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/x-www-form-urlencoded",
+
+                    "X-CSRFToken":
+                        getNewMoldCookie("csrftoken"),
+
+                    "X-Requested-With":
+                        "XMLHttpRequest"
+                },
+
+                body: new URLSearchParams({
+                    name: value
+                })
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Unable to create tag.");
+        }
+
+        const data = await response.json();
+
+        if (!data.success) {
+
+            alert(data.error || "Unable to create tag.");
+            return;
+
+        }
+
+
+        // Select the returned tag ID.
+
+        addNewMoldSelectedTag(
+            data.id,
+            data.name
+        );
+
+
+        // Add the new tag to the dropdown for future use.
+
+        let option = newMoldTagDropdown.querySelector(
+            '[data-tag-id="' + data.id + '"]'
+        );
+
+        if (!option) {
+
+            option = document.createElement("button");
+
+            option.type = "button";
+            option.className =
+                "new-mold-tag-dropdown-item";
+
+            option.dataset.tagId = data.id;
+            option.dataset.tagName = data.name;
+
+            option.textContent = data.name;
+
+            newMoldTagDropdown.appendChild(option);
+
+        }
+
+
+        newMoldTagInput.value = "";
+
+        newMoldTagDropdown.style.display = "none";
+
+    } catch (error) {
+
+        console.error("Create mold tag failed:", error);
+
+        alert(
+            "Unable to create tag. Please try again."
+        );
+
+    } finally {
+
+        newMoldAddTagButton.disabled = false;
+
+    }
+
+}
+
+
+newMoldAddTagButton.addEventListener("click", function () {
+    addNewMoldTag();
+});
+
+
+newMoldTagInput.addEventListener("keydown", function (event) {
+
+    if (event.key === "Enter") {
+
+        event.preventDefault();
+
+        addNewMoldTag();
+
+    }
+
+});
+
+
+/* =========================================================
+   CLOSE TAG DROPDOWN
+========================================================= */
+
+document.addEventListener("click", function (event) {
+
+    if (
+        !newMoldTagDropdown.contains(event.target) &&
+        !newMoldTagInput.contains(event.target)
+    ) {
+
+        newMoldTagDropdown.style.display = "none";
+
+    }
+
+});
+
+
+/* =========================================================
+   FORM SUBMISSION
+========================================================= */
+
+newMoldForm.addEventListener("submit", function (event) {
+
+    const moldCode =
+        document.getElementById("newMoldCode").value.trim();
+
+    const moldType =
+        document.getElementById("newMoldType").value;
+
+    const fileName =
+        document.getElementById("newMoldFileName").value.trim();
+
+    if (!moldCode || !moldType || !fileName) {
+
+        event.preventDefault();
+
+        alert(
+            "Please fill in Mold Code, Mold Type, and File Name."
+        );
+
+        return;
+
+    }
+
+    // Allow the normal Django POST request to submit the form.
+
+});
+</script>
+
+{% endblock %}

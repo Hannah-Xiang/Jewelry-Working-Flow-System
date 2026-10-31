@@ -147,6 +147,7 @@ path(
     views.create_mold_tag,
     name="create_mold_tag"
 ),
+path("new-molds/", views.new_mold, name="new_mold"),
 
 ]
 

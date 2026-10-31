@@ -30,7 +30,7 @@ from .models import (
     MoldType,
 )
 import logging
-from .forms import CustomerForm, TicketForm
+from .forms import CustomerForm, TicketForm, MoldForm
 
 from .utils import (
     generate_ticket_number,
@@ -2369,4 +2369,72 @@ def create_mold_tag(request):
             "name": tag.name,
             "created": True,
         }
+    )
+
+
+@login_required
+def new_mold(request):
+
+    # -----------------------------------------
+    # POST: Save a new mold
+    # -----------------------------------------
+    if request.method == "POST":
+
+        form = MoldForm(
+            request.POST,
+            request.FILES
+        )
+
+        if form.is_valid():
+
+            # Save mold information and uploaded image.
+            mold = form.save()
+
+            # Read selected tag IDs from the submitted form.
+            tag_ids = request.POST.getlist("tags")
+
+            # Keep only valid IDs belonging to existing tags.
+            tags = MoldTag.objects.filter(
+                pk__in=tag_ids
+            )
+
+            # Associate the selected tags with this mold.
+            mold.tags.set(tags)
+
+            # Record creation in the existing audit log.
+            create_audit_log(
+                request,
+                "CREATE",
+                "Mold",
+                mold.id,
+                f"Created mold {mold.mold_code}."
+            )
+
+            messages.success(
+                request,
+                "Mold created successfully."
+            )
+
+            return redirect("mold_detail", pk=mold.pk)
+
+    # -----------------------------------------
+    # GET: Display the form
+    # -----------------------------------------
+    else:
+        form = MoldForm()
+
+    # Get the latest database records for the page.
+    mold_types = MoldType.objects.order_by("name")
+    mold_tags = MoldTag.objects.order_by("name")
+
+    context = {
+        "form": form,
+        "mold_types": mold_types,
+        "mold_tags": mold_tags,
+    }
+
+    return render(
+        request,
+        "core/new_mold.html",
+        context
     )

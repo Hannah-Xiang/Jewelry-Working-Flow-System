@@ -301,3 +301,50 @@ class CustomerForm(forms.ModelForm):
 
         # Store in a consistent format
         return f"({digits[:3]}) {digits[3:6]}-{digits[6:]}"
+
+
+
+from django import forms
+from .models import Mold, MoldType
+
+
+
+class MoldForm(forms.ModelForm):
+    class Meta:
+        model = Mold
+        fields = [
+            "mold_code",
+            "file_name",
+            "type",
+            "description",
+            "is_liked",
+            "preview_image",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["type"].queryset = MoldType.objects.order_by("name")
+        self.fields["description"].required = False
+        self.fields["is_liked"].required = False
+        self.fields["preview_image"].required = False
+
+    def clean_mold_code(self):
+        mold_code = self.cleaned_data["mold_code"].strip()
+
+        # Check duplicates without considering uppercase/lowercase
+        existing_molds = Mold.objects.filter(
+            mold_code__iexact=mold_code
+        )
+
+        # Exclude the current record when editing, if applicable
+        if self.instance.pk:
+            existing_molds = existing_molds.exclude(
+                pk=self.instance.pk
+            )
+
+        if existing_molds.exists():
+            raise forms.ValidationError(
+                "This mold code already exists. Please enter a different mold code."
+            )
+
+        return mold_code

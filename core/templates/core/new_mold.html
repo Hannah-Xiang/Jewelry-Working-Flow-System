@@ -213,6 +213,7 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    cursor: pointer;
 }
 
 /* Make sure hidden elements really stay hidden */
@@ -237,6 +238,11 @@
     background: rgba(0, 0, 0, .22);
     opacity: 0;
     transition: opacity .2s ease;
+    pointer-events: none;
+}
+
+.new-mold-photo-overlay button {
+    pointer-events: auto;
 }
 
 .new-mold-photo-wrapper.has-image:hover
@@ -525,6 +531,43 @@
     cursor: wait;
 }
 
+/* Full-size image viewer */
+.new-mold-lightbox[hidden] {
+    display: none !important;
+}
+
+.new-mold-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.88);
+}
+
+.new-mold-lightbox-image {
+    max-width: 95vw;
+    max-height: 90vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.new-mold-lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 28px;
+    border: none;
+    background: transparent;
+    color: white;
+    font-size: 38px;
+    cursor: pointer;
+}
+
 /* =========================================================
    RESPONSIVE
 ========================================================= */
@@ -626,6 +669,7 @@
         enctype="multipart/form-data"
         class="new-mold-form"
         id="newMoldForm"
+        data-is-post="{% if request.method == 'POST' %}true{% else %}false{% endif %}"
     >
 
         {% csrf_token %}
@@ -683,6 +727,21 @@
                         alt="Mold preview"
                         hidden
                     >
+
+                    <div id="newMoldImageLightbox" class="new-mold-lightbox" hidden>
+                        <button
+                            type="button"
+                            class="new-mold-lightbox-close"
+                            id="newMoldLightboxClose"
+                            aria-label="Close image"
+                        >&times;</button>
+
+                        <img
+                            id="newMoldLightboxImage"
+                            class="new-mold-lightbox-image"
+                            alt="Full-size mold preview"
+                        >
+                    </div>
 
 
                     <!-- Actions shown when an image exists -->
@@ -1053,6 +1112,137 @@ const newMoldPhotoOverlay =
 
 let newMoldImageObjectUrl = null;
 
+/* =========================================================
+   TEMPORARY IMAGE STORAGE
+   Preserve image after Django validation errors
+========================================================= */
+
+const MOLD_IMAGE_DB = "ZarehMoldImageDB";
+const MOLD_IMAGE_STORE = "temporaryImages";
+const MOLD_IMAGE_KEY = "newMoldPreview";
+
+function openMoldImageDB() {
+
+    return new Promise((resolve, reject) => {
+
+        const request = indexedDB.open(MOLD_IMAGE_DB, 1);
+
+        request.onupgradeneeded = function(event) {
+
+            const db = event.target.result;
+
+            if (!db.objectStoreNames.contains(MOLD_IMAGE_STORE)) {
+                db.createObjectStore(MOLD_IMAGE_STORE);
+            }
+
+        };
+
+        request.onsuccess = function(event) {
+            resolve(event.target.result);
+        };
+
+        request.onerror = function() {
+            reject(request.error);
+        };
+
+    });
+
+}
+
+
+async function saveTemporaryMoldImage(file) {
+
+    if (!file) return;
+
+    const db = await openMoldImageDB();
+
+    return new Promise((resolve, reject) => {
+
+        const transaction = db.transaction(
+            MOLD_IMAGE_STORE,
+            "readwrite"
+        );
+
+        transaction.objectStore(MOLD_IMAGE_STORE).put(
+            file,
+            MOLD_IMAGE_KEY
+        );
+
+        transaction.oncomplete = function() {
+            db.close();
+            resolve();
+        };
+
+        transaction.onerror = function() {
+            db.close();
+            reject(transaction.error);
+        };
+
+    });
+
+}
+
+
+async function getTemporaryMoldImage() {
+
+    const db = await openMoldImageDB();
+
+    return new Promise((resolve, reject) => {
+
+        const transaction = db.transaction(
+            MOLD_IMAGE_STORE,
+            "readonly"
+        );
+
+        const request = transaction.objectStore(
+            MOLD_IMAGE_STORE
+        ).get(MOLD_IMAGE_KEY);
+
+        request.onsuccess = function() {
+            const result = request.result || null;
+            db.close();
+            resolve(result);
+        };
+
+        request.onerror = function() {
+            db.close();
+            reject(request.error);
+        };
+
+    });
+
+}
+
+
+async function clearTemporaryMoldImage() {
+
+    const db = await openMoldImageDB();
+
+    return new Promise((resolve, reject) => {
+
+        const transaction = db.transaction(
+            MOLD_IMAGE_STORE,
+            "readwrite"
+        );
+
+        transaction.objectStore(
+            MOLD_IMAGE_STORE
+        ).delete(MOLD_IMAGE_KEY);
+
+        transaction.oncomplete = function() {
+            db.close();
+            resolve();
+        };
+
+        transaction.onerror = function() {
+            db.close();
+            reject(transaction.error);
+        };
+
+    });
+
+}
+
 
 function chooseNewMoldImage() {
     newMoldFileInput.click();
@@ -1086,8 +1276,56 @@ function showNewMoldImage(file) {
     newMoldPhotoWrapper.classList.add("has-image");
 }
 
+/* =========================================================
+   RESTORE PREVIOUS IMAGE AFTER VALIDATION ERROR
+========================================================= */
 
-newMoldFileInput.addEventListener("change", function () {
+async function restoreTemporaryMoldImage() {
+
+    try {
+
+        const isPost =
+            newMoldForm.dataset.isPost === "true";
+
+        // Fresh Add Mold page: remove any old temporary image.
+        if (!isPost) {
+
+            await clearTemporaryMoldImage();
+
+            return;
+        }
+
+        // Validation error: retrieve the previous image.
+        const file = await getTemporaryMoldImage();
+
+        if (!file) return;
+
+        // Restore the file into the file input.
+        const dataTransfer = new DataTransfer();
+
+        dataTransfer.items.add(file);
+
+        newMoldFileInput.files = dataTransfer.files;
+
+        // Restore the image preview.
+        showNewMoldImage(file);
+
+    } catch (error) {
+
+        console.error(
+            "Unable to restore temporary mold image:",
+            error
+        );
+
+    }
+
+}
+
+
+
+
+
+newMoldFileInput.addEventListener("change", async function () {
 
     const file = this.files[0];
 
@@ -1097,10 +1335,27 @@ newMoldFileInput.addEventListener("change", function () {
 
     showNewMoldImage(file);
 
+    try {
+
+        await saveTemporaryMoldImage(file);
+
+    } catch (error) {
+
+        console.error(
+            "Unable to save temporary mold image:",
+            error
+        );
+
+        alert(
+            "Unable to temporarily preserve the image. Please try another image."
+        );
+
+    }
+
 });
 
 
-function removeNewMoldImage() {
+async function removeNewMoldImage() {
 
     newMoldFileInput.value = "";
 
@@ -1113,8 +1368,22 @@ function removeNewMoldImage() {
     newMoldPhotoWrapper.classList.remove("has-image");
 
     if (newMoldImageObjectUrl) {
+
         URL.revokeObjectURL(newMoldImageObjectUrl);
+
         newMoldImageObjectUrl = null;
+
+    }
+
+    // Remove temporary image as well.
+    try {
+
+        await clearTemporaryMoldImage();
+
+    } catch (error) {
+
+        console.error(error);
+
     }
 
 }
@@ -1139,6 +1408,10 @@ const newMoldAddTagButton =
 
 const newMoldForm =
     document.getElementById("newMoldForm");
+
+// Restore image when Add Mold page loads.
+// IMPORTANT: newMoldForm must be initialized first.
+restoreTemporaryMoldImage();
 
 
 /* =========================================================
@@ -1558,7 +1831,13 @@ document.addEventListener("click", function (event) {
    FORM SUBMISSION
 ========================================================= */
 
-newMoldForm.addEventListener("submit", function (event) {
+/* =========================================================
+   FORM SUBMISSION
+========================================================= */
+
+newMoldForm.addEventListener("submit", async function (event) {
+
+    event.preventDefault();
 
     const moldCode =
         document.getElementById("newMoldCode").value.trim();
@@ -1571,8 +1850,6 @@ newMoldForm.addEventListener("submit", function (event) {
 
     if (!moldCode || !moldType || !fileName) {
 
-        event.preventDefault();
-
         alert(
             "Please fill in Mold Code, Mold Type, and File Name."
         );
@@ -1581,8 +1858,82 @@ newMoldForm.addEventListener("submit", function (event) {
 
     }
 
-    // Allow the normal Django POST request to submit the form.
+    try {
 
+        // Ensure the latest image is saved before submitting.
+        const file = newMoldFileInput.files[0];
+
+        if (file) {
+            await saveTemporaryMoldImage(file);
+        }
+
+        // Submit the original form normally to Django.
+        HTMLFormElement.prototype.submit.call(newMoldForm);
+
+    } catch (error) {
+
+        console.error("Image preservation failed:", error);
+
+        alert(
+            "Unable to preserve the image. Please try again."
+        );
+
+    }
+
+});
+
+const newMoldLightbox =
+    document.getElementById("newMoldImageLightbox");
+
+const newMoldLightboxImage =
+    document.getElementById("newMoldLightboxImage");
+
+const newMoldLightboxClose =
+    document.getElementById("newMoldLightboxClose");
+
+
+// Click preview to view full image
+newMoldPreviewImage.addEventListener("click", function () {
+    if (!this.src) return;
+
+    newMoldLightboxImage.src = this.src;
+    newMoldLightbox.hidden = false;
+});
+
+
+// Close button
+newMoldLightboxClose.addEventListener("click", function () {
+    newMoldLightbox.hidden = true;
+});
+
+
+// Click background to close
+newMoldLightbox.addEventListener("click", function (event) {
+    if (event.target === newMoldLightbox) {
+        newMoldLightbox.hidden = true;
+    }
+});
+
+
+// Press Escape to close
+document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+        newMoldLightbox.hidden = true;
+    }
+});
+
+const newMoldCodeInput =
+    document.getElementById("newMoldCode");
+
+// Automatically convert Mold Code to uppercase
+newMoldCodeInput.addEventListener("input", function () {
+    const start = this.selectionStart;
+    const end = this.selectionEnd;
+
+    this.value = this.value.toUpperCase();
+
+    // Preserve cursor position
+    this.setSelectionRange(start, end);
 });
 </script>
 

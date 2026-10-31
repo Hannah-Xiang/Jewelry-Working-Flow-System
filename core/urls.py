@@ -148,6 +148,11 @@ path(
     name="create_mold_tag"
 ),
 path("new-molds/", views.new_mold, name="new_mold"),
+path(
+    "molds/delete/<int:mold_id>/",
+    views.delete_mold,
+    name="delete_mold"
+),
 
 ]
 

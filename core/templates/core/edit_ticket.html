@@ -193,15 +193,22 @@
         type="text"
         name="ticket_number"
         class="form-input"
-        value="{{ ticket.ticket_number }}"
+        value="{% if request.method == 'POST' %}{{ request.POST.ticket_number }}{% else %}{{ ticket.ticket_number }}{% endif %}"
         required
     >
-
     {% if messages %}
+        {% for message in messages %}
+            {% if 'error' in message.tags %}
+                <small class="error">{{ message }}</small>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    <!-- {% if messages %}
         {% for message in messages %}
             <small class="error">{{ message }}</small>
         {% endfor %}
-    {% endif %}
+    {% endif %} -->
 </div>
 
                         <div class="form-field">

@@ -198,6 +198,38 @@
         gap: 22px;
     }
 
+    /* =========================================================
+    DELETE MOLD BUTTON
+    ========================================================= */
+
+    .mold-delete-button {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+
+        padding: 14px 20px;
+
+        border: none;
+        border-radius: 12px;
+
+        background: #fceaea;
+        color: #d62828;
+
+        font-size: 14px;
+        font-weight: 500;
+        font-family: inherit;
+
+        text-align: center;
+        text-decoration: none;
+
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .mold-delete-button:hover {
+        background: #f7dada;
+    }
+
 
     .mold-info-card {
         border: 1px solid #eee2c9;
@@ -1581,6 +1613,26 @@
     </div>
 
 </div>
+
+<!-- =================================================
+     DELETE MOLD
+================================================= -->
+
+<form
+    method="POST"
+    action="{% url 'delete_mold' mold.id %}"
+    onsubmit="return confirm('Are you sure you want to delete this mold? This action cannot be undone.');"
+>
+    {% csrf_token %}
+
+    <button
+        type="submit"
+        class="mold-delete-button"
+    >
+        Delete Mold
+    </button>
+
+</form>
 
             </div>
 

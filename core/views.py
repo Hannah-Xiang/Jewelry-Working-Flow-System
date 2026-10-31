@@ -2438,3 +2438,41 @@ def new_mold(request):
         "core/new_mold.html",
         context
     )
+@login_required
+def delete_mold(request, mold_id):
+
+    mold = get_object_or_404(
+        Mold,
+        id=mold_id
+    )
+
+    if request.method == "POST":
+
+        mold_code = mold.mold_code
+
+        # Delete the physical preview image
+        if mold.preview_image:
+            mold.preview_image.delete(save=False)
+
+        mold.delete()
+
+        # Audit log
+        create_audit_log(
+            request,
+            "DELETE",
+            "Mold",
+            mold_code,
+            f"Deleted mold {mold_code}."
+        )
+
+        messages.success(
+            request,
+            "Mold deleted successfully."
+        )
+
+        return redirect("all_molds")
+
+    return redirect(
+        "mold_detail",
+        pk=mold.id
+    )

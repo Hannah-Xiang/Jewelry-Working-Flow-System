@@ -2487,27 +2487,6 @@ def new_mold(request):
         "core/new_mold.html",
         context
     )
-<<<<<<< HEAD
-@login_required
-def delete_mold(request, mold_id):
-
-    mold = get_object_or_404(
-        Mold,
-        id=mold_id
-    )
-
-    if request.method == "POST":
-
-        mold_code = mold.mold_code
-
-        # Delete the physical preview image
-        if mold.preview_image:
-            mold.preview_image.delete(save=False)
-
-        mold.delete()
-
-        # Audit log
-=======
 
 @login_required
 def delete_mold_tag(request, pk):
@@ -2546,32 +2525,16 @@ def delete_mold(request, pk):
     try:
         mold.delete()
 
->>>>>>> store2
         create_audit_log(
             request,
             "DELETE",
             "Mold",
-<<<<<<< HEAD
-            mold_code,
-=======
             pk,
->>>>>>> store2
             f"Deleted mold {mold_code}."
         )
 
         messages.success(
             request,
-<<<<<<< HEAD
-            "Mold deleted successfully."
-        )
-
-        return redirect("all_molds")
-
-    return redirect(
-        "mold_detail",
-        pk=mold.id
-    )
-=======
             f"Mold {mold_code} deleted successfully."
         )
 
@@ -2583,4 +2546,3 @@ def delete_mold(request, pk):
         )
 
     return redirect("all_molds")
->>>>>>> store2

@@ -568,6 +568,44 @@
     cursor: pointer;
 }
 
+.new-mold-tag-row {
+    display: flex;
+    align-items: center;
+    padding: 3px 8px 3px 0;
+    gap: 8px;
+}
+
+.new-mold-tag-row .new-mold-tag-dropdown-item {
+    flex: 1;
+    min-width: 0;
+}
+
+.new-mold-tag-count {
+    flex-shrink: 0;
+    padding: 3px 8px;
+    border-radius: 12px;
+    background: #f5f2eb;
+    color: #8a806f;
+    font-size: 11px;
+}
+
+.new-mold-tag-delete {
+    flex-shrink: 0;
+    width: 27px;
+    height: 27px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: #999;
+    font-size: 19px;
+    cursor: pointer;
+}
+
+.new-mold-tag-delete:hover {
+    background: #fff0f0;
+    color: #dc2626;
+}
+
 /* =========================================================
    RESPONSIVE
 ========================================================= */
@@ -819,13 +857,13 @@
             </h2>
 
 
-            {% if messages %}
+            <!-- {% if messages %}
                 {% for message in messages %}
                     <div class="new-mold-error-box" style="margin-bottom:14px;">
                         {{ message }}
                     </div>
                 {% endfor %}
-            {% endif %}
+            {% endif %} -->
 
 
             {% if form_errors %}
@@ -999,14 +1037,33 @@
 
                         {% for tag in mold_tags %}
 
-                            <button
-                                type="button"
-                                class="new-mold-tag-dropdown-item"
-                                data-tag-id="{{ tag.pk }}"
-                                data-tag-name="{{ tag.name }}"
-                            >
-                                {{ tag.name }}
-                            </button>
+                            <div class="new-mold-tag-row"
+                                data-tag-row="{{ tag.pk }}">
+
+                                <button
+                                    type="button"
+                                    class="new-mold-tag-dropdown-item"
+                                    data-tag-id="{{ tag.pk }}"
+                                    data-tag-name="{{ tag.name }}"
+                                >
+                                    {{ tag.name }}
+                                </button>
+
+                                <span class="new-mold-tag-count">
+                                    {{ tag.mold_count }} molds
+                                </span>
+
+                                <button
+                                    type="button"
+                                    class="new-mold-tag-delete"
+                                    data-tag-id="{{ tag.pk }}"
+                                    data-tag-name="{{ tag.name }}"
+                                    title="Delete tag"
+                                >
+                                    ×
+                                </button>
+
+                            </div>
 
                         {% endfor %}
 
@@ -1048,7 +1105,6 @@
                     type="checkbox"
                     name="is_liked"
                     value="1"
-                    checked
                 >
 
                 <span>Keep this mold liked</span>
@@ -1418,92 +1474,73 @@ restoreTemporaryMoldImage();
    TAG DROPDOWN
 ========================================================= */
 
+
 function filterNewMoldTagDropdown() {
 
-    const search =
-        newMoldTagInput.value.trim().toLowerCase();
+    const search = newMoldTagInput.value.trim().toLowerCase();
 
-    const items =
-        newMoldTagDropdown.querySelectorAll(
-            ".new-mold-tag-dropdown-item"
-        );
+    // Get complete tag rows instead of individual buttons
+    const rows = newMoldTagDropdown.querySelectorAll(
+        ".new-mold-tag-row"
+    );
 
     let visibleCount = 0;
 
-    items.forEach(function (item) {
+    rows.forEach(function (row) {
 
-        const tagName =
-            item.dataset.tagName.toLowerCase();
+        const item = row.querySelector(
+            ".new-mold-tag-dropdown-item"
+        );
 
-        const tagId =
-            item.dataset.tagId;
+        if (!item) return;
 
-        const alreadySelected =
-            newMoldSelectedTags.querySelector(
-                'input[name="tags"][value="' +
-                tagId +
-                '"]'
-            );
+        const tagName = item.dataset.tagName.toLowerCase();
+        const tagId = item.dataset.tagId;
 
-        const matches =
-            !search || tagName.includes(search);
+        const alreadySelected = newMoldSelectedTags.querySelector(
+            'input[name="tags"][value="' + tagId + '"]'
+        );
+
+        const matches = !search || tagName.includes(search);
 
         if (matches && !alreadySelected) {
-
-            item.style.display = "block";
+            row.style.display = "flex";
             visibleCount++;
-
         } else {
-
-            item.style.display = "none";
-
+            // Hide the entire row, including count and X
+            row.style.display = "none";
         }
 
     });
 
-
-    let emptyMessage =
-        newMoldTagDropdown.querySelector(
-            ".new-mold-tag-dropdown-empty"
-        );
+    let emptyMessage = newMoldTagDropdown.querySelector(
+        ".new-mold-tag-dropdown-empty"
+    );
 
     if (visibleCount === 0) {
 
         if (!emptyMessage) {
-
-            emptyMessage =
-                document.createElement("div");
-
-            emptyMessage.className =
-                "new-mold-tag-dropdown-empty";
-
+            emptyMessage = document.createElement("div");
+            emptyMessage.className = "new-mold-tag-dropdown-empty";
             newMoldTagDropdown.appendChild(emptyMessage);
-
         }
 
         if (search) {
-
             emptyMessage.textContent =
                 'No existing tag found. Click "Add" to create "' +
-                newMoldTagInput.value.trim() +
-                '".';
-
+                newMoldTagInput.value.trim() + '".';
         } else {
-
-            emptyMessage.textContent =
-                "No more tags available.";
-
+            emptyMessage.textContent = "No more tags available.";
         }
 
         emptyMessage.style.display = "block";
 
     } else if (emptyMessage) {
-
         emptyMessage.style.display = "none";
-
     }
 
 }
+
 
 
 function openNewMoldTagDropdown() {
@@ -1601,8 +1638,80 @@ function selectNewMoldExistingTag(button) {
 }
 
 
-newMoldTagDropdown.addEventListener("click", function (event) {
+newMoldTagDropdown.addEventListener("click", async function (event) {
 
+    // Delete tag
+    const deleteButton = event.target.closest(
+        ".new-mold-tag-delete"
+    );
+
+    if (deleteButton) {
+
+        event.stopPropagation();
+
+        const tagId = deleteButton.dataset.tagId;
+        const tagName = deleteButton.dataset.tagName;
+
+        const confirmed = confirm(
+            `Delete the tag "${tagName}"?\n\n` +
+            `This tag will be removed from all molds using it.\n` +
+            `The molds themselves will NOT be deleted.`
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+
+            const response = await fetch(
+                `/mold-tag/delete/${tagId}/`,
+                {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": getNewMoldCookie("csrftoken")
+                    }
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(
+                    data.error || "Unable to delete tag."
+                );
+            }
+
+            // Remove tag from dropdown
+            const tagRow = deleteButton.closest(".new-mold-tag-row");
+
+            if (tagRow) {
+                tagRow.remove();
+            }
+
+            // Remove it from selected tags, if already selected
+            const selectedTag = newMoldSelectedTags.querySelector(
+                `input[name="tags"][value="${tagId}"]`
+            );
+
+            if (selectedTag) {
+                selectedTag.closest(".new-mold-tag").remove();
+            }
+
+            filterNewMoldTagDropdown();
+
+        } catch (error) {
+
+            console.error("Delete tag failed:", error);
+
+            alert("Unable to delete tag. Please try again.");
+
+        }
+
+        return;
+    }
+
+    // Select existing tag
     const button = event.target.closest(
         ".new-mold-tag-dropdown-item"
     );

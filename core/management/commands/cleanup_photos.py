@@ -7,11 +7,11 @@ from core.models import TicketPhoto
 
 
 class Command(BaseCommand):
-    help = "Delete photos from completed tickets older than 180 days."
+    help = "Delete photos from completed tickets older than 365 days."
 
     def handle(self, *args, **kwargs):
 
-        cutoff = timezone.now().date() - timedelta(days=180)
+        cutoff = timezone.now().date() - timedelta(days=365)
 
         photos = TicketPhoto.objects.filter(
             ticket__completed_date__lt=cutoff,

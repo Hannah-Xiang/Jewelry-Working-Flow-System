@@ -462,6 +462,10 @@ class Mold(models.Model):
     # -----------------------------------------------------
 
     is_liked = models.BooleanField(
+        default=False
+    )
+
+    is_show = models.BooleanField(
         default=True
     )
 

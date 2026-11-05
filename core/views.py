@@ -1770,18 +1770,28 @@ def all_molds(request):
     # Type filter
     # -----------------------------------------
 
-    selected_type = request.GET.get(
-        "type",
-        "all",
-    )
+    selected_type = request.GET.get("type", "all")
 
-    if selected_type and selected_type != "all" and selected_type != "like":
+    if selected_type == "not-show":
         molds_queryset = molds_queryset.filter(
-            type_id=selected_type
+            is_show=False
         )
+
     elif selected_type == "like":
         molds_queryset = molds_queryset.filter(
+            is_show=True,
             is_liked=True
+        )
+
+    elif selected_type != "all":
+        molds_queryset = molds_queryset.filter(
+            is_show=True,
+            type_id=selected_type
+        )
+
+    else:
+        molds_queryset = molds_queryset.filter(
+            is_show=True
         )
 
     # -----------------------------------------
@@ -1817,6 +1827,7 @@ def all_molds(request):
         molds_queryset = molds_queryset.filter(
             is_liked=True
         )
+
 
     # -----------------------------------------
     # Get filter data
@@ -1866,6 +1877,7 @@ def all_molds(request):
             "file_name": mold.file_name,
             "image_url": mold.preview_image.url,
             "is_liked": mold.is_liked,
+            "is_show": mold.is_show, 
             "page": ((index - 1) // page_size) + 1,
         })
 
@@ -1906,6 +1918,34 @@ def all_molds(request):
         context
     )
 
+@login_required
+def mold_toggle_show(request):
+
+    if request.method != "POST":
+        return JsonResponse(
+            {"success": False},
+            status=405
+        )
+
+    mold_id = request.POST.get(
+        "mold_id"
+    )
+
+    mold = get_object_or_404(
+        Mold,
+        id=mold_id
+    )
+
+    mold.is_show = not mold.is_show
+
+    mold.save(
+        update_fields=["is_show"]
+    )
+
+    return JsonResponse({
+        "success": True,
+        "is_show": mold.is_show
+    })
 
 @login_required
 def mold_toggle_like(request):
@@ -1944,6 +1984,14 @@ def mold_detail(request, pk):
         Mold.objects.prefetch_related("tags"),
         pk=pk
     )
+    mold_tags = list(
+        MoldTag.objects.order_by("name")
+    )
+
+    for tag in mold_tags:
+        tag.mold_count = Mold.objects.filter(
+            tags=tag
+        ).count()
 
     # =========================================================
     # EDIT MODE
@@ -1983,7 +2031,7 @@ def mold_detail(request, pk):
                     "mold": mold,
                     "edit_mode": True,
                     "mold_types": MoldType.objects.all().order_by("name"),
-                    "mold_tags": MoldTag.objects.all().order_by("name"),
+                    "mold_tags": mold_tags,
                 }
             )
 
@@ -2007,7 +2055,7 @@ def mold_detail(request, pk):
                     "mold": mold,
                     "edit_mode": True,
                     "mold_types": MoldType.objects.all().order_by("name"),
-                    "mold_tags": MoldTag.objects.all().order_by("name"),
+                    "mold_tags": mold_tags,
                 }
             )
 
@@ -2032,7 +2080,7 @@ def mold_detail(request, pk):
                     "mold": mold,
                     "edit_mode": True,
                     "mold_types": MoldType.objects.all().order_by("name"),
-                    "mold_tags": MoldTag.objects.all().order_by("name"),
+                    "mold_tags": mold_tags,
                 }
             )
 
@@ -2067,7 +2115,7 @@ def mold_detail(request, pk):
                     "mold": mold,
                     "edit_mode": True,
                     "mold_types": MoldType.objects.all().order_by("name"),
-                    "mold_tags": MoldTag.objects.all().order_by("name"),
+                    "mold_tags": mold_tags,
                 }
             )
 
@@ -2288,9 +2336,7 @@ def mold_detail(request, pk):
         ),
 
         # Used by the tags section
-        "mold_tags": MoldTag.objects.all().order_by(
-            "name"
-        ),
+        "mold_tags": mold_tags,
     }
 
 
@@ -2425,7 +2471,10 @@ def new_mold(request):
 
     # Get the latest database records for the page.
     mold_types = MoldType.objects.order_by("name")
-    mold_tags = MoldTag.objects.order_by("name")
+    mold_tags = list(MoldTag.objects.order_by("name"))
+
+    for tag in mold_tags:
+        tag.mold_count = Mold.objects.filter(tags=tag).count()
 
     context = {
         "form": form,
@@ -2438,6 +2487,7 @@ def new_mold(request):
         "core/new_mold.html",
         context
     )
+<<<<<<< HEAD
 @login_required
 def delete_mold(request, mold_id):
 
@@ -2457,16 +2507,61 @@ def delete_mold(request, mold_id):
         mold.delete()
 
         # Audit log
+=======
+
+@login_required
+def delete_mold_tag(request, pk):
+
+    if request.method != "POST":
+        return JsonResponse(
+            {"success": False, "error": "POST request required."},
+            status=405
+        )
+
+    tag = get_object_or_404(MoldTag, pk=pk)
+    tag_name = tag.name
+
+    # Delete only the tag.
+    # Django automatically removes its many-to-many relationships.
+    # The molds themselves will NOT be deleted.
+    tag.delete()
+
+    return JsonResponse({
+        "success": True,
+        "message": f'Tag "{tag_name}" deleted successfully.'
+    })
+
+from django.db.models.deletion import ProtectedError
+
+@login_required
+def delete_mold(request, pk):
+
+    mold = get_object_or_404(Mold, pk=pk)
+
+    if request.method != "POST":
+        return redirect("all_molds")
+
+    mold_code = mold.mold_code
+
+    try:
+        mold.delete()
+
+>>>>>>> store2
         create_audit_log(
             request,
             "DELETE",
             "Mold",
+<<<<<<< HEAD
             mold_code,
+=======
+            pk,
+>>>>>>> store2
             f"Deleted mold {mold_code}."
         )
 
         messages.success(
             request,
+<<<<<<< HEAD
             "Mold deleted successfully."
         )
 
@@ -2476,3 +2571,16 @@ def delete_mold(request, mold_id):
         "mold_detail",
         pk=mold.id
     )
+=======
+            f"Mold {mold_code} deleted successfully."
+        )
+
+    except ProtectedError:
+
+        messages.error(
+            request,
+            f"Mold {mold_code} cannot be deleted because it is being used by another record."
+        )
+
+    return redirect("all_molds")
+>>>>>>> store2

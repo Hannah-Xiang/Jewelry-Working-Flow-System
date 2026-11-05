@@ -129,6 +129,23 @@
         background: #faf4e5;
     }
 
+    .mold-delete-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 12px 17px;
+    border: 1px solid #f0caca;
+    border-radius: 9px;
+    background: #fffafa;
+    color: #c03939;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.mold-delete-button:hover {
+    background: #fff0f0;
+}
 
     /* =========================================================
        DETAIL PAGE
@@ -1227,6 +1244,52 @@
         accent-color: #c9a646;
     }
 
+    /* Tag dropdown row */
+
+    .tag-dropdown-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 3px 8px 3px 0;
+    }
+
+    /* Tag name */
+
+    .tag-dropdown-row .tag-dropdown-item {
+        flex: 1;
+        min-width: 0;
+    }
+
+    /* Mold count */
+
+    .tag-dropdown-count {
+        flex-shrink: 0;
+        padding: 3px 8px;
+        border-radius: 12px;
+        background: #f5f2eb;
+        color: #8a806f;
+        font-size: 11px;
+    }
+
+    /* Delete X */
+
+    .tag-dropdown-delete {
+        flex-shrink: 0;
+        width: 27px;
+        height: 27px;
+        border: none;
+        border-radius: 50%;
+        background: transparent;
+        color: #999;
+        font-size: 19px;
+        cursor: pointer;
+    }
+
+    .tag-dropdown-delete:hover {
+        background: #fff0f0;
+        color: #dc2626;
+    }
+
 
     /* =========================================================
        RESPONSIVE
@@ -1369,16 +1432,38 @@
 
         <!-- EDIT -->
 
-        <a
-            href="?edit=1"
-            class="mold-edit-button"
+        <!-- HEADER ACTIONS -->
+
+<div style="display: flex; align-items: center; gap: 10px;">
+
+    <!-- DELETE -->
+    <form
+        method="POST"
+        action="{% url 'delete_mold' mold.pk %}"
+        onsubmit="return confirm('Are you sure you want to permanently delete this mold?');"
+    >
+        {% csrf_token %}
+
+        <button
+            type="submit"
+            class="mold-delete-button"
         >
+            <span>×</span>
+            <span>Delete Mold</span>
+        </button>
 
-            <span>✎</span>
+    </form>
 
-            <span>Edit Mold</span>
+    <!-- EDIT -->
+    <a
+        href="?edit=1"
+        class="mold-edit-button"
+    >
+        <span>✎</span>
+        <span>Edit Mold</span>
+    </a>
 
-        </a>
+</div>
 
     </div>
 
@@ -1425,7 +1510,7 @@
                         <span>DESCRIPTION</span>
                     </div>
 
-                    <p class="mold-detail-row">
+                    <p class="mold-description">
                         {{ mold.description }}
                     </p>
 
@@ -1489,7 +1574,7 @@
                 <div class="mold-detail-row">
 
                     <span class="mold-detail-label">
-                        Status
+                        Like Status
                     </span>
 
                     <span class="mold-detail-value">
@@ -2031,15 +2116,38 @@
 
             {% for tag in mold_tags %}
 
-                <button
-                    type="button"
-                    class="tag-dropdown-item"
-                    data-tag-id="{{ tag.pk }}"
-                    data-tag-name="{{ tag.name }}"
-                    onclick="selectExistingTag(this)"
+                <div
+                    class="tag-dropdown-row"
+                    data-tag-row="{{ tag.pk }}"
                 >
-                    {{ tag.name }}
-                </button>
+
+                    <button
+                        type="button"
+                        class="tag-dropdown-item"
+                        data-tag-id="{{ tag.pk }}"
+                        data-tag-name="{{ tag.name }}"
+                        onclick="selectExistingTag(this)"
+                    >
+                        {{ tag.name }}
+                    </button>
+
+                    <span class="tag-dropdown-count">
+                        {{ tag.mold_count }} molds
+                    </span>
+
+                    <button
+                        type="button"
+                        class="tag-dropdown-delete"
+                        data-tag-id="{{ tag.pk }}"
+                        data-tag-name="{{ tag.name }}"
+                        data-delete-url="{% url 'delete_mold_tag' tag.pk %}"
+                        onclick="deleteMoldTag(event, this)"
+                        title="Delete tag"
+                    >
+                        ×
+                    </button>
+
+                </div>
 
             {% endfor %}
 
@@ -2214,128 +2322,147 @@ if (tagInput) {
    FILTER
 ========================================================= */
 
+
 function filterTagDropdown() {
 
     if (!tagDropdown) {
         return;
     }
 
+    const search = tagInput.value.trim().toLowerCase();
 
-    const search =
-        tagInput.value
-            .trim()
-            .toLowerCase();
-
-
-    const items =
-        tagDropdown.querySelectorAll(
-            ".tag-dropdown-item"
-        );
-
+    const rows = tagDropdown.querySelectorAll(
+        ".tag-dropdown-row"
+    );
 
     let visibleCount = 0;
 
+    rows.forEach(function (row) {
 
-    items.forEach(function (item) {
+        const item = row.querySelector(
+            ".tag-dropdown-item"
+        );
 
-        const tagName =
-            item.dataset.tagName
-                .toLowerCase();
+        if (!item) return;
 
-        const tagId =
-            item.dataset.tagId;
+        const tagName = item.dataset.tagName.toLowerCase();
+        const tagId = item.dataset.tagId;
 
+        const alreadySelected = document.querySelector(
+            '#selectedMoldTags input[value="' + tagId + '"]'
+        );
 
-        /*
-         * Check whether already selected
-         */
+        const matches = !search || tagName.includes(search);
 
-        const alreadySelected =
-            document.querySelector(
-                '#selectedMoldTags input[value="' +
-                tagId +
-                '"]'
-            );
-
-
-        const matches =
-            !search ||
-            tagName.includes(search);
-
-
-        if (
-            matches &&
-            !alreadySelected
-        ) {
-
-            item.style.display =
-                "block";
-
+        if (matches && !alreadySelected) {
+            row.style.display = "flex";
             visibleCount++;
-
         } else {
-
-            item.style.display =
-                "none";
+            row.style.display = "none";
         }
 
     });
 
-
-    /*
-     * Empty message
-     */
-
-    let empty =
-        tagDropdown.querySelector(
-            ".tag-dropdown-empty"
-        );
-
+    let empty = tagDropdown.querySelector(
+        ".tag-dropdown-empty"
+    );
 
     if (visibleCount === 0) {
 
         if (!empty) {
-
-            empty =
-                document.createElement(
-                    "div"
-                );
-
-            empty.className =
-                "tag-dropdown-empty";
-
-            tagDropdown.appendChild(
-                empty
-            );
+            empty = document.createElement("div");
+            empty.className = "tag-dropdown-empty";
+            tagDropdown.appendChild(empty);
         }
-
 
         if (search) {
-
             empty.textContent =
                 'No existing tag found. Click "Add" to create "' +
-                tagInput.value.trim() +
-                '".';
-
+                tagInput.value.trim() + '".';
         } else {
-
-            empty.textContent =
-                "No more tags available.";
+            empty.textContent = "No more tags available.";
         }
 
+        empty.style.display = "block";
 
-        empty.style.display =
-            "block";
-
-    } else {
-
-        if (empty) {
-
-            empty.style.display =
-                "none";
-        }
+    } else if (empty) {
+        empty.style.display = "none";
     }
+
 }
+
+function deleteMoldTag(event, button) {
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const tagId = button.dataset.tagId;
+    const tagName = button.dataset.tagName;
+    const deleteUrl = button.dataset.deleteUrl;
+
+    const confirmed = confirm(
+        `Delete the tag "${tagName}"?\n\n` +
+        `It will be removed from all molds using this tag.\n` +
+        `The molds themselves will NOT be deleted.`
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    button.disabled = true;
+
+    fetch(deleteUrl, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": getCookie("csrftoken")
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Unable to delete tag.");
+        }
+        return response.json();
+    })
+    .then(data => {
+
+        if (!data.success) {
+            throw new Error(data.error || "Unable to delete tag.");
+        }
+
+        // Remove the tag from the dropdown
+        const row = button.closest(".tag-dropdown-row");
+
+        if (row) {
+            row.remove();
+        }
+
+        // Remove it from the currently selected tags
+        const selectedTag = document.querySelector(
+            '#selectedMoldTags input[name="tags"][value="' +
+            tagId + '"]'
+        );
+
+        if (selectedTag) {
+            selectedTag.closest(".edit-mold-tag").remove();
+        }
+
+        // Refresh dropdown filtering
+        filterTagDropdown();
+
+    })
+    .catch(error => {
+
+        console.error("Delete tag failed:", error);
+
+        alert("Unable to delete tag. Please try again.");
+
+        button.disabled = false;
+
+    });
+
+}
+
 
 
 /* =========================================================
@@ -2589,39 +2716,48 @@ function createNewTag(tagName) {
 
         if (!existing) {
 
-            const option =
-                document.createElement(
-                    "button"
-                );
+    const row = document.createElement("div");
+    row.className = "tag-dropdown-row";
+    row.dataset.tagRow = data.id;
 
-            option.type =
-                "button";
+    const option = document.createElement("button");
 
-            option.className =
-                "tag-dropdown-item";
+    option.type = "button";
+    option.className = "tag-dropdown-item";
+    option.dataset.tagId = data.id;
+    option.dataset.tagName = data.name;
+    option.textContent = data.name;
 
-            option.dataset.tagId =
-                data.id;
+    option.onclick = function () {
+        selectExistingTag(option);
+    };
 
-            option.dataset.tagName =
-                data.name;
+    const count = document.createElement("span");
+    count.className = "tag-dropdown-count";
+    count.textContent = "0";
 
-            option.textContent =
-                data.name;
+    const deleteButton = document.createElement("button");
 
-            option.onclick =
-                function () {
+    deleteButton.type = "button";
+    deleteButton.className = "tag-dropdown-delete";
+    deleteButton.dataset.tagId = data.id;
+    deleteButton.dataset.tagName = data.name;
+    deleteButton.dataset.deleteUrl =
+        "{% url 'delete_mold_tag' 0 %}".replace("/0/", `/${data.id}/`);
 
-                    selectExistingTag(
-                        option
-                    );
-                };
+    deleteButton.title = "Delete tag";
+    deleteButton.textContent = "×";
 
+    deleteButton.onclick = function (event) {
+        deleteMoldTag(event, deleteButton);
+    };
 
-            tagDropdown.appendChild(
-                option
-            );
-        }
+    row.appendChild(option);
+    row.appendChild(count);
+    row.appendChild(deleteButton);
+
+    tagDropdown.appendChild(row);
+}
 
 
         tagInput.value = "";
@@ -2732,78 +2868,6 @@ function escapeHtml(text) {
 
     return div.innerHTML;
 }
-
-
-/* =========================================================
-   CSRF COOKIE
-========================================================= */
-
-function getCookie(name) {
-
-    let cookieValue = null;
-
-
-    if (document.cookie) {
-
-        const cookies =
-            document.cookie.split(";");
-
-
-        for (
-            let i = 0;
-            i < cookies.length;
-            i++
-        ) {
-
-            const cookie =
-                cookies[i].trim();
-
-
-            if (
-                cookie.substring(
-                    0,
-                    name.length + 1
-                ) ===
-                (name + "=")
-            ) {
-
-                cookieValue =
-                    decodeURIComponent(
-                        cookie.substring(
-                            name.length + 1
-                        )
-                    );
-
-                break;
-            }
-        }
-    }
-
-
-    return cookieValue;
-}
-
-
-/* =========================================================
-   HTML ESCAPE
-========================================================= */
-
-function escapeHtml(text) {
-
-    const div =
-        document.createElement("div");
-
-    div.textContent = text;
-
-    return div.innerHTML;
-}
-
-
-  
-
-
-
-
     
 
     /* =========================================================

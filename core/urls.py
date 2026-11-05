@@ -149,10 +149,29 @@ path(
 ),
 path("new-molds/", views.new_mold, name="new_mold"),
 path(
+<<<<<<< HEAD
     "molds/delete/<int:mold_id>/",
     views.delete_mold,
     name="delete_mold"
 ),
+=======
+    "molds/<int:pk>/delete/",
+    views.delete_mold,
+    name="delete_mold"
+),
+
+path(
+    "mold/toggle-show/",
+    views.mold_toggle_show,
+    name="mold_toggle_show"
+),
+
+path(
+    "mold-tag/delete/<int:pk>/",
+    views.delete_mold_tag,
+    name="delete_mold_tag"
+),
+>>>>>>> store2
 
 ]
 

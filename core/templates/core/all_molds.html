@@ -194,6 +194,57 @@
         font-size: 15px;
     }
 
+/* -----------------------------------------
+   Mold Visibility Button
+----------------------------------------- */
+
+.mold-show-button {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+
+    width: 34px;
+    height: 34px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.94);
+    color: #777777;
+
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 16px;
+
+    box-shadow: 0 2px 7px rgba(0,0,0,0.10);
+
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.85);
+
+    transition:
+        opacity 0.18s ease,
+        visibility 0.18s ease,
+        transform 0.18s ease;
+}
+
+/* Show when hovering the image */
+.mold-image-wrapper:hover .mold-show-button {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+}
+
+/* Hover effect */
+.mold-show-button:hover {
+    background: #ffffff;
+    color: #c79c3d;
+    transform: scale(1.08);
+}
     @media (max-width: 600px) {
         .page-header {
             gap: 12px;
@@ -249,7 +300,7 @@
 
     .molds-search {
         position: relative;
-        flex: 0 0 50%;
+        flex: 0 0 42%;
     }
 
 
@@ -1035,6 +1086,30 @@
     color: #fff;
 }
 
+/* Visibility button inside the viewer */
+.mold-viewer-show {
+    position: absolute;
+    top: 20px;
+    right: 145px;
+
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.95);
+    color: #777;
+    font-size: 20px;
+
+    cursor: pointer;
+    z-index: 2;
+}
+
+.mold-viewer-show:hover {
+    background: #c79c3d;
+    color: #fff;
+}
+
 @media (max-width: 600px) {
     .mold-viewer-prev {
         left: 10px;
@@ -1051,6 +1126,10 @@
 
     .mold-viewer-like {
         right: 65px;
+    }
+
+    .mold-viewer-show {
+        right: 115px;
     }
 }
 
@@ -1175,6 +1254,13 @@
                     </a>
 
                 {% endfor %}
+
+                <a
+                        href="?q={{ keyword|urlencode }}&type=not-show"
+                        class="{% if selected_type == 'not-show' %}active{% endif %}"
+                    >
+                        Don't Show
+                    </a>
                 
 
 
@@ -1343,7 +1429,20 @@
                         <i class="fa-solid fa-expand"></i>
                     </button> -->
 
-
+                    <!-- Visibility Button -->
+                    <button
+                        type="button"
+                        class="mold-show-button"
+                        data-mold-id="{{ mold.id }}"
+                        onclick="toggleMoldShow(this)"
+                        title="{% if mold.is_show %}Visible on website{% else %}Hidden from website{% endif %}"
+                    >
+                        {% if mold.is_show %}
+                            <i class="fa-solid fa-eye"></i>
+                        {% else %}
+                            <i class="fa-solid fa-eye-slash"></i>
+                        {% endif %}
+                    </button>
                     <!-- Like -->
 
                     
@@ -1357,7 +1456,7 @@
                     >
                         <i class="{% if mold.is_liked %}fa-solid{% else %}fa-regular{% endif %} fa-heart"></i>
                     </button>
-
+                    
 
 
                 </div>
@@ -1590,6 +1689,17 @@
         <i class="fa-solid fa-chevron-right"></i>
     </button>
 
+    <!-- Visibility -->
+<button
+    type="button"
+    id="mold-viewer-show"
+    class="mold-viewer-show"
+    data-mold-id=""
+    onclick="event.stopPropagation(); toggleMoldShow(this)"
+    title="Toggle website visibility"
+>
+    <i class="fa-solid fa-eye"></i>
+</button>
     <!-- Like -->
     <button
         type="button"
@@ -1602,6 +1712,8 @@
     >
         <i class="fa-regular fa-heart"></i>
     </button>
+
+
 </div>
 
 {{ mold_viewer_images|json_script:"mold-viewer-images-data" }}
@@ -2075,6 +2187,7 @@ window.addEventListener("load", function () {
 
 function displayCurrentMoldImage() {
     const image = document.getElementById("mold-viewer-image");
+    const showButton = document.getElementById("mold-viewer-show");
     const likeButton = document.getElementById("mold-viewer-like");
     const previousButton = document.querySelector(".mold-viewer-prev");
     const nextButton = document.querySelector(".mold-viewer-next");
@@ -2099,6 +2212,23 @@ function displayCurrentMoldImage() {
         if (icon) {
             icon.classList.toggle("fa-solid", isLiked);
             icon.classList.toggle("fa-regular", !isLiked);
+        }
+    }
+
+    // Update visibility button
+    if (showButton) {
+        const isShow = currentImage.is_show;
+        const icon = showButton.querySelector("i");
+
+        showButton.dataset.moldId = currentImage.id;
+        showButton.title = isShow
+            ? "Visible on website"
+            : "Hidden from website";
+
+        if (icon) {
+            icon.className = isShow
+                ? "fa-solid fa-eye"
+                : "fa-solid fa-eye-slash";
         }
     }
 
@@ -2286,6 +2416,47 @@ document.addEventListener("keydown", function(event) {
         closeMoldImageViewer();
     }
 });
+function toggleMoldShow(button) {
+
+    const moldId = button.dataset.moldId;
+
+    const formData = new FormData();
+    formData.append("mold_id", moldId);
+
+    // Prevent multiple clicks
+    button.disabled = true;
+
+    fetch("{% url 'mold_toggle_show' %}", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": getCookie("csrftoken")
+        },
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Unable to update visibility.");
+        }
+        return response.json();
+    })
+    .then(data => {
+
+        if (!data.success) {
+            alert("Unable to update visibility.");
+            button.disabled = false;
+            return;
+        }
+
+        // Refresh the page after successful update
+        window.location.reload();
+
+    })
+    .catch(error => {
+        console.error("Visibility update failed:", error);
+        alert("Something went wrong.");
+        button.disabled = false;
+    });
+}
 
 </script>
 

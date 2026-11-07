@@ -152,6 +152,12 @@ class Ticket(models.Model):
         null=True
     )
 
+    diamonds = models.ManyToManyField(
+        "Diamond",
+        blank=True,
+        related_name="related_tickets"
+    )
+
     def __str__(self):
         return self.ticket_number
 
@@ -505,3 +511,172 @@ class Mold(models.Model):
 
     def __str__(self):
         return f"{self.mold_code} - {self.file_name}"
+
+
+
+# =========================================================
+# Diamond
+# =========================================================
+
+class Diamond(models.Model):
+
+    # -----------------------------------------------------
+    # Diamond Date
+    # -----------------------------------------------------
+
+    diamond_date = models.DateField(
+        blank=True,
+        null=True
+    )
+
+    # -----------------------------------------------------
+    # Report
+    # -----------------------------------------------------
+
+    report_number = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        unique=True
+    )
+
+    report_link = models.URLField(
+        max_length=500,
+        blank=True
+    )
+
+    # -----------------------------------------------------
+    # Basic Information
+    # -----------------------------------------------------
+
+    shape = models.CharField(
+        max_length=50,
+        blank=True
+    )
+
+    measurements = models.CharField(
+        max_length=100,
+        blank=True
+    )
+
+    carat_weight = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+
+    # -----------------------------------------------------
+    # 4Cs and Diamond Specifications
+    # -----------------------------------------------------
+
+    color_grade = models.CharField(
+        max_length=10,
+        blank=True
+    )
+
+    clarity_grade = models.CharField(
+        max_length=10,
+        blank=True
+    )
+
+    DIAMOND_TYPE_CHOICES = [
+        ("natural", "Natural"),
+        ("lab_grown", "Lab Grown"),
+    ]
+
+    diamond_type = models.CharField(
+        max_length=20,
+        choices=DIAMOND_TYPE_CHOICES,
+        blank=True
+    )
+
+    polish = models.CharField(
+        max_length=30,
+        blank=True
+    )
+
+    symmetry = models.CharField(
+        max_length=30,
+        blank=True
+    )
+
+    fluorescence = models.CharField(
+        max_length=30,
+        blank=True
+    )
+
+    # -----------------------------------------------------
+    # Company / Supplier
+    # -----------------------------------------------------
+
+    company = models.CharField(
+        max_length=150,
+        blank=True
+    )
+
+    # -----------------------------------------------------
+    # Picture
+    # -----------------------------------------------------
+
+    picture = models.ImageField(
+        upload_to="diamonds/",
+        blank=True,
+        null=True
+    )
+
+    # -----------------------------------------------------
+    # Notes
+    # -----------------------------------------------------
+
+    notes = models.TextField(
+        blank=True
+    )
+
+    # -----------------------------------------------------
+    # Diamond Status
+    # -----------------------------------------------------
+
+    DIAMOND_STATUS_CHOICES = [
+        ("available", "Available"),
+        ("reserved", "Reserved"),
+        ("used", "Used"),
+        ("sold", "Sold"),
+    ]
+
+    status = models.CharField(
+        max_length=20,
+        choices=DIAMOND_STATUS_CHOICES,
+        default="available"
+    )
+
+
+    # -----------------------------------------------------
+    # Dates
+    # -----------------------------------------------------
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    # -----------------------------------------------------
+    # Save and Compress Picture
+    # -----------------------------------------------------
+
+    def save(self, *args, **kwargs):
+
+        super().save(*args, **kwargs)
+
+        if self.picture:
+            compress_image(self.picture.path)
+
+    def __str__(self):
+
+        if self.report_number:
+            return f"Diamond - {self.report_number}"
+
+        return f"Diamond - {self.pk}"

@@ -1,0 +1,1139 @@
+
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Diamonds{% endblock %}
+
+{% block content %}
+
+<style>
+
+/* =====================================================
+   Diamonds Page
+===================================================== */
+
+.diamonds-page {
+    padding: 36px;
+    max-width: 1500px;
+    margin: 0 auto;
+}
+
+
+/* =====================================================
+   Header
+===================================================== */
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.page-header h1 {
+    font-size: 48px;
+}
+
+.page-tag {
+    color: #c79c3d;
+    letter-spacing: 2px;
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+.diamonds-count {
+    color: #777777;
+    font-size: 15px;
+    margin-top: 5px;
+}
+
+.diamonds-header-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-shrink: 0;
+}
+
+.new-diamond-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    padding: 12px 22px;
+
+    background: #d4af37;
+    color: #222222;
+
+    border: none;
+    border-radius: 10px;
+
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    font-family: inherit;
+
+    transition: 0.2s ease;
+}
+
+.new-diamond-btn:hover {
+    background: #c59a1f;
+    color: #222222;
+}
+
+.new-diamond-btn i {
+    font-size: 15px;
+}
+
+
+/* =====================================================
+   Toolbar
+===================================================== */
+
+.diamonds-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.diamonds-search {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+}
+
+.diamonds-search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #777777;
+    font-size: 15px;
+}
+
+.diamonds-search input {
+    width: 100%;
+    height: 46px;
+    box-sizing: border-box;
+
+    border: 1px solid #e7ddc7;
+    border-radius: 10px;
+
+    background: #f9f7f1;
+
+    padding: 0 16px 0 40px;
+
+    font-size: 14px;
+    font-family: inherit;
+    color: #222222;
+
+    outline: none;
+    transition: 0.15s ease;
+}
+
+.diamonds-search input:focus {
+    border-color: #c79c3d;
+    background: #ffffff;
+}
+
+
+/* =====================================================
+   Filters
+===================================================== */
+
+.diamond-filter {
+    height: 46px;
+    padding: 0 13px;
+
+    border: 1px solid #e7ddc7;
+    border-radius: 10px;
+
+    background: #f9f7f1;
+    color: #333333;
+
+    font-size: 14px;
+    font-family: inherit;
+
+    cursor: pointer;
+    outline: none;
+
+    transition: 0.15s ease;
+}
+
+.diamond-filter:hover,
+.diamond-filter:focus {
+    border-color: #c79c3d;
+    background: #ffffff;
+}
+
+
+/* =====================================================
+   Inventory Table
+===================================================== */
+
+.diamonds-table-wrapper {
+    width: 100%;
+
+    background: #ffffff;
+
+    border: 1px solid #e8e1d3;
+    border-radius: 14px;
+
+    overflow-x: auto;
+}
+
+.diamonds-table {
+    width: 100%;
+    min-width: 1000px;
+
+    border-collapse: separate;
+    border-spacing: 0;
+
+    font-size: 14px;
+}
+
+
+/* Table Header */
+
+.diamonds-table thead {
+    background: #f5f2eb;
+}
+
+.diamonds-table th {
+    height: 46px;
+    padding: 0 17px;
+
+    color: #665f53;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    letter-spacing: 0.7px;
+    text-align: left;
+
+    white-space: nowrap;
+}
+
+
+/* Table Body */
+
+.diamonds-table td {
+    height: 70px;
+    padding: 10px 17px;
+
+    border-top: 1px solid #eee5d5;
+
+    color: #222222;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.diamonds-table tbody tr {
+    transition: background 0.15s ease;
+}
+
+.diamonds-table tbody tr:hover {
+    background: #fdfbf7;
+}
+
+
+/* =====================================================
+   Diamond Information
+===================================================== */
+
+.diamond-main-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    min-width: 260px;
+}
+
+.diamond-thumbnail {
+    width: 44px;
+    height: 44px;
+
+    flex-shrink: 0;
+
+    border-radius: 10px;
+
+    background: #f5f2eb;
+    border: 1px solid #eee5d5;
+
+    overflow: hidden;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.diamond-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.diamond-no-image {
+    color: #c79c3d;
+    font-size: 16px;
+}
+
+.diamond-info-text {
+    min-width: 0;
+}
+
+.diamond-report-number {
+    color: #c79c3d;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    margin-bottom: 4px;
+}
+
+.diamond-report-number.no-report {
+    color: #777777;
+}
+
+.diamond-description {
+    max-width: 220px;
+
+    color: #777777;
+    font-size: 12px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* =====================================================
+   Related Tickets
+===================================================== */
+
+.diamond-related-ticket {
+    display: block;
+
+    margin-top: 3px;
+
+    color: #777777;
+    font-size: 12px;
+
+    text-decoration: none;
+}
+
+.diamond-related-ticket:hover {
+    color: #b1872c;
+}
+
+
+/* =====================================================
+   Diamond Status
+===================================================== */
+
+.diamond-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    padding: 6px 11px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.diamond-status::before {
+    content: "";
+
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+}
+
+.diamond-status.available {
+    color: #168653;
+    background: #eaf8f1;
+}
+
+.diamond-status.available::before {
+    background: #20bd72;
+}
+
+.diamond-status.reserved {
+    color: #a97700;
+    background: #fcf6e9;
+}
+
+.diamond-status.reserved::before {
+    background: #d99b00;
+}
+
+.diamond-status.used {
+    color: #77736b;
+    background: #f3f0e9;
+}
+
+.diamond-status.used::before {
+    background: #a49e91;
+}
+
+.diamond-status.sold {
+    color: #3268b5;
+    background: #edf4ff;
+}
+
+.diamond-status.sold::before {
+    background: #4385ed;
+}
+
+
+/* =====================================================
+   View Button
+===================================================== */
+
+.diamond-view-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 59px;
+    height: 35px;
+
+    padding: 0 13px;
+
+    border: 1px solid #e9dcbf;
+    border-radius: 9px;
+
+    background: #fcf9f1;
+    color: #b1872c;
+
+    text-decoration: none;
+
+    font-size: 12px;
+    font-family: inherit;
+
+    transition: 0.15s ease;
+}
+
+.diamond-view-btn:hover {
+    background: #d4af37;
+    border-color: #d4af37;
+    color: #222222;
+}
+
+
+/* =====================================================
+   Empty State
+===================================================== */
+
+.diamonds-empty {
+    padding: 70px 20px;
+
+    text-align: center;
+    color: #888888;
+}
+
+.diamonds-empty i {
+    font-size: 35px;
+    margin-bottom: 15px;
+    color: #c79c3d;
+}
+
+.diamonds-empty p {
+    margin-top: 8px;
+    font-size: 13px;
+}
+
+
+/* =====================================================
+   Pagination
+===================================================== */
+
+.diamonds-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    margin-top: 30px;
+    padding: 12px;
+}
+
+.diamonds-page-btn {
+    width: 32px;
+    height: 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid #ddd;
+    border-radius: 8px;
+
+    background: white;
+    color: #444;
+
+    text-decoration: none;
+    cursor: pointer;
+
+    font-size: 14px;
+}
+
+.diamonds-page-btn:hover {
+    background: #faf7ef;
+    border-color: #c79c3d;
+    color: #c79c3d;
+}
+
+.diamonds-page-btn.disabled {
+    color: #ccc;
+    background: #f8f8f8;
+    cursor: not-allowed;
+}
+
+.diamonds-page-number {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    font-size: 13px;
+    color: #666;
+}
+
+#diamond-page-input {
+    width: 50px;
+    height: 32px;
+
+    padding: 0 6px;
+
+    border: 1px solid #ddd;
+    border-radius: 8px;
+
+    text-align: center;
+    box-sizing: border-box;
+}
+
+#diamond-page-input:focus {
+    outline: none;
+    border-color: #c79c3d;
+}
+
+#diamond-go-page-btn {
+    height: 32px;
+    padding: 0 10px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #c79c3d;
+    color: white;
+
+    cursor: pointer;
+    font-size: 13px;
+}
+
+#diamond-go-page-btn:hover {
+    background: #b58b2f;
+}
+
+
+/* =====================================================
+   Responsive
+===================================================== */
+
+@media (max-width: 1050px) {
+
+    .diamonds-page {
+        padding: 25px;
+    }
+
+    .diamonds-toolbar {
+        flex-wrap: wrap;
+    }
+
+    .diamonds-search {
+        flex-basis: 100%;
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .diamonds-page {
+        padding: 20px;
+    }
+
+    .page-header h1 {
+        font-size: 36px;
+    }
+
+    .new-diamond-btn {
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+
+    .diamonds-toolbar {
+        align-items: stretch;
+    }
+
+    .diamond-filter {
+        flex: 1;
+        min-width: 100px;
+    }
+
+}
+
+</style>
+
+
+<div class="diamonds-page">
+
+
+    <!-- =========================================
+         Header
+    ========================================== -->
+
+    <div class="page-header">
+
+        <div>
+
+            <p class="page-tag">INVENTORY</p>
+
+            <h1>Diamonds</h1>
+
+            <div class="diamonds-count">
+
+                {{ total_diamonds }} diamonds total
+                ·
+                {{ available_diamonds }} available
+
+            </div>
+
+        </div>
+
+
+        <div class="diamonds-header-actions">
+            <a
+                href="{% url 'new_diamond' %}"
+            
+               class="new-diamond-btn">
+
+                <i class="fa-solid fa-plus"></i>
+
+                <span>Add Diamond</span>
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         Search and Filters
+    ========================================== -->
+
+    <form method="get" id="diamond-filter-form">
+
+        <div class="diamonds-toolbar">
+
+
+            <!-- Search -->
+
+            <div class="diamonds-search">
+
+                <i class="fa-solid fa-magnifying-glass
+                          diamonds-search-icon"></i>
+
+                <input
+                    type="text"
+                    name="q"
+                    value="{{ keyword }}"
+                    placeholder="Search by IGI No., description..."
+                >
+
+            </div>
+
+
+            <!-- Status -->
+
+            <select name="status"
+                    class="diamond-filter"
+                    onchange="this.form.submit()">
+
+                <option value="">Status: All</option>
+
+                {% for value, label in status_choices %}
+
+                    <option value="{{ value }}"
+                        {% if selected_status == value %}selected{% endif %}>
+
+                        Status: {{ label }}
+
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+
+            <!-- Shape -->
+
+            <select name="shape"
+                    class="diamond-filter"
+                    onchange="this.form.submit()">
+
+                <option value="">Shape: All</option>
+
+                {% for shape in shapes %}
+
+                    <option value="{{ shape }}"
+                        {% if selected_shape == shape %}selected{% endif %}>
+
+                        {{ shape }}
+
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+
+            <!-- Color -->
+
+            <select name="color"
+                    class="diamond-filter"
+                    onchange="this.form.submit()">
+
+                <option value="">Color: All</option>
+
+                {% for color in colors %}
+
+                    <option value="{{ color }}"
+                        {% if selected_color == color %}selected{% endif %}>
+
+                        Color: {{ color }}
+
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+
+            <!-- Clarity -->
+
+            <select name="clarity"
+                    class="diamond-filter"
+                    onchange="this.form.submit()">
+
+                <option value="">Clarity: All</option>
+
+                {% for clarity in clarities %}
+
+                    <option value="{{ clarity }}"
+                        {% if selected_clarity == clarity %}selected{% endif %}>
+
+                        Clarity: {{ clarity }}
+
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+
+        </div>
+
+    </form>
+
+
+    <!-- =========================================
+         Diamond Inventory Table
+    ========================================== -->
+
+    <div class="diamonds-table-wrapper">
+
+        <table class="diamonds-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>DIAMOND / IGI NO.</th>
+
+                    <th>SHAPE</th>
+
+                    <th>CARAT</th>
+
+                    <th>COLOR</th>
+
+                    <th>CLARITY</th>
+
+                    <th>CUT</th>
+
+                    <th>STATUS</th>
+
+                    <th>ACTIONS</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for diamond in diamonds %}
+
+                    <tr>
+
+
+                        <!-- Diamond Information -->
+
+                        <td>
+
+                            <div class="diamond-main-info">
+
+
+                                <!-- Picture -->
+
+                                <div class="diamond-thumbnail">
+
+                                    {% if diamond.picture %}
+
+                                        <img
+                                            src="{{ diamond.picture.url }}"
+                                            alt="Diamond"
+                                        >
+
+                                    {% else %}
+
+                                        <i class="fa-regular fa-image
+                                                  diamond-no-image"></i>
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <!-- Report and Description -->
+
+                                <div class="diamond-info-text">
+
+                                    <div class="
+                                        diamond-report-number
+                                        {% if not diamond.report_number %}
+                                            no-report
+                                        {% endif %}
+                                    ">
+
+                                        {% if diamond.report_number %}
+
+                                            IGI {{ diamond.report_number }}
+
+                                        {% else %}
+
+                                            No Report Number
+
+                                        {% endif %}
+
+                                    </div>
+
+
+                                    <div class="diamond-description"
+                                         title="{{ diamond.description }}">
+
+                                        {{ diamond.description|default:"No description" }}
+
+                                    </div>
+
+
+                                    <!-- Related Tickets -->
+
+                                    {% for ticket in diamond.related_tickets.all %}
+
+                                        <a
+                                            href="{% url 'ticket_detail' ticket.pk %}"
+                                            class="diamond-related-ticket"
+                                        >
+
+                                            → {{ ticket.ticket_number }}
+
+                                        </a>
+
+                                    {% endfor %}
+
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- Shape -->
+
+                        <td>
+
+                            {{ diamond.shape|default:"—" }}
+
+                        </td>
+
+
+                        <!-- Carat -->
+
+                        <td>
+
+                            {% if diamond.carat_weight %}
+
+                                {{ diamond.carat_weight }} ct
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- Color -->
+
+                        <td>
+
+                            {{ diamond.color_grade|default:"—" }}
+
+                        </td>
+
+
+                        <!-- Clarity -->
+
+                        <td>
+
+                            {{ diamond.clarity_grade|default:"—" }}
+
+                        </td>
+
+
+                        <!-- Polish -->
+
+                        <td>
+
+                            {{ diamond.polish|default:"—" }}
+
+                        </td>
+
+
+                        <!-- Status -->
+
+                        <td>
+
+                            <span class="diamond-status {{ diamond.status }}">
+
+                                {{ diamond.get_status_display }}
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- Actions -->
+
+                        <td>
+
+                            <!-- <a
+                                href=""
+                                class="diamond-view-btn"
+                            >
+
+                                View
+
+                            </a> -->
+
+                        </td>
+
+
+                    </tr>
+
+
+                {% empty %}
+
+
+                    <tr>
+
+                        <td colspan="8">
+
+                            <div class="diamonds-empty">
+
+                                <i class="fa-regular fa-gem"></i>
+
+                                <div>No diamonds found.</div>
+
+                                <p>
+                                    Try changing your search or filters.
+                                </p>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- =========================================
+         Pagination
+    ========================================== -->
+
+    {% if diamonds.has_other_pages %}
+
+        <div class="diamonds-pagination">
+
+
+            {% if diamonds.has_previous %}
+
+                <a
+                    class="diamonds-page-btn"
+                    href="{% querystring page=diamonds.previous_page_number %}"
+                >
+
+                    <i class="fa-solid fa-chevron-left"></i>
+
+                </a>
+
+            {% else %}
+
+                <span class="diamonds-page-btn disabled">
+
+                    <i class="fa-solid fa-chevron-left"></i>
+
+                </span>
+
+            {% endif %}
+
+
+            <div class="diamonds-page-number">
+
+                <input
+                    type="number"
+                    id="diamond-page-input"
+                    value="{{ diamonds.number }}"
+                    min="1"
+                    max="{{ diamonds.paginator.num_pages }}"
+                >
+
+                <span>
+                    / {{ diamonds.paginator.num_pages }}
+                </span>
+
+            </div>
+
+
+            <button
+                type="button"
+                id="diamond-go-page-btn"
+                onclick="goToDiamondPage()"
+            >
+
+                Go
+
+            </button>
+
+
+            {% if diamonds.has_next %}
+
+                <a
+                    class="diamonds-page-btn"
+                    href="{% querystring page=diamonds.next_page_number %}"
+                >
+
+                    <i class="fa-solid fa-chevron-right"></i>
+
+                </a>
+
+            {% else %}
+
+                <span class="diamonds-page-btn disabled">
+
+                    <i class="fa-solid fa-chevron-right"></i>
+
+                </span>
+
+            {% endif %}
+
+
+        </div>
+
+    {% endif %}
+
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   Go to Page
+===================================================== */
+
+function goToDiamondPage() {
+
+    const input = document.getElementById(
+        "diamond-page-input"
+    );
+
+    const page = parseInt(input.value);
+
+    const maxPage = parseInt(input.max);
+
+    if (
+        isNaN(page) ||
+        page < 1 ||
+        page > maxPage
+    ) {
+        return;
+    }
+
+    const url = new URL(window.location.href);
+
+    url.searchParams.set("page", page);
+
+    window.location.href = url.toString();
+
+}
+
+
+/* Press Enter to go to page */
+
+document.getElementById("diamond-page-input")
+    ?.addEventListener("keydown", function(event) {
+
+        if (event.key === "Enter") {
+
+            event.preventDefault();
+
+            goToDiamondPage();
+
+        }
+
+    });
+
+
+</script>
+
+{% endblock %}

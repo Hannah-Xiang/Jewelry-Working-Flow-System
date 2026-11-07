@@ -3,7 +3,7 @@ import re
 from unicodedata import name
 
 from django import forms
-from .models import Ticket
+from .models import Ticket, Customer, Mold, MoldType, Diamond
 
 
 class TicketForm(forms.ModelForm):
@@ -348,3 +348,27 @@ class MoldForm(forms.ModelForm):
             )
 
         return mold_code
+
+
+class DiamondForm(forms.ModelForm):
+
+    class Meta:
+        model = Diamond
+        fields = [
+            "report_number",
+            "diamond_date",
+            "report_link",
+            "shape",
+            "measurements",
+            "carat_weight",
+            "color_grade",
+            "clarity_grade",
+            "diamond_type",
+            "polish",
+            "symmetry",
+            "fluorescence",
+            "company",
+            "picture",
+            "status",
+            "notes",
+        ]

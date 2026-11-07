@@ -165,6 +165,18 @@ path(
     views.delete_mold_tag,
     name="delete_mold_tag"
 ),
+path(
+    "diamonds/",
+    views.all_diamonds,
+    name="all_diamonds"
+),
+
+
+path(
+    "diamonds/new/",
+    views.new_diamond,
+    name="new_diamond"
+),
 
 ]
 

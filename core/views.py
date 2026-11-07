@@ -28,9 +28,10 @@ from .models import (
     AuditLog,
     MoldTag,
     MoldType,
+    Diamond,
 )
 import logging
-from .forms import CustomerForm, TicketForm, MoldForm
+from .forms import CustomerForm, TicketForm, MoldForm, DiamondForm
 
 from .utils import (
     generate_ticket_number,
@@ -2546,3 +2547,208 @@ def delete_mold(request, pk):
         )
 
     return redirect("all_molds")
+
+def all_diamonds(request):
+
+    # ---------------------------------------------
+    # Search
+    # ---------------------------------------------
+
+    keyword = request.GET.get("q", "").strip()
+
+    diamonds_queryset = Diamond.objects.all()
+
+    if keyword:
+
+        diamonds_queryset = diamonds_queryset.filter(
+            Q(report_number__icontains=keyword) |
+            Q(description__icontains=keyword) |
+            Q(shape__icontains=keyword) |
+            Q(company__icontains=keyword) |
+            Q(measurements__icontains=keyword) |
+            Q(notes__icontains=keyword)
+        )
+
+
+    # ---------------------------------------------
+    # Status Filter
+    # ---------------------------------------------
+
+    selected_status = request.GET.get("status", "")
+
+    if selected_status in dict(Diamond.DIAMOND_STATUS_CHOICES):
+
+        diamonds_queryset = diamonds_queryset.filter(
+            status=selected_status
+        )
+
+
+    # ---------------------------------------------
+    # Shape Filter
+    # ---------------------------------------------
+
+    selected_shape = request.GET.get("shape", "")
+
+    if selected_shape:
+
+        diamonds_queryset = diamonds_queryset.filter(
+            shape=selected_shape
+        )
+
+
+    # ---------------------------------------------
+    # Color Filter
+    # ---------------------------------------------
+
+    selected_color = request.GET.get("color", "")
+
+    if selected_color:
+
+        diamonds_queryset = diamonds_queryset.filter(
+            color_grade=selected_color
+        )
+
+
+    # ---------------------------------------------
+    # Clarity Filter
+    # ---------------------------------------------
+
+    selected_clarity = request.GET.get("clarity", "")
+
+    if selected_clarity:
+
+        diamonds_queryset = diamonds_queryset.filter(
+            clarity_grade=selected_clarity
+        )
+
+
+    # ---------------------------------------------
+    # Pagination
+    # ---------------------------------------------
+
+    diamonds_queryset = (
+        diamonds_queryset
+        .prefetch_related("related_tickets")
+        .order_by("-created_at")
+    )
+
+    paginator = Paginator(diamonds_queryset, 10)
+
+    page_number = request.GET.get("page")
+
+    diamonds_page = paginator.get_page(page_number)
+
+
+    # ---------------------------------------------
+    # Inventory Statistics
+    # ---------------------------------------------
+
+    total_diamonds = Diamond.objects.count()
+
+    available_diamonds = Diamond.objects.filter(
+        status="available"
+    ).count()
+
+
+    # ---------------------------------------------
+    # Filter Options
+    # ---------------------------------------------
+
+    shapes = (
+        Diamond.objects
+        .exclude(shape="")
+        .values_list("shape", flat=True)
+        .distinct()
+        .order_by("shape")
+    )
+
+    colors = (
+        Diamond.objects
+        .exclude(color_grade="")
+        .values_list("color_grade", flat=True)
+        .distinct()
+        .order_by("color_grade")
+    )
+
+    clarities = (
+        Diamond.objects
+        .exclude(clarity_grade="")
+        .values_list("clarity_grade", flat=True)
+        .distinct()
+        .order_by("clarity_grade")
+    )
+
+
+    context = {
+
+        "diamonds": diamonds_page,
+
+        "keyword": keyword,
+
+        "total_diamonds": total_diamonds,
+
+        "available_diamonds": available_diamonds,
+
+        "status_choices": Diamond.DIAMOND_STATUS_CHOICES,
+
+        "shapes": shapes,
+
+        "colors": colors,
+
+        "clarities": clarities,
+
+        "selected_status": selected_status,
+
+        "selected_shape": selected_shape,
+
+        "selected_color": selected_color,
+
+        "selected_clarity": selected_clarity,
+
+    }
+
+    return render(
+        request,
+        "core/all_diamonds.html",
+        context
+    )
+
+def new_diamond(request):
+
+    if request.method == "POST":
+
+        form = DiamondForm(request.POST, request.FILES)
+
+        if form.is_valid():
+
+            diamond = form.save()
+
+            create_audit_log(
+                request,
+                "CREATE",
+                "Diamond",
+                diamond.id,
+                f"Created diamond {diamond.report_number}."
+            )
+
+            messages.success(
+                request,
+                "Diamond created successfully."
+            )
+
+            return redirect("all_diamonds")
+
+    else:
+
+        form = DiamondForm()
+
+
+    context = {
+        "form": form,
+    }
+
+    return render(
+        request,
+        "core/new_diamond.html",
+        context
+    )

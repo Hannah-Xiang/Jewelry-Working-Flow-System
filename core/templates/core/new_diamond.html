@@ -1,0 +1,1250 @@
+
+{% extends "core/base.html" %}
+
+{% block content %}
+
+<style>
+/* =========================================================
+   GENERAL
+========================================================= */
+
+.new-diamond-page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 38px 40px 80px;
+    color: #222;
+}
+
+.new-diamond-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 25px;
+    color: #555;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.new-diamond-back:hover {
+    color: #b78a24;
+}
+
+.new-diamond-heading {
+    margin-bottom: 30px;
+}
+
+.new-diamond-eyebrow {
+    color: #b78a24;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    margin-bottom: 9px;
+}
+
+.new-diamond-title {
+    margin: 0;
+    color: #171717;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 34px;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+/* =========================================================
+   FORM CARDS
+========================================================= */
+
+.new-diamond-form {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.new-diamond-card {
+    padding: 27px;
+    border: 1px solid #eee2c9;
+    border-radius: 15px;
+    background: #fff;
+}
+
+.new-diamond-card-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 22px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #eee5d5;
+    color: #222;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 19px;
+    font-weight: 600;
+}
+
+.new-diamond-card-title .gold-icon {
+    color: #c9a646;
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+}
+
+.new-diamond-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.new-diamond-form-grid.three-columns {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.new-diamond-field {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.new-diamond-field.full-width {
+    grid-column: 1 / -1;
+}
+
+.new-diamond-field label {
+    color: #444;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.new-diamond-field .required {
+    color: #b78a24;
+}
+
+/* =========================================================
+   INPUTS
+========================================================= */
+
+.new-diamond-field input:not([type="checkbox"]):not([type="file"]),
+.new-diamond-field select,
+.new-diamond-field textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 13px 14px;
+    border: 1px solid #e8dcc4;
+    border-radius: 9px;
+    background: #f5f2eb;
+    color: #222;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color .18s, background .18s;
+}
+
+.new-diamond-field input:not([type="checkbox"]):not([type="file"]),
+.new-diamond-field select {
+    min-height: 47px;
+}
+
+.new-diamond-field textarea {
+    min-height: 110px;
+    resize: vertical;
+}
+
+.new-diamond-field input:focus,
+.new-diamond-field select:focus,
+.new-diamond-field textarea:focus {
+    border-color: #c9a646;
+    background: #fff;
+}
+
+.new-diamond-field input::placeholder,
+.new-diamond-field textarea::placeholder {
+    color: #948a7d;
+}
+
+.new-diamond-help {
+    color: #999;
+    font-size: 12px;
+}
+
+/* =========================================================
+   PHOTO UPLOAD
+========================================================= */
+
+.new-diamond-photo-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.new-diamond-photo-wrapper {
+    position: relative;
+    width: 310px;
+    height: 310px;
+    max-width: 100%;
+    overflow: hidden;
+    border: 1px dashed #e7d9b8;
+    border-radius: 14px;
+    background: #f5f2eb;
+}
+
+.new-diamond-photo-placeholder {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: #77715f;
+    cursor: pointer;
+}
+
+.new-diamond-upload-icon {
+    font-size: 30px;
+    line-height: 1;
+}
+
+.new-diamond-upload-text {
+    color: #665c49;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.new-diamond-upload-hint {
+    color: #9b9385;
+    font-size: 12px;
+}
+
+.new-diamond-photo-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    cursor: pointer;
+}
+
+.new-diamond-photo-preview[hidden],
+.new-diamond-photo-placeholder[hidden],
+.new-diamond-photo-overlay[hidden],
+.new-diamond-lightbox[hidden] {
+    display: none !important;
+}
+
+.new-diamond-photo-wrapper.has-image {
+    border-style: solid;
+    background: #f3f2ef;
+}
+
+.new-diamond-photo-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    background: rgba(0, 0, 0, .22);
+    opacity: 0;
+    transition: opacity .2s ease;
+    pointer-events: none;
+}
+
+.new-diamond-photo-overlay button {
+    pointer-events: auto;
+}
+
+.new-diamond-photo-wrapper.has-image:hover
+.new-diamond-photo-overlay,
+.new-diamond-photo-wrapper.has-image:focus-within
+.new-diamond-photo-overlay {
+    opacity: 1;
+}
+
+.new-diamond-image-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 10px 13px;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.new-diamond-replace-button {
+    background: #fff;
+    color: #222;
+}
+
+.new-diamond-replace-button:hover {
+    background: #f7f7f7;
+}
+
+.new-diamond-remove-button {
+    background: #d83c3c;
+    color: #fff;
+}
+
+.new-diamond-remove-button:hover {
+    background: #c83232;
+}
+
+.new-diamond-photo-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 5px;
+}
+
+.new-diamond-photo-note {
+    max-width: 220px;
+    color: #888;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.new-diamond-photo-upload {
+    display: none;
+}
+
+/* =========================================================
+   ERRORS
+========================================================= */
+
+.new-diamond-error-box {
+    padding: 13px 15px;
+    border: 1px solid #fecaca;
+    border-radius: 9px;
+    background: #fff1f1;
+    color: #b91c1c;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.new-diamond-field-error {
+    color: #dc2626;
+    font-size: 12px;
+}
+
+/* =========================================================
+   BOTTOM BUTTONS
+========================================================= */
+
+.new-diamond-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 14px;
+}
+
+.new-diamond-cancel-button,
+.new-diamond-save-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 48px;
+    box-sizing: border-box;
+    padding: 12px 25px;
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.new-diamond-cancel-button {
+    border: 1px solid #eadfca;
+    background: #fffdf9;
+    color: #222;
+}
+
+.new-diamond-cancel-button:hover {
+    background: #f8f5ee;
+}
+
+.new-diamond-save-button {
+    min-width: 155px;
+    border: 1px solid #c9a646;
+    background: #c9a646;
+    color: #fff;
+}
+
+.new-diamond-save-button:hover {
+    border-color: #b8943b;
+    background: #b8943b;
+}
+
+.new-diamond-save-button:disabled {
+    opacity: .6;
+    cursor: wait;
+}
+
+/* =========================================================
+   IMAGE VIEWER
+========================================================= */
+
+.new-diamond-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, .88);
+}
+
+.new-diamond-lightbox-image {
+    max-width: 95vw;
+    max-height: 90vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.new-diamond-lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 28px;
+    border: none;
+    background: transparent;
+    color: white;
+    font-size: 38px;
+    cursor: pointer;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 850px) {
+    .new-diamond-page {
+        padding: 30px 25px 60px;
+    }
+
+    .new-diamond-form-grid.three-columns {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .new-diamond-photo-wrapper {
+        width: 280px;
+        height: 280px;
+    }
+}
+
+@media (max-width: 600px) {
+    .new-diamond-page {
+        padding: 25px 18px 50px;
+    }
+
+    .new-diamond-title {
+        font-size: 29px;
+    }
+
+    .new-diamond-card {
+        padding: 20px;
+    }
+
+    .new-diamond-form-grid,
+    .new-diamond-form-grid.three-columns {
+        grid-template-columns: 1fr;
+    }
+
+    .new-diamond-field.full-width {
+        grid-column: auto;
+    }
+
+    .new-diamond-photo-wrapper {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1 / 1;
+    }
+
+    .new-diamond-photo-actions {
+        width: 100%;
+    }
+
+    .new-diamond-photo-note {
+        max-width: none;
+    }
+
+    .new-diamond-form-actions {
+        gap: 10px;
+    }
+
+    .new-diamond-cancel-button,
+    .new-diamond-save-button {
+        flex: 1;
+        padding: 12px 14px;
+    }
+}
+</style>
+
+
+<div class="new-diamond-page">
+
+    <!-- BACK LINK -->
+
+    <a href="{% url 'all_diamonds' %}" class="new-diamond-back">
+        <span>←</span>
+        <span>Back to Diamonds</span>
+    </a>
+
+
+    <!-- PAGE HEADER -->
+
+    <div class="new-diamond-heading">
+        <div class="new-diamond-eyebrow">NEW DIAMOND</div>
+        <h1 class="new-diamond-title">Add Diamond</h1>
+    </div>
+
+
+    <form
+        method="POST"
+        enctype="multipart/form-data"
+        class="new-diamond-form"
+        id="newDiamondForm"
+    >
+
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="new-diamond-error-box">
+                {% for error in form.non_field_errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+
+        <!-- =================================================
+             DIAMOND INFORMATION
+        ================================================== -->
+
+        <section class="new-diamond-card">
+
+            <h2 class="new-diamond-card-title">
+                <span class="gold-icon">◇</span>
+                <span>Diamond Information</span>
+            </h2>
+
+            <div class="new-diamond-form-grid">
+
+                <!-- IGI NUMBER -->
+
+                <div class="new-diamond-field full-width">
+
+                    <label for="{{ form.report_number.id_for_label }}">
+                        IGI No.
+                    </label>
+
+                    {{ form.report_number }}
+
+                    {% for error in form.report_number.errors %}
+                        <div class="new-diamond-field-error">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- DESCRIPTION -->
+
+                <div class="new-diamond-field full-width">
+
+                    <label for="{{ form.description.id_for_label }}">
+                        Description
+                    </label>
+
+                    {{ form.description }}
+
+                    {% for error in form.description.errors %}
+                        <div class="new-diamond-field-error">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- SHAPE -->
+
+                <div class="new-diamond-field">
+
+                    <label for="{{ form.shape.id_for_label }}">
+                        Shape <span class="required">*</span>
+                    </label>
+
+                    {{ form.shape }}
+
+                    {% for error in form.shape.errors %}
+                        <div class="new-diamond-field-error">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- CARAT WEIGHT -->
+
+                <div class="new-diamond-field">
+
+                    <label for="{{ form.carat_weight.id_for_label }}">
+                        Carat Weight <span class="required">*</span>
+                    </label>
+
+                    {{ form.carat_weight }}
+
+                    {% for error in form.carat_weight.errors %}
+                        <div class="new-diamond-field-error">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- STATUS -->
+
+                <div class="new-diamond-field">
+
+                    <label for="{{ form.status.id_for_label }}">
+                        Status
+                    </label>
+
+                    {{ form.status }}
+
+                    {% for error in form.status.errors %}
+                        <div class="new-diamond-field-error">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             GRADING
+        ================================================== -->
+
+        <section class="new-diamond-card">
+
+            <h2 class="new-diamond-card-title">
+                <span class="gold-icon">◇</span>
+                <span>Grading</span>
+            </h2>
+
+            <div class="new-diamond-form-grid three-columns">
+
+                <!-- COLOR -->
+
+                <div class="new-diamond-field">
+
+                    <label for="{{ form.color_grade.id_for_label }}">
+                        Color
+                    </label>
+
+                    {{ form.color_grade }}
+
+                    {% for error in form.color_grade.errors %}
+                        <div class="new-diamond-field-error">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- CLARITY -->
+
+                <div class="new-diamond-field">
+
+                    <label for="{{ form.clarity_grade.id_for_label }}">
+                        Clarity
+                    </label>
+
+                    {{ form.clarity_grade }}
+
+                    {% for error in form.clarity_grade.errors %}
+                        <div class="new-diamond-field-error">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- CUT -->
+
+                <div class="new-diamond-field">
+
+                    <label for="{{ form.cut_grade.id_for_label }}">
+                        Cut
+                    </label>
+
+                    {{ form.cut_grade }}
+
+                    {% for error in form.cut_grade.errors %}
+                        <div class="new-diamond-field-error">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- POLISH -->
+
+                <div class="new-diamond-field">
+
+                    <label for="{{ form.polish.id_for_label }}">
+                        Polish
+                    </label>
+
+                    {{ form.polish }}
+
+                    {% for error in form.polish.errors %}
+                        <div class="new-diamond-field-error">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- SYMMETRY -->
+
+                <div class="new-diamond-field">
+
+                    <label for="{{ form.symmetry.id_for_label }}">
+                        Symmetry
+                    </label>
+
+                    {{ form.symmetry }}
+
+                    {% for error in form.symmetry.errors %}
+                        <div class="new-diamond-field-error">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- FLUORESCENCE -->
+
+                <div class="new-diamond-field">
+
+                    <label for="{{ form.fluorescence.id_for_label }}">
+                        Fluorescence
+                    </label>
+
+                    {{ form.fluorescence }}
+
+                    {% for error in form.fluorescence.errors %}
+                        <div class="new-diamond-field-error">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             ADDITIONAL INFORMATION
+        ================================================== -->
+
+        <section class="new-diamond-card">
+
+            <h2 class="new-diamond-card-title">
+                <span class="gold-icon">◇</span>
+                <span>Additional Information</span>
+            </h2>
+
+            <div class="new-diamond-form-grid">
+
+                <!-- DIAMOND DATE -->
+
+                <div class="new-diamond-field">
+
+                    <label for="{{ form.diamond_date.id_for_label }}">
+                        Diamond Date
+                    </label>
+
+                    {{ form.diamond_date }}
+
+                    {% for error in form.diamond_date.errors %}
+                        <div class="new-diamond-field-error">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- DIAMOND TYPE -->
+
+                <div class="new-diamond-field">
+
+                    <label for="{{ form.diamond_type.id_for_label }}">
+                        Diamond Type
+                    </label>
+
+                    {{ form.diamond_type }}
+
+                    {% for error in form.diamond_type.errors %}
+                        <div class="new-diamond-field-error">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- MEASUREMENTS -->
+
+                <div class="new-diamond-field">
+
+                    <label for="{{ form.measurements.id_for_label }}">
+                        Measurements
+                    </label>
+
+                    {{ form.measurements }}
+
+                    {% for error in form.measurements.errors %}
+                        <div class="new-diamond-field-error">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- COMPANY -->
+
+                <div class="new-diamond-field">
+
+                    <label for="{{ form.company.id_for_label }}">
+                        Company / Supplier
+                    </label>
+
+                    {{ form.company }}
+
+                    {% for error in form.company.errors %}
+                        <div class="new-diamond-field-error">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- REPORT LINK -->
+
+                <div class="new-diamond-field full-width">
+
+                    <label for="{{ form.report_link.id_for_label }}">
+                        Certificate / Report Link
+                    </label>
+
+                    {{ form.report_link }}
+
+                    {% for error in form.report_link.errors %}
+                        <div class="new-diamond-field-error">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                    <div class="new-diamond-help">
+                        Paste the IGI or GIA certificate verification URL.
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             DIAMOND PHOTO
+        ================================================== -->
+
+        <section class="new-diamond-card">
+
+            <h2 class="new-diamond-card-title">
+                <span class="gold-icon">◇</span>
+                <span>Diamond Photo</span>
+            </h2>
+
+            <div class="new-diamond-photo-layout">
+
+                <div
+                    class="new-diamond-photo-wrapper"
+                    id="newDiamondPhotoWrapper"
+                >
+
+                    <label
+                        class="new-diamond-photo-placeholder"
+                        id="newDiamondPhotoPlaceholder"
+                        for="newDiamondPictureInput"
+                    >
+
+                        <span class="new-diamond-upload-icon">⇧</span>
+
+                        <span class="new-diamond-upload-text">
+                            Upload diamond photo
+                        </span>
+
+                        <span class="new-diamond-upload-hint">
+                            Click to choose an image
+                        </span>
+
+                    </label>
+
+
+                    <img
+                        id="newDiamondPreviewImage"
+                        class="new-diamond-photo-preview"
+                        alt="Diamond preview"
+                        hidden
+                    >
+
+
+                    <div
+                        class="new-diamond-photo-overlay"
+                        id="newDiamondPhotoOverlay"
+                        hidden
+                    >
+
+                        <button
+                            type="button"
+                            class="new-diamond-image-button new-diamond-replace-button"
+                            onclick="chooseNewDiamondImage()"
+                        >
+                            ↥ Replace
+                        </button>
+
+                        <button
+                            type="button"
+                            class="new-diamond-image-button new-diamond-remove-button"
+                            onclick="removeNewDiamondImage()"
+                        >
+                            × Remove
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="new-diamond-photo-actions">
+
+                    <div class="new-diamond-photo-note">
+                        Upload a diamond image to help identify it
+                        in your inventory. You can replace or remove
+                        the selected image before saving.
+                    </div>
+
+                    <label
+                        for="newDiamondPictureInput"
+                        style="color:#b78a24;font-size:13px;cursor:pointer;"
+                    >
+                        Choose an image
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <input
+                type="file"
+                id="newDiamondPictureInput"
+                name="picture"
+                class="new-diamond-photo-upload"
+                accept="image/*"
+            >
+
+            {% for error in form.picture.errors %}
+                <div class="new-diamond-field-error"
+                     style="margin-top:12px;">
+                    {{ error }}
+                </div>
+            {% endfor %}
+
+        </section>
+
+
+
+        <!-- =================================================
+             NOTES
+        ================================================== -->
+
+        <section class="new-diamond-card">
+
+            <h2 class="new-diamond-card-title">
+                <span class="gold-icon">◇</span>
+                <span>Internal Notes</span>
+            </h2>
+
+            <div class="new-diamond-field">
+
+                <label for="{{ form.notes.id_for_label }}">
+                    Notes
+                </label>
+
+                {{ form.notes }}
+
+                {% for error in form.notes.errors %}
+                    <div class="new-diamond-field-error">
+                        {{ error }}
+                    </div>
+                {% endfor %}
+
+                <div class="new-diamond-help">
+                    Add internal information about this diamond.
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             ACTION BUTTONS
+        ================================================== -->
+
+        <div class="new-diamond-form-actions">
+
+            <a
+                href="{% url 'all_diamonds' %}"
+                class="new-diamond-cancel-button"
+            >
+                Cancel
+            </a>
+
+            <button
+                type="submit"
+                class="new-diamond-save-button"
+                id="newDiamondSaveButton"
+            >
+                <span>▣</span>
+                <span>Save Diamond</span>
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+
+<script>
+/* =========================================================
+   IMAGE UPLOAD AND PREVIEW
+========================================================= */
+
+const newDiamondFileInput =
+    document.getElementById("newDiamondPictureInput");
+
+const newDiamondPhotoWrapper =
+    document.getElementById("newDiamondPhotoWrapper");
+
+const newDiamondPhotoPlaceholder =
+    document.getElementById("newDiamondPhotoPlaceholder");
+
+const newDiamondPreviewImage =
+    document.getElementById("newDiamondPreviewImage");
+
+const newDiamondPhotoOverlay =
+    document.getElementById("newDiamondPhotoOverlay");
+
+
+let newDiamondImageObjectUrl = null;
+
+
+/* Choose image */
+
+function chooseNewDiamondImage() {
+    newDiamondFileInput.click();
+}
+
+
+/* Display image */
+
+function showNewDiamondImage(file) {
+
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+        alert("Please select a valid image file.");
+        newDiamondFileInput.value = "";
+        return;
+    }
+
+    if (newDiamondImageObjectUrl) {
+        URL.revokeObjectURL(newDiamondImageObjectUrl);
+    }
+
+    newDiamondImageObjectUrl = URL.createObjectURL(file);
+
+    newDiamondPreviewImage.src = newDiamondImageObjectUrl;
+    newDiamondPreviewImage.hidden = false;
+
+    newDiamondPhotoPlaceholder.hidden = true;
+    newDiamondPhotoOverlay.hidden = false;
+
+    newDiamondPhotoWrapper.classList.add("has-image");
+}
+
+
+/* Image selection */
+
+newDiamondFileInput.addEventListener("change", function () {
+
+    const file = this.files[0];
+
+    if (!file) return;
+
+    showNewDiamondImage(file);
+
+});
+
+
+/* Remove image */
+
+function removeNewDiamondImage() {
+
+    newDiamondFileInput.value = "";
+
+    newDiamondPreviewImage.removeAttribute("src");
+    newDiamondPreviewImage.hidden = true;
+
+    newDiamondPhotoPlaceholder.hidden = false;
+    newDiamondPhotoOverlay.hidden = true;
+
+    newDiamondPhotoWrapper.classList.remove("has-image");
+
+    if (newDiamondImageObjectUrl) {
+
+        URL.revokeObjectURL(newDiamondImageObjectUrl);
+
+        newDiamondImageObjectUrl = null;
+    }
+
+}
+
+
+/* =========================================================
+   IMAGE LIGHTBOX
+========================================================= */
+
+const newDiamondLightbox = document.createElement("div");
+
+newDiamondLightbox.className = "new-diamond-lightbox";
+newDiamondLightbox.hidden = true;
+
+newDiamondLightbox.innerHTML = `
+    <button
+        type="button"
+        class="new-diamond-lightbox-close"
+        aria-label="Close image"
+    >&times;</button>
+
+    <img
+        class="new-diamond-lightbox-image"
+        alt="Full-size diamond"
+    >
+`;
+
+document.body.appendChild(newDiamondLightbox);
+
+const newDiamondLightboxImage =
+    newDiamondLightbox.querySelector("img");
+
+const newDiamondLightboxClose =
+    newDiamondLightbox.querySelector("button");
+
+
+/* Open image */
+
+newDiamondPreviewImage.addEventListener("click", function () {
+
+    if (!this.src) return;
+
+    newDiamondLightboxImage.src = this.src;
+    newDiamondLightbox.hidden = false;
+
+});
+
+
+/* Close image */
+
+newDiamondLightboxClose.addEventListener("click", function () {
+    newDiamondLightbox.hidden = true;
+});
+
+
+newDiamondLightbox.addEventListener("click", function (event) {
+
+    if (event.target === newDiamondLightbox) {
+        newDiamondLightbox.hidden = true;
+    }
+
+});
+
+
+document.addEventListener("keydown", function (event) {
+
+    if (event.key === "Escape") {
+        newDiamondLightbox.hidden = true;
+    }
+
+});
+
+
+/* =========================================================
+   FORM SUBMISSION
+========================================================= */
+
+const newDiamondForm =
+    document.getElementById("newDiamondForm");
+
+newDiamondForm.addEventListener("submit", function () {
+
+    const saveButton =
+        document.getElementById("newDiamondSaveButton");
+
+    saveButton.disabled = true;
+
+    saveButton.innerHTML = `
+        <span>Saving...</span>
+    `;
+
+});
+
+
+</script>
+
+{% endblock %}

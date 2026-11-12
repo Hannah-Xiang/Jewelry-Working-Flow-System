@@ -543,6 +543,45 @@
     background: #b58b2f;
 }
 
+/* Clear Filters Button */
+
+.clear-diamond-filters-btn {
+    height: 46px;
+    padding: 0 16px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    flex-shrink: 0;
+
+    border: 1px solid #e7ddc7;
+    border-radius: 10px;
+
+    background: #ffffff;
+    color: #777777;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+
+    cursor: pointer;
+    white-space: nowrap;
+
+    transition: all 0.2s ease;
+}
+
+.clear-diamond-filters-btn:hover {
+    background: #fcf6e9;
+    border-color: #c79c3d;
+    color: #b1872c;
+}
+
+.clear-diamond-filters-btn i {
+    font-size: 13px;
+}
+
 
 /* =====================================================
    Responsive
@@ -654,13 +693,16 @@
 
                 <input
                     type="text"
+                    id="diamond-search-input"
                     name="q"
                     value="{{ keyword }}"
-                    placeholder="Search by IGI No., description..."
+                    placeholder="Search by IGI No., shape, notes, company..."
+                    autocomplete="off"
                 >
 
             </div>
 
+            
 
             <!-- Status -->
 
@@ -749,10 +791,24 @@
 
             </select>
 
+            <!-- Clear Filters -->
+            <button
+                type="button"
+                id="clear-diamond-filters"
+                class="clear-diamond-filters-btn"
+            >
+                
+                <span>Clear Filters</span>
+            </button>
+
+
 
         </div>
 
     </form>
+    <div class="diamonds-count" id="diamond-results-count">
+        {{ diamonds.paginator.count }} diamonds found
+    </div>
 
 
     <!-- =========================================
@@ -767,7 +823,7 @@
 
                 <tr>
 
-                    <th>DIAMOND / IGI NO.</th>
+                    <th>DIAMOND / Report NO.</th>
 
                     <th>SHAPE</th>
 
@@ -777,7 +833,7 @@
 
                     <th>CLARITY</th>
 
-                    <th>CUT</th>
+                    <th>POLISH</th>
 
                     <th>STATUS</th>
 
@@ -788,7 +844,7 @@
             </thead>
 
 
-            <tbody>
+            <tbody id="diamond-table-body">
 
                 {% for diamond in diamonds %}
 
@@ -848,9 +904,9 @@
 
 
                                     <div class="diamond-description"
-                                         title="{{ diamond.description }}">
+                                        title="{{ diamond.notes }}">
 
-                                        {{ diamond.description|default:"No description" }}
+                                        {{ diamond.notes|default:"No notes" }}
 
                                     </div>
 
@@ -1000,86 +1056,68 @@
          Pagination
     ========================================== -->
 
-    {% if diamonds.has_other_pages %}
+    <div id="diamonds-pagination">
 
-        <div class="diamonds-pagination">
+        {% if diamonds.has_other_pages %}
 
+            <div class="diamonds-pagination">
 
-            {% if diamonds.has_previous %}
+                {% if diamonds.has_previous %}
+                    <a
+                        href="{% querystring page=diamonds.previous_page_number %}"
+                        class="diamonds-page-btn"
+                        data-page="{{ diamonds.previous_page_number }}"
+                    >
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </a>
+                {% else %}
+                    <span class="diamonds-page-btn disabled">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </span>
+                {% endif %}
 
-                <a
-                    class="diamonds-page-btn"
-                    href="{% querystring page=diamonds.previous_page_number %}"
+                <div class="diamonds-page-number">
+
+                    <input
+                        type="number"
+                        id="diamond-page-input"
+                        value="{{ diamonds.number }}"
+                        min="1"
+                        max="{{ diamonds.paginator.num_pages }}"
+                    >
+
+                    <span id="diamond-page-total">
+                        / {{ diamonds.paginator.num_pages }}
+                    </span>
+
+                </div>
+
+                <button
+                    type="button"
+                    id="diamond-go-page-btn"
                 >
+                    Go
+                </button>
 
-                    <i class="fa-solid fa-chevron-left"></i>
-
-                </a>
-
-            {% else %}
-
-                <span class="diamonds-page-btn disabled">
-
-                    <i class="fa-solid fa-chevron-left"></i>
-
-                </span>
-
-            {% endif %}
-
-
-            <div class="diamonds-page-number">
-
-                <input
-                    type="number"
-                    id="diamond-page-input"
-                    value="{{ diamonds.number }}"
-                    min="1"
-                    max="{{ diamonds.paginator.num_pages }}"
-                >
-
-                <span>
-                    / {{ diamonds.paginator.num_pages }}
-                </span>
+                {% if diamonds.has_next %}
+                    <a
+                        href="{% querystring page=diamonds.next_page_number %}"
+                        class="diamonds-page-btn"
+                        data-page="{{ diamonds.next_page_number }}"
+                    >
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </a>
+                {% else %}
+                    <span class="diamonds-page-btn disabled">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </span>
+                {% endif %}
 
             </div>
 
+        {% endif %}
 
-            <button
-                type="button"
-                id="diamond-go-page-btn"
-                onclick="goToDiamondPage()"
-            >
-
-                Go
-
-            </button>
-
-
-            {% if diamonds.has_next %}
-
-                <a
-                    class="diamonds-page-btn"
-                    href="{% querystring page=diamonds.next_page_number %}"
-                >
-
-                    <i class="fa-solid fa-chevron-right"></i>
-
-                </a>
-
-            {% else %}
-
-                <span class="diamonds-page-btn disabled">
-
-                    <i class="fa-solid fa-chevron-right"></i>
-
-                </span>
-
-            {% endif %}
-
-
-        </div>
-
-    {% endif %}
+    </div>
 
 
 </div>
@@ -1087,51 +1125,401 @@
 
 <script>
 
+
 /* =====================================================
-   Go to Page
+   DIAMOND AJAX SEARCH + FILTER + PAGINATION
 ===================================================== */
 
-function goToDiamondPage() {
+const diamondSearchInput = document.getElementById(
+    "diamond-search-input"
+);
 
-    const input = document.getElementById(
-        "diamond-page-input"
+const diamondFilterForm = document.getElementById(
+    "diamond-filter-form"
+);
+
+const diamondTableBody = document.getElementById(
+    "diamond-table-body"
+);
+
+const diamondResultsCount = document.getElementById(
+    "diamond-results-count"
+);
+
+const diamondPagination = document.getElementById(
+    "diamonds-pagination"
+);
+
+let diamondTypingTimer;
+
+
+/* ---------------------------------------------
+   Escape HTML
+--------------------------------------------- */
+
+function escapeDiamondHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+    })[character]);
+}
+
+
+/* ---------------------------------------------
+   Load Diamonds
+--------------------------------------------- */
+
+function loadDiamonds(page = 1) {
+
+    const params = new URLSearchParams(
+        new FormData(diamondFilterForm)
     );
 
-    const page = parseInt(input.value);
+    params.set("page", page);
 
-    const maxPage = parseInt(input.max);
+    const queryString = params.toString();
 
-    if (
-        isNaN(page) ||
-        page < 1 ||
-        page > maxPage
-    ) {
-        return;
-    }
+    fetch(`${window.location.pathname}?${queryString}`, {
+        headers: {
+            "X-Requested-With": "XMLHttpRequest"
+        }
+    })
 
-    const url = new URL(window.location.href);
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Failed to load diamonds");
+        }
 
-    url.searchParams.set("page", page);
+        return response.json();
+    })
 
-    window.location.href = url.toString();
+    .then(data => {
+
+        // --------------------------------
+        // Update URL without reloading
+        // --------------------------------
+
+        const newURL = `${window.location.pathname}?${queryString}`;
+
+        window.history.replaceState({}, "", newURL);
+
+
+        // --------------------------------
+        // Update result count
+        // --------------------------------
+
+        diamondResultsCount.textContent =
+            `${data.count} diamonds found`;
+
+
+        // --------------------------------
+        // Update table
+        // --------------------------------
+
+        diamondTableBody.innerHTML = "";
+
+        if (data.diamonds.length === 0) {
+
+            diamondTableBody.innerHTML = `
+                <tr>
+                    <td colspan="8">
+                        <div class="diamonds-empty">
+                            <i class="fa-regular fa-gem"></i>
+                            <div>No diamonds found.</div>
+                            <p>Try changing your search or filters.</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+
+        } else {
+
+            data.diamonds.forEach(diamond => {
+
+                const imageHTML = diamond.picture_url
+                    ? `
+                        <img
+                            src="${escapeDiamondHTML(diamond.picture_url)}"
+                            alt="Diamond"
+                        >
+                    `
+                    : `
+                        <i class="fa-regular fa-image diamond-no-image"></i>
+                    `;
+
+                const reportHTML = diamond.report_number
+                    ? `IGI ${escapeDiamondHTML(diamond.report_number)}`
+                    : "No Report Number";
+
+                const ticketsHTML = diamond.related_tickets.map(ticket => `
+                    <a
+                        href="${escapeDiamondHTML(ticket.url)}"
+                        class="diamond-related-ticket"
+                    >
+                        → ${escapeDiamondHTML(ticket.ticket_number)}
+                    </a>
+                `).join("");
+
+                const status = escapeDiamondHTML(diamond.status);
+
+                const row = `
+                    <tr>
+
+                        <td>
+                            <div class="diamond-main-info">
+
+                                <div class="diamond-thumbnail">
+                                    ${imageHTML}
+                                </div>
+
+                                <div class="diamond-info-text">
+
+                                    <div class="diamond-report-number
+                                        ${diamond.report_number ? "" : "no-report"}">
+                                        ${reportHTML}
+                                    </div>
+
+                                    <div
+                                        class="diamond-description"
+                                        title="${escapeDiamondHTML(diamond.notes)}"
+                                    >
+                                        ${escapeDiamondHTML(diamond.notes || "No notes")}
+                                    </div>
+
+                                    ${ticketsHTML}
+
+                                </div>
+
+                            </div>
+                        </td>
+
+                        <td>${escapeDiamondHTML(diamond.shape || "—")}</td>
+
+                        <td>
+                            ${diamond.carat_weight
+                                ? `${escapeDiamondHTML(diamond.carat_weight)} ct`
+                                : "—"}
+                        </td>
+
+                        <td>${escapeDiamondHTML(diamond.color_grade || "—")}</td>
+
+                        <td>${escapeDiamondHTML(diamond.clarity_grade || "—")}</td>
+
+                        <td>${escapeDiamondHTML(diamond.polish || "—")}</td>
+
+                        <td>
+                            <span class="diamond-status ${status}">
+                                ${escapeDiamondHTML(diamond.status_display)}
+                            </span>
+                        </td>
+
+                        <td></td>
+
+                    </tr>
+                `;
+
+                diamondTableBody.insertAdjacentHTML("beforeend", row);
+
+            });
+
+        }
+
+
+        // --------------------------------
+        // Update pagination
+        // --------------------------------
+
+        renderDiamondPagination(data);
+
+    })
+
+    .catch(error => {
+        console.error("Diamond search error:", error);
+    });
 
 }
 
 
-/* Press Enter to go to page */
+/* ---------------------------------------------
+   Render Pagination
+--------------------------------------------- */
 
-document.getElementById("diamond-page-input")
-    ?.addEventListener("keydown", function(event) {
+function renderDiamondPagination(data) {
 
-        if (event.key === "Enter") {
+    if (data.num_pages <= 1) {
+        diamondPagination.innerHTML = "";
+        return;
+    }
 
-            event.preventDefault();
+    diamondPagination.innerHTML = `
+        <div class="diamonds-pagination">
 
-            goToDiamondPage();
+            ${
+                data.has_previous
+                ? `
+                    <a href="#"
+                       class="diamonds-page-btn"
+                       data-page="${data.previous_page}">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </a>
+                `
+                : `
+                    <span class="diamonds-page-btn disabled">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </span>
+                `
+            }
 
-        }
+            <div class="diamonds-page-number">
 
+                <input
+                    type="number"
+                    id="diamond-page-input"
+                    value="${data.page}"
+                    min="1"
+                    max="${data.num_pages}"
+                >
+
+                <span id="diamond-page-total">
+                    / ${data.num_pages}
+                </span>
+
+            </div>
+
+            <button
+                type="button"
+                id="diamond-go-page-btn"
+            >
+                Go
+            </button>
+
+            ${
+                data.has_next
+                ? `
+                    <a href="#"
+                       class="diamonds-page-btn"
+                       data-page="${data.next_page}">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </a>
+                `
+                : `
+                    <span class="diamonds-page-btn disabled">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </span>
+                `
+            }
+
+        </div>
+    `;
+}
+
+
+/* ---------------------------------------------
+   Search while typing
+--------------------------------------------- */
+
+diamondSearchInput.addEventListener("input", function() {
+
+    clearTimeout(diamondTypingTimer);
+
+    diamondTypingTimer = setTimeout(function() {
+
+        // Return to page 1 when searching
+        loadDiamonds(1);
+
+    }, 300);
+
+});
+
+/* ---------------------------------------------
+   Clear All Filters
+--------------------------------------------- */
+
+const clearDiamondFiltersButton = document.getElementById(
+    "clear-diamond-filters"
+);
+
+clearDiamondFiltersButton.addEventListener("click", function() {
+
+    // Reset all dropdown filters to their default values
+    diamondFilterForm.querySelectorAll("select").forEach(select => {
+        select.value = "";
     });
+
+    // Automatically refresh results
+    loadDiamonds(1);
+
+});
+
+
+/* ---------------------------------------------
+   Filter changes
+--------------------------------------------- */
+
+diamondFilterForm.querySelectorAll("select").forEach(select => {
+
+    select.addEventListener("change", function() {
+        loadDiamonds(1);
+    });
+
+});
+
+
+/* ---------------------------------------------
+   Pagination clicks and Go button
+--------------------------------------------- */
+
+diamondPagination.addEventListener("click", function(event) {
+
+    const pageLink = event.target.closest("[data-page]");
+
+    if (pageLink) {
+
+        event.preventDefault();
+
+        loadDiamonds(parseInt(pageLink.dataset.page));
+
+        return;
+    }
+
+    if (event.target.closest("#diamond-go-page-btn")) {
+
+        const input = document.getElementById("diamond-page-input");
+
+        const page = parseInt(input.value);
+        const maxPage = parseInt(input.max);
+
+        if (isNaN(page)) return;
+
+        loadDiamonds(Math.max(1, Math.min(page, maxPage)));
+
+    }
+
+});
+
+
+/* ---------------------------------------------
+   Enter key for pagination only
+--------------------------------------------- */
+
+diamondPagination.addEventListener("keydown", function(event) {
+
+    if (
+        event.target.id === "diamond-page-input" &&
+        event.key === "Enter"
+    ) {
+
+        event.preventDefault();
+
+        document.getElementById("diamond-go-page-btn").click();
+
+    }
+
+});
+
 
 
 </script>

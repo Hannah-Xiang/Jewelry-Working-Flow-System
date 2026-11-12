@@ -2548,6 +2548,7 @@ def delete_mold(request, pk):
 
     return redirect("all_molds")
 
+
 def all_diamonds(request):
 
     # ---------------------------------------------
@@ -2562,11 +2563,15 @@ def all_diamonds(request):
 
         diamonds_queryset = diamonds_queryset.filter(
             Q(report_number__icontains=keyword) |
-            Q(description__icontains=keyword) |
             Q(shape__icontains=keyword) |
             Q(company__icontains=keyword) |
             Q(measurements__icontains=keyword) |
-            Q(notes__icontains=keyword)
+            Q(notes__icontains=keyword) |
+            Q(color_grade__icontains=keyword) |
+            Q(clarity_grade__icontains=keyword) |
+            Q(polish__icontains=keyword) |
+            Q(symmetry__icontains=keyword) |
+            Q(fluorescence__icontains=keyword)
         )
 
 
@@ -2640,6 +2645,58 @@ def all_diamonds(request):
 
 
     # ---------------------------------------------
+    # AJAX Search Response
+    # ---------------------------------------------
+
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+
+        diamonds_data = []
+
+        for diamond in diamonds_page:
+
+            related_tickets = []
+
+            for ticket in diamond.related_tickets.all():
+                related_tickets.append({
+                    "ticket_number": ticket.ticket_number,
+                    "url": reverse("ticket_detail", args=[ticket.pk]),
+                })
+
+            diamonds_data.append({
+                "id": diamond.pk,
+                "report_number": diamond.report_number or "",
+                "picture_url": diamond.picture.url if diamond.picture else "",
+                "notes": diamond.notes or "",
+                "shape": diamond.shape or "",
+                "carat_weight": str(diamond.carat_weight) if diamond.carat_weight else "",
+                "color_grade": diamond.color_grade or "",
+                "clarity_grade": diamond.clarity_grade or "",
+                "polish": diamond.polish or "",
+                "status": diamond.status,
+                "status_display": diamond.get_status_display(),
+                "related_tickets": related_tickets,
+            })
+
+        return JsonResponse({
+            "diamonds": diamonds_data,
+            "count": paginator.count,
+            "page": diamonds_page.number,
+            "num_pages": paginator.num_pages,
+            "has_previous": diamonds_page.has_previous(),
+            "has_next": diamonds_page.has_next(),
+            "previous_page": (
+                diamonds_page.previous_page_number()
+                if diamonds_page.has_previous() else None
+            ),
+            "next_page": (
+                diamonds_page.next_page_number()
+                if diamonds_page.has_next() else None
+            ),
+        })
+
+
+
+    # ---------------------------------------------
     # Inventory Statistics
     # ---------------------------------------------
 
@@ -2679,6 +2736,10 @@ def all_diamonds(request):
     )
 
 
+    # ---------------------------------------------
+    # Context
+    # ---------------------------------------------
+
     context = {
 
         "diamonds": diamonds_page,
@@ -2712,6 +2773,7 @@ def all_diamonds(request):
         "core/all_diamonds.html",
         context
     )
+
 
 def new_diamond(request):
 

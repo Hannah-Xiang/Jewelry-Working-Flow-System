@@ -418,6 +418,123 @@
     cursor: pointer;
 }
 
+.new-diamond-shape-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.new-diamond-shape-wrapper input {
+    width: 100%;
+}
+
+.new-diamond-shape-dropdown {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: none;
+    max-height: 220px;
+    overflow-y: auto;
+    border: 1px solid #eadfca;
+    border-radius: 9px;
+    background: #fff;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.10);
+}
+
+.new-diamond-shape-dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 11px 14px;
+    border: none;
+    background: white;
+    color: #444;
+    text-align: left;
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.new-diamond-shape-dropdown-item:hover {
+    background: #fff8e8;
+    color: #b78a24;
+}
+
+.new-diamond-shape-wrapper input {
+    width: 100%;
+    text-transform: uppercase;
+}
+/* Uppercase for Shape and Grading inputs */
+.new-diamond-uppercase-input {
+    text-transform: uppercase;
+}
+
+.new-diamond-uppercase-input::placeholder {
+    text-transform: none;
+}
+
+/* Grading searchable dropdown */
+
+.new-diamond-grading-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.new-diamond-grading-wrapper input {
+    width: 100%;
+    text-transform: uppercase;
+}
+
+.new-diamond-uppercase-input {
+    text-transform: uppercase;
+}
+
+.new-diamond-grading-dropdown {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    right: 0;
+    z-index: 200;
+    display: none;
+    max-height: 220px;
+    overflow-y: auto;
+    border: 1px solid #eadfca;
+    border-radius: 9px;
+    background: #fff;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, .10);
+}
+
+.new-diamond-grading-dropdown.show {
+    display: block;
+}
+
+.new-diamond-grading-option {
+    display: block;
+    width: 100%;
+    padding: 11px 14px;
+    border: none;
+    background: #fff;
+    color: #444;
+    font-family: inherit;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+.new-diamond-grading-option:hover {
+    background: #fff8e8;
+    color: #b78a24;
+}
+
+.new-diamond-uppercase-input {
+    text-transform: uppercase;
+}
+
+.new-diamond-uppercase-input::placeholder {
+    text-transform: none;
+}
+
 /* =========================================================
    RESPONSIVE
 ========================================================= */
@@ -540,7 +657,7 @@
                 <div class="new-diamond-field full-width">
 
                     <label for="{{ form.report_number.id_for_label }}">
-                        IGI No.
+                        Report No.
                     </label>
 
                     {{ form.report_number }}
@@ -573,23 +690,35 @@
                 </div>
 
 
-                <!-- SHAPE -->
-
+                
                 <div class="new-diamond-field">
-
-                    <label for="{{ form.shape.id_for_label }}">
+                    <label for="id_shape">
                         Shape <span class="required">*</span>
                     </label>
 
-                    {{ form.shape }}
+                    <div class="new-diamond-shape-wrapper">
+                        {{ form.shape }}
+
+                        <div class="new-diamond-shape-dropdown"
+                            id="newDiamondShapeDropdown">
+
+                            {% for shape in form.shape_choices %}
+                                <button
+                                    type="button"
+                                    class="new-diamond-shape-dropdown-item"
+                                    data-value="{{ shape }}">
+                                    {{ shape }}
+                                </button>
+                            {% endfor %}
+
+                        </div>
+                    </div>
 
                     {% for error in form.shape.errors %}
-                        <div class="new-diamond-field-error">
-                            {{ error }}
-                        </div>
+                        <div class="new-diamond-field-error">{{ error }}</div>
                     {% endfor %}
-
                 </div>
+
 
 
                 <!-- CARAT WEIGHT -->
@@ -646,239 +775,163 @@
                 <span>Grading</span>
             </h2>
 
+            
+        
+
             <div class="new-diamond-form-grid three-columns">
 
                 <!-- COLOR -->
-
                 <div class="new-diamond-field">
+                    <label for="id_color_grade">Color</label>
 
-                    <label for="{{ form.color_grade.id_for_label }}">
-                        Color
-                    </label>
+                    <div class="new-diamond-shape-wrapper">
+                        {{ form.color_grade }}
 
-                    {{ form.color_grade }}
+                        <div class="new-diamond-shape-dropdown">
+                            {% for value in form.color_grade_choices %}
+                                <button
+                                    type="button"
+                                    class="new-diamond-shape-dropdown-item"
+                                    data-value="{{ value }}">
+                                    {{ value }}
+                                </button>
+                            {% endfor %}
+                        </div>
+                    </div>
 
                     {% for error in form.color_grade.errors %}
-                        <div class="new-diamond-field-error">
-                            {{ error }}
-                        </div>
+                        <div class="new-diamond-field-error">{{ error }}</div>
                     {% endfor %}
-
                 </div>
 
 
                 <!-- CLARITY -->
-
                 <div class="new-diamond-field">
+                    <label for="id_clarity_grade">Clarity</label>
 
-                    <label for="{{ form.clarity_grade.id_for_label }}">
-                        Clarity
-                    </label>
+                    <div class="new-diamond-shape-wrapper">
+                        {{ form.clarity_grade }}
 
-                    {{ form.clarity_grade }}
+                        <div class="new-diamond-shape-dropdown">
+                            {% for value in form.clarity_grade_choices %}
+                                <button
+                                    type="button"
+                                    class="new-diamond-shape-dropdown-item"
+                                    data-value="{{ value }}">
+                                    {{ value }}
+                                </button>
+                            {% endfor %}
+                        </div>
+                    </div>
 
                     {% for error in form.clarity_grade.errors %}
-                        <div class="new-diamond-field-error">
-                            {{ error }}
-                        </div>
+                        <div class="new-diamond-field-error">{{ error }}</div>
                     {% endfor %}
-
                 </div>
 
 
                 <!-- CUT -->
+                <!-- <div class="new-diamond-field">
+                    <label for="id_cut_grade">Cut</label>
 
-                <div class="new-diamond-field">
+                    <div class="new-diamond-shape-wrapper">
+                        {{ form.cut_grade }}
 
-                    <label for="{{ form.cut_grade.id_for_label }}">
-                        Cut
-                    </label>
-
-                    {{ form.cut_grade }}
+                        <div class="new-diamond-shape-dropdown">
+                            {% for value in form.cut_grade_choices %}
+                                <button
+                                    type="button"
+                                    class="new-diamond-shape-dropdown-item"
+                                    data-value="{{ value }}">
+                                    {{ value }}
+                                </button>
+                            {% endfor %}
+                        </div>
+                    </div>
 
                     {% for error in form.cut_grade.errors %}
-                        <div class="new-diamond-field-error">
-                            {{ error }}
-                        </div>
+                        <div class="new-diamond-field-error">{{ error }}</div>
                     {% endfor %}
-
-                </div>
+                </div> -->
 
 
                 <!-- POLISH -->
-
                 <div class="new-diamond-field">
+                    <label for="id_polish">Polish</label>
 
-                    <label for="{{ form.polish.id_for_label }}">
-                        Polish
-                    </label>
+                    <div class="new-diamond-shape-wrapper">
+                        {{ form.polish }}
 
-                    {{ form.polish }}
+                        <div class="new-diamond-shape-dropdown">
+                            {% for value in form.polish_choices %}
+                                <button
+                                    type="button"
+                                    class="new-diamond-shape-dropdown-item"
+                                    data-value="{{ value }}">
+                                    {{ value }}
+                                </button>
+                            {% endfor %}
+                        </div>
+                    </div>
 
                     {% for error in form.polish.errors %}
-                        <div class="new-diamond-field-error">
-                            {{ error }}
-                        </div>
+                        <div class="new-diamond-field-error">{{ error }}</div>
                     {% endfor %}
-
                 </div>
 
 
                 <!-- SYMMETRY -->
-
                 <div class="new-diamond-field">
+                    <label for="id_symmetry">Symmetry</label>
 
-                    <label for="{{ form.symmetry.id_for_label }}">
-                        Symmetry
-                    </label>
+                    <div class="new-diamond-shape-wrapper">
+                        {{ form.symmetry }}
 
-                    {{ form.symmetry }}
+                        <div class="new-diamond-shape-dropdown">
+                            {% for value in form.symmetry_choices %}
+                                <button
+                                    type="button"
+                                    class="new-diamond-shape-dropdown-item"
+                                    data-value="{{ value }}">
+                                    {{ value }}
+                                </button>
+                            {% endfor %}
+                        </div>
+                    </div>
 
                     {% for error in form.symmetry.errors %}
-                        <div class="new-diamond-field-error">
-                            {{ error }}
-                        </div>
+                        <div class="new-diamond-field-error">{{ error }}</div>
                     {% endfor %}
-
                 </div>
 
 
                 <!-- FLUORESCENCE -->
-
                 <div class="new-diamond-field">
+                    <label for="id_fluorescence">Fluorescence</label>
 
-                    <label for="{{ form.fluorescence.id_for_label }}">
-                        Fluorescence
-                    </label>
+                    <div class="new-diamond-shape-wrapper">
+                        {{ form.fluorescence }}
 
-                    {{ form.fluorescence }}
-
-                    {% for error in form.fluorescence.errors %}
-                        <div class="new-diamond-field-error">
-                            {{ error }}
+                        <div class="new-diamond-shape-dropdown">
+                            {% for value in form.fluorescence_choices %}
+                                <button
+                                    type="button"
+                                    class="new-diamond-shape-dropdown-item"
+                                    data-value="{{ value }}">
+                                    {{ value }}
+                                </button>
+                            {% endfor %}
                         </div>
-                    {% endfor %}
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- =================================================
-             ADDITIONAL INFORMATION
-        ================================================== -->
-
-        <section class="new-diamond-card">
-
-            <h2 class="new-diamond-card-title">
-                <span class="gold-icon">◇</span>
-                <span>Additional Information</span>
-            </h2>
-
-            <div class="new-diamond-form-grid">
-
-                <!-- DIAMOND DATE -->
-
-                <div class="new-diamond-field">
-
-                    <label for="{{ form.diamond_date.id_for_label }}">
-                        Diamond Date
-                    </label>
-
-                    {{ form.diamond_date }}
-
-                    {% for error in form.diamond_date.errors %}
-                        <div class="new-diamond-field-error">
-                            {{ error }}
-                        </div>
-                    {% endfor %}
-
-                </div>
-
-
-                <!-- DIAMOND TYPE -->
-
-                <div class="new-diamond-field">
-
-                    <label for="{{ form.diamond_type.id_for_label }}">
-                        Diamond Type
-                    </label>
-
-                    {{ form.diamond_type }}
-
-                    {% for error in form.diamond_type.errors %}
-                        <div class="new-diamond-field-error">
-                            {{ error }}
-                        </div>
-                    {% endfor %}
-
-                </div>
-
-
-                <!-- MEASUREMENTS -->
-
-                <div class="new-diamond-field">
-
-                    <label for="{{ form.measurements.id_for_label }}">
-                        Measurements
-                    </label>
-
-                    {{ form.measurements }}
-
-                    {% for error in form.measurements.errors %}
-                        <div class="new-diamond-field-error">
-                            {{ error }}
-                        </div>
-                    {% endfor %}
-
-                </div>
-
-
-                <!-- COMPANY -->
-
-                <div class="new-diamond-field">
-
-                    <label for="{{ form.company.id_for_label }}">
-                        Company / Supplier
-                    </label>
-
-                    {{ form.company }}
-
-                    {% for error in form.company.errors %}
-                        <div class="new-diamond-field-error">
-                            {{ error }}
-                        </div>
-                    {% endfor %}
-
-                </div>
-
-
-                <!-- REPORT LINK -->
-
-                <div class="new-diamond-field full-width">
-
-                    <label for="{{ form.report_link.id_for_label }}">
-                        Certificate / Report Link
-                    </label>
-
-                    {{ form.report_link }}
-
-                    {% for error in form.report_link.errors %}
-                        <div class="new-diamond-field-error">
-                            {{ error }}
-                        </div>
-                    {% endfor %}
-
-                    <div class="new-diamond-help">
-                        Paste the IGI or GIA certificate verification URL.
                     </div>
 
+                    {% for error in form.fluorescence.errors %}
+                        <div class="new-diamond-field-error">{{ error }}</div>
+                    {% endfor %}
                 </div>
 
             </div>
+
+
 
         </section>
 
@@ -1008,9 +1061,9 @@
 
             <div class="new-diamond-field">
 
-                <label for="{{ form.notes.id_for_label }}">
+                <!-- <label for="{{ form.notes.id_for_label }}">
                     Notes
-                </label>
+                </label> -->
 
                 {{ form.notes }}
 
@@ -1048,7 +1101,7 @@
                 class="new-diamond-save-button"
                 id="newDiamondSaveButton"
             >
-                <span>▣</span>
+                <span></span>
                 <span>Save Diamond</span>
             </button>
 
@@ -1243,6 +1296,85 @@ newDiamondForm.addEventListener("submit", function () {
     `;
 
 });
+
+
+/* =========================================================
+   SHAPE + GRADING AUTOCOMPLETE
+   Same behavior for all seven fields
+========================================================= */
+
+document.querySelectorAll(".new-diamond-shape-wrapper").forEach(wrapper => {
+
+    const input = wrapper.querySelector("input");
+    const dropdown = wrapper.querySelector(".new-diamond-shape-dropdown");
+
+    if (!input || !dropdown) return;
+
+    const items = dropdown.querySelectorAll(
+        ".new-diamond-shape-dropdown-item"
+    );
+
+    // Show and filter suggestions
+    function filterOptions() {
+
+        const keyword = input.value.trim().toLowerCase();
+
+        let hasResults = false;
+
+        items.forEach(item => {
+
+            const value = item.dataset.value.toLowerCase();
+            const matched = value.includes(keyword);
+
+            item.style.display = matched ? "block" : "none";
+
+            if (matched) {
+                hasResults = true;
+            }
+        });
+
+        dropdown.style.display = hasResults ? "block" : "none";
+    }
+
+    // Show suggestions when clicking the input
+    input.addEventListener("focus", filterOptions);
+
+    // Filter suggestions while typing
+    input.addEventListener("input", filterOptions);
+
+    // Select an existing value
+    dropdown.addEventListener("click", function(event) {
+
+        const item = event.target.closest(
+            ".new-diamond-shape-dropdown-item"
+        );
+
+        if (!item) return;
+
+        input.value = item.dataset.value.toUpperCase();
+
+        dropdown.style.display = "none";
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", function(event) {
+
+        if (!wrapper.contains(event.target)) {
+            dropdown.style.display = "none";
+        }
+    });
+
+    // Support Enter to keep the typed value
+    input.addEventListener("keydown", function(event) {
+
+        if (event.key === "Enter") {
+            event.preventDefault();
+            dropdown.style.display = "none";
+        }
+    });
+
+});
+
 
 
 </script>

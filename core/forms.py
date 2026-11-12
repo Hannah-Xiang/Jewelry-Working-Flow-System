@@ -350,7 +350,18 @@ class MoldForm(forms.ModelForm):
         return mold_code
 
 
+
+
 class DiamondForm(forms.ModelForm):
+
+    autocomplete_fields = [
+        "shape",
+        "color_grade",
+        "clarity_grade",
+        "polish",
+        "symmetry",
+        "fluorescence",
+    ]
 
     class Meta:
         model = Diamond
@@ -372,3 +383,37 @@ class DiamondForm(forms.ModelForm):
             "status",
             "notes",
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field_name in self.autocomplete_fields:
+
+            self.fields[field_name].widget = forms.TextInput(attrs={
+                "id": f"id_{field_name}",
+                "autocomplete": "off",
+                "placeholder": "Search or enter value...",
+                "class": "new-diamond-uppercase-input",
+            })
+
+            choices = (
+                Diamond.objects
+                .exclude(**{f"{field_name}__isnull": True})
+                .exclude(**{field_name: ""})
+                .values_list(field_name, flat=True)
+                .distinct()
+                .order_by(field_name)
+            )
+
+            setattr(self, f"{field_name}_choices", choices)
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        for field_name in self.autocomplete_fields:
+            value = cleaned_data.get(field_name)
+
+            if value:
+                cleaned_data[field_name] = value.strip().upper()
+
+        return cleaned_data

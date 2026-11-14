@@ -929,11 +929,102 @@
                     {% endfor %}
                 </div>
 
+
+                <!-- DIAMOND TYPE -->
+                <div class="new-diamond-field">
+
+                    <label for="{{ form.diamond_type.id_for_label }}">
+                        Diamond Type
+                    </label>
+
+                    {{ form.diamond_type }}
+
+                    {% for error in form.diamond_type.errors %}
+                        <div class="new-diamond-field-error">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- MEASUREMENTS -->
+                <div class="new-diamond-field">
+
+                    <label for="{{ form.measurements.id_for_label }}">
+                        Measurements
+                    </label>
+
+                    {{ form.measurements }}
+
+                    {% for error in form.measurements.errors %}
+                        <div class="new-diamond-field-error">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+                
+
+
+
             </div>
+
+            
 
 
 
         </section>
+
+
+<!-- SUPPLIER INFORMATION -->
+<section class="new-diamond-card">
+
+    <h2 class="new-diamond-card-title">
+        <span class="gold-icon">◇</span>
+        <span>Supplier Information</span>
+    </h2>
+
+    <div class="new-diamond-form-grid">
+
+        <div class="new-diamond-field full-width">
+
+            <label for="{{ form.company.id_for_label }}">
+                Company / Supplier
+            </label>
+
+            {{ form.company }}
+
+            {% for error in form.company.errors %}
+                <div class="new-diamond-field-error">
+                    {{ error }}
+                </div>
+            {% endfor %}
+
+        </div>
+
+        <!-- REPORT LINK -->
+        <div class="new-diamond-field full-width">
+
+            <label for="{{ form.report_link.id_for_label }}">
+                Report Link
+            </label>
+
+            {{ form.report_link }}
+
+            {% for error in form.report_link.errors %}
+                <div class="new-diamond-field-error">
+                    {{ error }}
+                </div>
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</section>
+
 
 
 

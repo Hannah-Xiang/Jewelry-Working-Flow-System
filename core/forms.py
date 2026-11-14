@@ -352,6 +352,7 @@ class MoldForm(forms.ModelForm):
 
 
 
+
 class DiamondForm(forms.ModelForm):
 
     autocomplete_fields = [
@@ -365,28 +366,83 @@ class DiamondForm(forms.ModelForm):
 
     class Meta:
         model = Diamond
+
         fields = [
             "report_number",
             "diamond_date",
             "report_link",
+            "diamond_type",
             "shape",
             "measurements",
             "carat_weight",
+            "status",
             "color_grade",
             "clarity_grade",
-            "diamond_type",
             "polish",
             "symmetry",
             "fluorescence",
             "company",
             "picture",
-            "status",
             "notes",
         ]
 
+        widgets = {
+
+            "report_number": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Enter report number",
+            }),
+
+            "diamond_date": forms.DateInput(attrs={
+                "type": "date",
+                "class": "form-control",
+            }),
+
+            "report_link": forms.URLInput(attrs={
+                "class": "form-control",
+                "placeholder": "https://...",
+            }),
+
+            "diamond_type": forms.Select(attrs={
+                "class": "form-control",
+            }),
+
+            "measurements": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "e.g. 6.50 x 6.52 x 3.95 mm",
+            }),
+
+            "carat_weight": forms.NumberInput(attrs={
+                "class": "form-control",
+                "step": "0.01",
+                "placeholder": "e.g. 1.00",
+            }),
+
+            "status": forms.Select(attrs={
+                "class": "form-control",
+            }),
+
+            "company": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Enter company or supplier",
+            }),
+
+            "picture": forms.ClearableFileInput(attrs={
+                "class": "form-control",
+            }),
+
+            "notes": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 5,
+                "placeholder": "Internal information about this diamond...",
+            }),
+        }
+
     def __init__(self, *args, **kwargs):
+
         super().__init__(*args, **kwargs)
 
+        # Configure autocomplete fields
         for field_name in self.autocomplete_fields:
 
             self.fields[field_name].widget = forms.TextInput(attrs={
@@ -396,6 +452,7 @@ class DiamondForm(forms.ModelForm):
                 "class": "new-diamond-uppercase-input",
             })
 
+            # Get previously entered values
             choices = (
                 Diamond.objects
                 .exclude(**{f"{field_name}__isnull": True})
@@ -405,12 +462,19 @@ class DiamondForm(forms.ModelForm):
                 .order_by(field_name)
             )
 
-            setattr(self, f"{field_name}_choices", choices)
+            setattr(
+                self,
+                f"{field_name}_choices",
+                choices
+            )
 
     def clean(self):
+
         cleaned_data = super().clean()
 
+        # Normalize autocomplete values
         for field_name in self.autocomplete_fields:
+
             value = cleaned_data.get(field_name)
 
             if value:

@@ -355,6 +355,46 @@ class MoldForm(forms.ModelForm):
 
 class DiamondForm(forms.ModelForm):
 
+        # Three separate measurement inputs
+    measurement_length = forms.DecimalField(
+        required=False,
+        max_digits=7,
+        decimal_places=2,
+        min_value=0,
+        widget=forms.NumberInput(attrs={
+            "class": "form-control",
+            "placeholder": "Length",
+            "step": "0.01",
+            "min": "0",
+        })
+    )
+
+    measurement_width = forms.DecimalField(
+        required=False,
+        max_digits=7,
+        decimal_places=2,
+        min_value=0,
+        widget=forms.NumberInput(attrs={
+            "class": "form-control",
+            "placeholder": "Width",
+            "step": "0.01",
+            "min": "0",
+        })
+    )
+
+    measurement_depth = forms.DecimalField(
+        required=False,
+        max_digits=7,
+        decimal_places=2,
+        min_value=0,
+        widget=forms.NumberInput(attrs={
+            "class": "form-control",
+            "placeholder": "Depth",
+            "step": "0.01",
+            "min": "0",
+        })
+    )
+
     autocomplete_fields = [
         "shape",
         "color_grade",
@@ -362,6 +402,7 @@ class DiamondForm(forms.ModelForm):
         "polish",
         "symmetry",
         "fluorescence",
+        "company",
     ]
 
     class Meta:
@@ -407,10 +448,7 @@ class DiamondForm(forms.ModelForm):
                 "class": "form-control",
             }),
 
-            "measurements": forms.TextInput(attrs={
-                "class": "form-control",
-                "placeholder": "e.g. 6.50 x 6.52 x 3.95 mm",
-            }),
+            "measurements": forms.HiddenInput(),
 
             "carat_weight": forms.NumberInput(attrs={
                 "class": "form-control",
@@ -438,9 +476,26 @@ class DiamondForm(forms.ModelForm):
             }),
         }
 
+    
     def __init__(self, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
+
+        # Load existing measurements when editing a diamond
+        if not self.is_bound:
+
+            existing = self.initial.get("measurements", "")
+
+            if existing:
+                values = re.findall(
+                    r"\d+(?:\.\d+)?",
+                    existing
+                )
+
+                if len(values) >= 3:
+                    self.initial["measurement_length"] = values[0]
+                    self.initial["measurement_width"] = values[1]
+                    self.initial["measurement_depth"] = values[2]
 
         # Configure autocomplete fields
         for field_name in self.autocomplete_fields:
@@ -468,11 +523,18 @@ class DiamondForm(forms.ModelForm):
                 choices
             )
 
+
+    # IMPORTANT: clean() must be at the same indentation
+    # level as __init__, NOT inside __init__.
+
     def clean(self):
 
         cleaned_data = super().clean()
 
-        # Normalize autocomplete values
+        # ---------------------------------
+        # Convert grading fields to uppercase
+        # ---------------------------------
+
         for field_name in self.autocomplete_fields:
 
             value = cleaned_data.get(field_name)
@@ -480,4 +542,33 @@ class DiamondForm(forms.ModelForm):
             if value:
                 cleaned_data[field_name] = value.strip().upper()
 
+        # ---------------------------------
+        # Combine three measurements
+        # ---------------------------------
+
+        length = cleaned_data.get("measurement_length")
+        width = cleaned_data.get("measurement_width")
+        depth = cleaned_data.get("measurement_depth")
+
+        values = [length, width, depth]
+
+        if any(value is not None for value in values):
+
+            if not all(value is not None for value in values):
+
+                raise forms.ValidationError(
+                    "Please enter all three measurements: "
+                    "Length, Width and Depth."
+                )
+
+            cleaned_data["measurements"] = (
+                f"{length:.2f} x "
+                f"{width:.2f} x "
+                f"{depth:.2f} mm"
+            )
+
+        else:
+            cleaned_data["measurements"] = ""
+
         return cleaned_data
+

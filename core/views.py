@@ -1,5 +1,5 @@
 from asyncio.log import logger
-
+from django.templatetags.static import static
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.db.models import Q, Count, Sum, OuterRef, Subquery
@@ -2674,7 +2674,24 @@ def all_diamonds(request):
                 "polish": diamond.polish or "",
                 "status": diamond.status,
                 "status_display": diamond.get_status_display(),
+
+                # URL for updating diamond status
+                "status_update_url": reverse(
+                    "update_diamond_status",
+                    args=[diamond.pk]
+                ),
+
                 "related_tickets": related_tickets,
+
+                "detail_url": reverse(
+                "diamond_detail",
+                    args=[diamond.pk]
+                ),
+
+                "delete_url": reverse(
+                    "delete_diamond",
+                    args=[diamond.pk]
+                ),
             })
 
         return JsonResponse({
@@ -2813,4 +2830,187 @@ def new_diamond(request):
         request,
         "core/new_diamond.html",
         context
+    )
+
+
+from django.views.decorators.http import require_POST
+
+@login_required
+@require_POST
+def update_diamond_status(request, pk):
+
+    diamond = get_object_or_404(Diamond, pk=pk)
+
+    try:
+        data = json.loads(request.body)
+        new_status = data.get("status")
+
+    except (json.JSONDecodeError, AttributeError):
+        return JsonResponse({
+            "success": False,
+            "message": "Invalid request."
+        }, status=400)
+
+    # Get valid status choices directly from the model
+    status_field = Diamond._meta.get_field("status")
+
+    valid_statuses = {
+        str(value)
+        for value, label in status_field.flatchoices
+    }
+
+    if new_status not in valid_statuses:
+        return JsonResponse({
+            "success": False,
+            "message": "Invalid status."
+        }, status=400)
+
+    # Save new status
+    diamond.status = new_status
+    diamond.save(update_fields=["status"])
+
+    return JsonResponse({
+        "success": True,
+        "status": diamond.status,
+        "status_display": diamond.get_status_display(),
+        "status_update_url": reverse(
+        "update_diamond_status",
+            args=[diamond.pk]
+        ),
+    })
+
+
+from django.views.decorators.http import require_POST
+from django.db.models.deletion import ProtectedError
+
+
+@login_required
+@require_POST
+def delete_diamond(request, pk):
+
+    diamond = get_object_or_404(Diamond, pk=pk)
+
+    report_number = diamond.report_number or f"Diamond #{pk}"
+
+    try:
+
+        diamond.delete()
+
+        create_audit_log(
+            request,
+            "DELETE",
+            "Diamond",
+            pk,
+            f"Deleted diamond {report_number}."
+        )
+
+        return JsonResponse({
+            "success": True,
+            "message": "Diamond deleted successfully."
+        })
+
+    except ProtectedError:
+
+        return JsonResponse({
+            "success": False,
+            "message": (
+                "This diamond cannot be deleted because "
+                "it is being used by another record."
+            )
+        }, status=400)
+
+
+@login_required
+def diamond_detail(request, pk):
+
+    # Get diamond and its related tickets
+    diamond = get_object_or_404(
+        Diamond.objects.prefetch_related(
+            "related_tickets__customer",
+            "related_tickets__job_type",
+            "related_tickets__status",
+        ),
+        pk=pk
+    )
+
+    # Default image according to diamond shape
+    shape = (diamond.shape or "").strip().lower()
+
+    default_images = {
+        "round": "round.jpg",
+        "princess": "princess.jpg",
+        "oval": "oval.jpg",
+        "emerald": "emerald.jpg",
+        "pear": "pear.jpg",
+        "cushion": "cushion.jpg",
+    }
+
+    default_image = default_images.get(
+        shape,
+        "default.jpg"
+    )
+
+    default_image_url = static(
+        f"images/diamonds/{default_image}"
+    )
+
+    # Related tickets
+    related_tickets = diamond.related_tickets.all()
+
+    context = {
+        "diamond": diamond,
+        "related_tickets": related_tickets,
+        "default_image_url": default_image_url,
+    }
+
+    return render(
+        request,
+        "core/diamond_detail.html",
+        context
+    )
+
+@login_required
+def edit_diamond(request, pk):
+
+    diamond = get_object_or_404(
+        Diamond,
+        pk=pk
+    )
+
+    if request.method == "POST":
+
+        form = DiamondForm(
+            request.POST,
+            request.FILES,
+            instance=diamond
+        )
+
+        if form.is_valid():
+
+            form.save()
+
+            messages.success(
+                request,
+                "Diamond updated successfully."
+            )
+
+            return redirect(
+                "diamond_detail",
+                pk=diamond.pk
+            )
+
+    else:
+
+        form = DiamondForm(
+            instance=diamond
+        )
+
+    return render(
+        request,
+        "core/new_diamond.html",
+        {
+            "form": form,
+            "diamond": diamond,
+            "is_edit": True,
+        }
     )

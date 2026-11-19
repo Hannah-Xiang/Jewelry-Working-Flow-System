@@ -11,12 +11,194 @@
 /* =====================================================
    Diamonds Page
 ===================================================== */
+/* =====================================================
+   Action Buttons
+===================================================== */
 
-.diamonds-page {
-    padding: 36px;
-    max-width: 1500px;
-    margin: 0 auto;
+.diamond-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
+
+.diamond-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    height: 34px;
+    padding: 0 12px;
+
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+
+    text-decoration: none;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+/* View */
+.diamond-view-btn {
+    border: 1px solid #e9dcbf;
+    background: #fcf9f1;
+    color: #b1872c;
+}
+
+.diamond-view-btn:hover {
+    background: #d4af37;
+    border-color: #d4af37;
+    color: #222;
+}
+
+/* Delete */
+.diamond-delete-btn {
+    border: 1px solid #f0d5d2;
+    background: #fff7f6;
+    color: #c6534b;
+}
+
+.diamond-delete-btn:hover {
+    background: #c6534b;
+    border-color: #c6534b;
+    color: white;
+}
+
+.diamond-status-control {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 110px;
+    box-sizing: border-box;
+    padding: 7px 12px;
+    border-radius: 20px;
+}
+
+/* Status dot */
+.diamond-status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* Dropdown */
+.diamond-status-select {
+    appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    outline: none;
+    background: transparent !important;
+    padding: 0;
+    margin: 0;
+    width: auto;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+}
+
+/* Available */
+.diamond-status-control.available {
+    background: #eaf8f1;
+}
+.diamond-status-control.available .diamond-status-dot {
+    background: #10b981;
+}
+.diamond-status-select.available {
+    color: #168653;
+}
+
+/* Reserved */
+.diamond-status-control.reserved {
+    background: #fcf6e9;
+}
+.diamond-status-control.reserved .diamond-status-dot {
+    background: #e0a000;
+}
+.diamond-status-select.reserved {
+    color: #a97700;
+}
+
+/* Used */
+.diamond-status-control.used {
+    background: #f3f0e9;
+}
+.diamond-status-control.used .diamond-status-dot {
+    background: #a8a29e;
+}
+.diamond-status-select.used {
+    color: #77736b;
+}
+
+/* Sold */
+.diamond-status-control.sold {
+    background: #edf4ff;
+}
+.diamond-status-control.sold .diamond-status-dot {
+    background: #3b82f6;
+}
+.diamond-status-select.sold {
+    color: #3268b5;
+}
+
+
+/* Status dropdown */
+
+.diamond-status-select {
+    appearance: none;
+    -webkit-appearance: none;
+
+    padding: 6px 25px 6px 11px;
+    border: none;
+    border-radius: 20px;
+
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+
+    cursor: pointer;
+    outline: none;
+
+    background-repeat: no-repeat;
+    background-position: right 9px center;
+    background-size: 8px;
+}
+
+.diamond-status-select:focus {
+    outline: 2px solid #c9a646;
+    outline-offset: 2px;
+}
+
+.diamond-status-select.available {
+    color: #168653;
+    background-color: #eaf8f1;
+}
+
+.diamond-status-select.reserved {
+    color: #a97700;
+    background-color: #fcf6e9;
+}
+
+.diamond-status-select.used {
+    color: #77736b;
+    background-color: #f3f0e9;
+}
+
+.diamond-status-select.sold {
+    color: #3268b5;
+    background-color: #edf4ff;
+}
+
+.diamond-status-select:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
 
 
 /* =====================================================
@@ -271,8 +453,10 @@
 .diamond-thumbnail img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     display: block;
+    padding: 3px;
+    box-sizing: border-box;
 }
 
 .diamond-no-image {
@@ -864,6 +1048,7 @@
 
                                     {% if diamond.picture %}
 
+                                        <!-- Uploaded diamond photo -->
                                         <img
                                             src="{{ diamond.picture.url }}"
                                             alt="Diamond"
@@ -871,8 +1056,13 @@
 
                                     {% else %}
 
-                                        <i class="fa-regular fa-image
-                                                  diamond-no-image"></i>
+                                        <!-- Default image according to diamond shape -->
+                                        <img
+                                            src="{% static 'core/images/diamonds/default.png' %}"
+                                            data-shape="{{ diamond.shape|default:''|lower }}"
+                                            class="diamond-default-image"
+                                            alt="{{ diamond.shape }} diamond"
+                                        >
 
                                     {% endif %}
 
@@ -990,13 +1180,24 @@
                         <!-- Status -->
 
                         <td>
-
-                            <span class="diamond-status {{ diamond.status }}">
-
-                                {{ diamond.get_status_display }}
-
+                            <span class="diamond-status-control {{ diamond.status|lower }}">
+                                <select
+                                    class="diamond-status-select {{ diamond.status|lower }}"
+                                    data-diamond-id="{{ diamond.pk }}"
+                                    data-old-status="{{ diamond.status }}"
+                                    data-update-url="{% url 'update_diamond_status' diamond.pk %}"
+                                    onchange="updateDiamondStatus(this)"
+                                >
+                                    {% for value, label in status_choices %}
+                                        <option
+                                            value="{{ value }}"
+                                            {% if diamond.status == value %}selected{% endif %}
+                                        >
+                                            {{ label }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
                             </span>
-
                         </td>
 
 
@@ -1004,14 +1205,31 @@
 
                         <td>
 
-                            <!-- <a
-                                href=""
-                                class="diamond-view-btn"
-                            >
+                            <div class="diamond-actions">
 
-                                View
+                                <!-- View -->
+                                <a
+                                    href="{% url 'diamond_detail' diamond.pk %}"
+                                    class="diamond-action-btn diamond-view-btn"
+                                >
+                                    <i class="fa-regular fa-eye"></i>
+                                    View
+                                </a>
 
-                            </a> -->
+
+                                <!-- Delete -->
+                                <button
+                                    type="button"
+                                    class="diamond-action-btn diamond-delete-btn"
+                                    data-diamond-id="{{ diamond.pk }}"
+                                    data-delete-url="{% url 'delete_diamond' diamond.pk %}"
+                                    onclick="deleteDiamond(this)"
+                                >
+                                    <i class="fa-regular fa-trash-can"></i>
+                                    Delete
+                                </button>
+
+                            </div>
 
                         </td>
 
@@ -1124,7 +1342,14 @@
 
 
 <script>
-
+const diamondStatusChoices = [
+    {% for value, label in status_choices %}
+        {
+            value: "{{ value|escapejs }}",
+            label: "{{ label|escapejs }}"
+        },
+    {% endfor %}
+];
 
 /* =====================================================
    DIAMOND AJAX SEARCH + FILTER + PAGINATION
@@ -1247,10 +1472,15 @@ function loadDiamonds(page = 1) {
                         >
                     `
                     : `
-                        <i class="fa-regular fa-image diamond-no-image"></i>
+                        <img
+                            src="${escapeDiamondHTML(
+                                getDiamondDefaultImage(diamond.shape)
+                            )}"
+                            alt="${escapeDiamondHTML(diamond.shape || "Diamond")}"
+                            onerror="this.onerror=null; this.src='${defaultDiamondImage}'"
+                        >
                     `;
-
-                const reportHTML = diamond.report_number
+                                const reportHTML = diamond.report_number
                     ? `IGI ${escapeDiamondHTML(diamond.report_number)}`
                     : "No Report Number";
 
@@ -1264,6 +1494,15 @@ function loadDiamonds(page = 1) {
                 `).join("");
 
                 const status = escapeDiamondHTML(diamond.status);
+
+                const statusOptionsHTML = diamondStatusChoices.map(choice => `
+                    <option
+                        value="${escapeDiamondHTML(choice.value)}"
+                        ${choice.value === diamond.status ? "selected" : ""}
+                    >
+                        ${escapeDiamondHTML(choice.label)}
+                    </option>
+                `).join("");
 
                 const row = `
                     <tr>
@@ -1311,12 +1550,49 @@ function loadDiamonds(page = 1) {
                         <td>${escapeDiamondHTML(diamond.polish || "—")}</td>
 
                         <td>
-                            <span class="diamond-status ${status}">
-                                ${escapeDiamondHTML(diamond.status_display)}
+                            <span class="diamond-status-control ${status}">
+
+                                <span class="diamond-status-dot"></span>
+
+                                <select
+                                    class="diamond-status-select ${status}"
+                                    data-diamond-id="${diamond.id}"
+                                    data-old-status="${status}"
+                                    data-update-url="${escapeDiamondHTML(diamond.status_update_url)}"
+                                    onchange="updateDiamondStatus(this)"
+                                >
+                                    ${statusOptionsHTML}
+                                </select>
+
                             </span>
                         </td>
 
-                        <td></td>
+                        <td>
+                            <div class="diamond-actions">
+
+                                <!-- View -->
+                                <a
+                                    href="${escapeDiamondHTML(diamond.detail_url)}"
+                                    class="diamond-action-btn diamond-view-btn"
+                                >
+                                    <i class="fa-regular fa-eye"></i>
+                                    View
+                                </a>
+
+                                <!-- Delete -->
+                                <button
+                                    type="button"
+                                    class="diamond-action-btn diamond-delete-btn"
+                                    data-diamond-id="${diamond.id}"
+                                    data-delete-url="${escapeDiamondHTML(diamond.delete_url)}"
+                                    onclick="deleteDiamond(this)"
+                                >
+                                    <i class="fa-regular fa-trash-can"></i>
+                                    Delete
+                                </button>
+
+                            </div>
+                        </td>
 
                     </tr>
                 `;
@@ -1521,6 +1797,238 @@ diamondPagination.addEventListener("keydown", function(event) {
 });
 
 
+/* =========================================
+   DEFAULT DIAMOND IMAGES
+========================================= */
+
+const diamondDefaultImages = {
+    "round": "{% static 'images/diamonds/round.jpg' %}",
+    "round brilliant": "{% static 'images/diamonds/round.jpg' %}",
+
+    "princess": "{% static 'images/diamonds/princess.jpg' %}",
+
+    "oval": "{% static 'images/diamonds/oval.jpg' %}",
+
+    "emerald": "{% static 'images/diamonds/emerald.jpg' %}",
+
+    "pear": "{% static 'images/diamonds/pear.jpg' %}",
+
+    "cushion": "{% static 'images/diamonds/cushion.jpg' %}",
+
+    "radiant": "{% static 'images/diamonds/radiant.jpg' %}",
+
+    "marquise": "{% static 'images/diamonds/marquise.jpg' %}",
+
+    "asscher": "{% static 'images/diamonds/asscher.jpg' %}",
+
+    "heart": "{% static 'images/diamonds/heart.jpg' %}"
+};
+
+const defaultDiamondImage =
+    "{% static 'images/diamonds/default.jpg' %}";
+
+
+function getDiamondDefaultImage(shape) {
+
+    const normalizedShape = (shape || "")
+        .trim()
+        .toLowerCase();
+
+    return diamondDefaultImages[normalizedShape]
+        || defaultDiamondImage;
+}
+
+
+/* Apply images to initially rendered diamonds */
+
+function applyDiamondDefaultImages() {
+
+    document.querySelectorAll(
+        ".diamond-default-image"
+    ).forEach(img => {
+
+        img.src = getDiamondDefaultImage(
+            img.dataset.shape
+        );
+
+        img.onerror = function() {
+            this.onerror = null;
+            this.src = defaultDiamondImage;
+        };
+
+    });
+
+}
+
+
+/* Run on initial page load */
+
+applyDiamondDefaultImages();
+
+
+
+/* =========================================
+   UPDATE DIAMOND STATUS
+========================================= */
+
+function updateDiamondStatus(select) {
+
+    const diamondId = select.dataset.diamondId;
+    const updateUrl = select.dataset.updateUrl;
+    if (!updateUrl || updateUrl === "undefined") {
+        console.error("Missing update URL:", select.dataset);
+        alert("Diamond update URL is missing.");
+        select.value = select.dataset.oldStatus;
+        return;
+    }
+    const newStatus = select.value;
+
+    const oldStatus = select.dataset.oldStatus || "";
+
+    select.disabled = true;
+
+    fetch(updateUrl, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getDiamondCSRFToken(),
+            "X-Requested-With": "XMLHttpRequest"
+        },
+        body: JSON.stringify({
+            status: newStatus
+        })
+    })
+
+    .then(async response => {
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            throw new Error(
+                data.message || `Server error: ${response.status}`
+            );
+        }
+
+        return data;
+    })
+
+    .then(data => {
+
+        if (!data.success) {
+            throw new Error(data.message || "Update failed");
+        }
+
+        // Update dropdown color
+        const wrapper = select.closest(".diamond-status-control");
+
+        wrapper.className =
+            "diamond-status-control " + data.status;
+
+        select.className =
+            "diamond-status-select " + data.status;
+
+        // Save current status
+        select.dataset.oldStatus = data.status;
+
+    })
+
+    .catch(error => {
+
+        console.error(error);
+
+        alert("Unable to update diamond status. Please try again.");
+
+        select.value = oldStatus;
+
+    })
+
+    .finally(() => {
+        select.disabled = false;
+    });
+}
+
+
+/* Get Django CSRF token */
+
+function getDiamondCSRFToken() {
+
+    const cookie = document.cookie
+        .split("; ")
+        .find(row => row.startsWith("csrftoken="));
+
+    return cookie
+        ? decodeURIComponent(cookie.split("=")[1])
+        : "";
+}
+
+/* =========================================
+   DELETE DIAMOND
+========================================= */
+
+function deleteDiamond(button) {
+
+    const diamondId = button.dataset.diamondId;
+    const deleteUrl = button.dataset.deleteUrl;
+
+    if (!confirm(
+        "Are you sure you want to delete this diamond?\n\n" +
+        "This action cannot be undone."
+    )) {
+        return;
+    }
+
+    button.disabled = true;
+
+    fetch(deleteUrl, {
+
+        method: "POST",
+
+        headers: {
+            "X-CSRFToken": getDiamondCSRFToken(),
+            "X-Requested-With": "XMLHttpRequest"
+        }
+
+    })
+
+    .then(async response => {
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(
+                data.message || "Unable to delete diamond."
+            );
+        }
+
+        return data;
+
+    })
+
+    .then(data => {
+
+        alert(data.message);
+
+        // Keep current search and filters.
+        const currentPage = new URLSearchParams(
+            window.location.search
+        ).get("page") || 1;
+
+        // Reload the current AJAX results.
+        loadDiamonds(currentPage);
+
+    })
+
+    .catch(error => {
+
+        console.error("Delete diamond error:", error);
+
+        alert(error.message);
+
+        button.disabled = false;
+
+    });
+
+}
 
 </script>
 

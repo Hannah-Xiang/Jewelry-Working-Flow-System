@@ -178,6 +178,36 @@ path(
     name="new_diamond"
 ),
 
+
+path(
+    "diamonds/<int:pk>/update-status/",
+    views.update_diamond_status,
+    name="update_diamond_status"
+),
+path(
+    "diamonds/<int:pk>/",
+    views.diamond_detail,
+    name="diamond_detail"
+),
+
+path(
+    "diamonds/<int:pk>/delete/",
+    views.delete_diamond,
+    name="delete_diamond"
+),
+
+path(
+    "diamonds/<int:pk>/",
+    views.diamond_detail,
+    name="diamond_detail"
+),
+
+path(
+    "diamonds/<int:pk>/edit/",
+    views.edit_diamond,
+    name="edit_diamond"
+),
+
 ]
 
 # Media files (uploaded ticket photos) are only served this way in development.

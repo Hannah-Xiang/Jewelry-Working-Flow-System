@@ -536,6 +536,42 @@
 }
 
 /* =========================================================
+   DIAMOND MEASUREMENTS
+========================================================= */
+
+.new-diamond-measurements-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 15px;
+}
+
+.new-diamond-measurement-item {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.new-diamond-measurement-item label {
+    color: #777;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.new-diamond-measurement-item input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 600px) {
+
+    .new-diamond-measurements-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+/* =========================================================
    RESPONSIVE
 ========================================================= */
 
@@ -669,6 +705,29 @@
                     {% endfor %}
 
                 </div>
+
+
+                <!-- Diamond Production Date -->
+                <div class="new-diamond-field">
+
+                    <label for="{{ form.diamond_date.id_for_label }}">
+                        Diamond Date
+                    </label>
+
+                    {{ form.diamond_date }}
+
+                    {% for error in form.diamond_date.errors %}
+                        <div class="new-diamond-field-error">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                    <div class="new-diamond-help">
+                        Enter the date when this diamond was produced.
+                    </div>
+
+                </div>
+
 
 
                 <!-- DESCRIPTION -->
@@ -949,22 +1008,72 @@
 
 
                 <!-- MEASUREMENTS -->
-                <div class="new-diamond-field">
+<div class="new-diamond-field full-width">
 
-                    <label for="{{ form.measurements.id_for_label }}">
-                        Measurements
-                    </label>
+    <label>
+        Measurements
+    </label>
 
-                    {{ form.measurements }}
+    <!-- Hidden original database field -->
+    {{ form.measurements }}
 
-                    {% for error in form.measurements.errors %}
-                        <div class="new-diamond-field-error">
-                            {{ error }}
-                        </div>
-                    {% endfor %}
+    <div class="new-diamond-measurements-grid">
 
+        <div class="new-diamond-measurement-item">
+
+            <label for="{{ form.measurement_length.id_for_label }}">
+                Length (mm)
+            </label>
+
+            {{ form.measurement_length }}
+
+        </div>
+
+        <div class="new-diamond-measurement-item">
+
+            <label for="{{ form.measurement_width.id_for_label }}">
+                Width (mm)
+            </label>
+
+            {{ form.measurement_width }}
+
+        </div>
+
+        <div class="new-diamond-measurement-item">
+
+            <label for="{{ form.measurement_depth.id_for_label }}">
+                Depth (mm)
+            </label>
+
+            {{ form.measurement_depth }}
+
+        </div>
+
+    </div>
+
+    {% if form.non_field_errors %}
+        {% for error in form.non_field_errors %}
+            <div class="new-diamond-field-error">
+                {{ error }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% for field in form %}
+        {% if field.name == "measurement_length" or field.name == "measurement_width" or field.name == "measurement_depth" %}
+            {% for error in field.errors %}
+                <div class="new-diamond-field-error">
+                    {{ error }}
                 </div>
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
 
+    <div class="new-diamond-help">
+        Enter length, width and depth in millimeters.
+    </div>
+
+</div>
                 
 
 
@@ -988,13 +1097,34 @@
 
     <div class="new-diamond-form-grid">
 
+        
         <div class="new-diamond-field full-width">
 
             <label for="{{ form.company.id_for_label }}">
                 Company / Supplier
             </label>
 
-            {{ form.company }}
+            <div class="new-diamond-shape-wrapper">
+
+                {{ form.company }}
+
+                <div class="new-diamond-shape-dropdown">
+
+                    {% for value in form.company_choices %}
+
+                        <button
+                            type="button"
+                            class="new-diamond-shape-dropdown-item"
+                            data-value="{{ value }}"
+                        >
+                            {{ value }}
+                        </button>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
 
             {% for error in form.company.errors %}
                 <div class="new-diamond-field-error">
@@ -1003,6 +1133,7 @@
             {% endfor %}
 
         </div>
+
 
         <!-- REPORT LINK -->
         <div class="new-diamond-field full-width">

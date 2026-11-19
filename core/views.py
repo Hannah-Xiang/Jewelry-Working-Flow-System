@@ -2547,8 +2547,6 @@ def delete_mold(request, pk):
         )
 
     return redirect("all_molds")
-<<<<<<< HEAD
-=======
 
 
 def all_diamonds(request):
@@ -3016,4 +3014,3 @@ def edit_diamond(request, pk):
             "is_edit": True,
         }
     )
->>>>>>> store2

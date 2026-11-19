@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Customer, JobType, Note, Status, Ticket, TicketPhoto, StatusHistory, AuditLog, MoldTag, MoldType, Mold
+from .models import Customer, JobType, Note, Status, Ticket, TicketPhoto, StatusHistory, AuditLog, MoldTag, MoldType, Mold, Diamond
 
 # Register your models here.
 
@@ -12,7 +12,9 @@ admin.site.register(StatusHistory)
 admin.site.register(MoldTag)
 admin.site.register(MoldType)
 admin.site.register(Mold)
+admin.site.register(Diamond)
 @admin.register(AuditLog)
+
 class AuditLogAdmin(admin.ModelAdmin):
     list_display = (
         "created_at",

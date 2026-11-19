@@ -165,6 +165,48 @@ path(
     views.delete_mold_tag,
     name="delete_mold_tag"
 ),
+path(
+    "diamonds/",
+    views.all_diamonds,
+    name="all_diamonds"
+),
+
+
+path(
+    "diamonds/new/",
+    views.new_diamond,
+    name="new_diamond"
+),
+
+
+path(
+    "diamonds/<int:pk>/update-status/",
+    views.update_diamond_status,
+    name="update_diamond_status"
+),
+path(
+    "diamonds/<int:pk>/",
+    views.diamond_detail,
+    name="diamond_detail"
+),
+
+path(
+    "diamonds/<int:pk>/delete/",
+    views.delete_diamond,
+    name="delete_diamond"
+),
+
+path(
+    "diamonds/<int:pk>/",
+    views.diamond_detail,
+    name="diamond_detail"
+),
+
+path(
+    "diamonds/<int:pk>/edit/",
+    views.edit_diamond,
+    name="edit_diamond"
+),
 
 ]
 

@@ -1,0 +1,1063 @@
+
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Diamond Details{% endblock %}
+
+{% block content %}
+
+<style>
+
+/* =====================================================
+   DIAMOND DETAIL PAGE
+===================================================== */
+
+.diamond-detail-page {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 36px;
+    color: #25221c;
+}
+
+
+/* =====================================================
+   TOP NAVIGATION
+===================================================== */
+
+.dd-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    color: #77736b;
+    text-decoration: none;
+    font-size: 14px;
+
+    margin-bottom: 28px;
+    transition: 0.2s;
+}
+
+.dd-back-link:hover {
+    color: #c79c3d;
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.dd-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+
+    margin-bottom: 30px;
+}
+
+.dd-header-info {
+    min-width: 0;
+}
+
+.dd-topline {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    margin-bottom: 12px;
+}
+
+.dd-report-number {
+    color: #c79c3d;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.dd-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 8px 14px;
+    border-radius: 30px;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.dd-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.dd-status.available {
+    background: #eaf8f1;
+    color: #168653;
+}
+
+.dd-status.available .dd-status-dot {
+    background: #10b981;
+}
+
+.dd-status.reserved {
+    background: #fcf6e9;
+    color: #a97700;
+}
+
+.dd-status.reserved .dd-status-dot {
+    background: #e0a000;
+}
+
+.dd-status.used {
+    background: #f3f0e9;
+    color: #77736b;
+}
+
+.dd-status.used .dd-status-dot {
+    background: #a8a29e;
+}
+
+.dd-status.sold {
+    background: #edf4ff;
+    color: #3268b5;
+}
+
+.dd-status.sold .dd-status-dot {
+    background: #3b82f6;
+}
+
+.dd-header h1 {
+    margin: 0 0 8px;
+
+    font-family: Georgia, serif;
+    font-size: 36px;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.dd-subtitle {
+    color: #77736b;
+    font-size: 14px;
+}
+
+.dd-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+
+    padding: 12px 20px;
+
+    border: 1px solid #ead9b5;
+    border-radius: 10px;
+
+    color: #bd912d;
+    background: #fcf9f1;
+
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+
+    transition: 0.2s;
+    flex-shrink: 0;
+}
+
+.dd-edit-btn:hover {
+    background: #d4af37;
+    color: #ffffff;
+    border-color: #d4af37;
+}
+
+
+/* =====================================================
+   MAIN LAYOUT
+===================================================== */
+
+.dd-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 2.1fr) minmax(260px, 1fr);
+    gap: 22px;
+    align-items: start;
+}
+
+.dd-main-column,
+.dd-side-column {
+    min-width: 0;
+}
+
+.dd-main-column,
+.dd-side-column {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+
+/* =====================================================
+   DIAMOND IMAGE
+===================================================== */
+
+.dd-image-card {
+    width: 100%;
+    height: 310px;
+
+    background: #f5f2eb;
+    border-radius: 13px;
+    overflow: hidden;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dd-main-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.dd-main-image.uploaded {
+    object-fit: contain;
+    background: #ffffff;
+}
+
+
+/* =====================================================
+   COMMON CARDS
+===================================================== */
+
+.dd-card {
+    background: #ffffff;
+    border: 1px solid #eee5d4;
+    border-radius: 14px;
+
+    padding: 24px;
+}
+
+.dd-card-title {
+    margin: 0 0 18px;
+
+    font-family: Georgia, serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #28231d;
+}
+
+
+/* =====================================================
+   STATUS CARD
+===================================================== */
+
+.dd-status-card {
+    padding: 24px;
+}
+
+.dd-status-card .dd-card-title {
+    margin-bottom: 15px;
+}
+
+.dd-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.dd-summary-box {
+    min-width: 0;
+    padding: 16px 10px;
+
+    border: 1px solid #eee2c8;
+    border-radius: 10px;
+
+    background: #fbf8f0;
+    text-align: center;
+}
+
+.dd-summary-value {
+    display: block;
+    font-family: Georgia, serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #bd963d;
+
+    overflow-wrap: anywhere;
+}
+
+.dd-summary-label {
+    display: block;
+    margin-top: 5px;
+
+    color: #77736b;
+    font-size: 12px;
+}
+
+
+/* =====================================================
+   SPECIFICATIONS
+===================================================== */
+
+.dd-section-label {
+    margin: 22px 0 10px;
+
+    font-family: Georgia, serif;
+    font-size: 13px;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+
+    color: #bd963d;
+}
+
+.dd-spec-row {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 20px;
+
+    padding: 13px 0;
+    border-bottom: 1px solid #f0e9dc;
+
+    font-size: 13px;
+}
+
+.dd-spec-row:last-child {
+    border-bottom: none;
+}
+
+.dd-spec-label {
+    color: #77736b;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.dd-spec-value {
+    color: #25221c;
+    font-weight: 500;
+    overflow-wrap: anywhere;
+}
+
+.dd-spec-value a {
+    color: #bd912d;
+    text-decoration: none;
+}
+
+.dd-spec-value a:hover {
+    text-decoration: underline;
+}
+
+.dd-empty {
+    color: #aaa49a;
+    font-weight: 400;
+}
+
+
+/* =====================================================
+   RELATED TICKETS
+===================================================== */
+
+.dd-ticket-card {
+    padding: 24px;
+}
+
+.dd-ticket-item {
+    display: block;
+
+    padding: 15px;
+    margin-bottom: 10px;
+
+    border: 1px solid #eee2c8;
+    border-radius: 10px;
+
+    background: #fbf8f0;
+    text-decoration: none;
+
+    transition: 0.2s;
+}
+
+.dd-ticket-item:last-child {
+    margin-bottom: 0;
+}
+
+.dd-ticket-item:hover {
+    border-color: #d4af37;
+    background: #fffdf7;
+}
+
+.dd-ticket-number {
+    color: #bd912d;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.dd-ticket-description {
+    margin-top: 6px;
+    color: #77736b;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.dd-no-ticket {
+    padding: 20px 14px;
+
+    background: #f7f4ec;
+    border: 1px solid #eee2c8;
+    border-radius: 10px;
+
+    color: #77736b;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+
+/* =====================================================
+   NOTES
+===================================================== */
+
+.dd-notes {
+    white-space: pre-wrap;
+    line-height: 1.8;
+    font-size: 14px;
+    color: #625d54;
+    overflow-wrap: anywhere;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 950px) {
+
+    .dd-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .dd-side-column {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: start;
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .diamond-detail-page {
+        padding: 20px;
+    }
+
+    .dd-header {
+        flex-direction: column;
+    }
+
+    .dd-header h1 {
+        font-size: 29px;
+    }
+
+    .dd-edit-btn {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .dd-image-card {
+        height: 230px;
+    }
+
+    .dd-side-column {
+        display: flex;
+    }
+
+    .dd-card {
+        padding: 18px;
+    }
+
+    .dd-spec-row {
+        grid-template-columns: 105px minmax(0, 1fr);
+        gap: 12px;
+    }
+
+}
+
+</style>
+
+
+<div class="diamond-detail-page">
+
+    <!-- =========================================
+         Back Navigation
+    ========================================== -->
+
+    <a href="{% url 'all_diamonds' %}" class="dd-back-link">
+
+        <i class="fa-solid fa-arrow-left"></i>
+
+        All Diamonds
+
+    </a>
+
+
+    <!-- =========================================
+         Header
+    ========================================== -->
+
+    <div class="dd-header">
+
+        <div class="dd-header-info">
+
+            <div class="dd-topline">
+
+                <span class="dd-report-number">
+
+                    {% if diamond.report_number %}
+                        IGI {{ diamond.report_number }}
+                    {% else %}
+                        Diamond #{{ diamond.pk }}
+                    {% endif %}
+
+                </span>
+
+                <span class="dd-status {{ diamond.status }}">
+
+                    <span class="dd-status-dot"></span>
+
+                    {{ diamond.get_status_display }}
+
+                </span>
+
+            </div>
+
+
+            <h1>
+
+                {% if diamond.shape %}
+                    {{ diamond.shape|title }} Diamond
+                {% else %}
+                    Diamond Details
+                {% endif %}
+
+            </h1>
+
+
+            <div class="dd-subtitle">
+
+                {% if diamond.carat_weight %}
+                    {{ diamond.carat_weight }} ct
+                {% endif %}
+
+                {% if diamond.color_grade %}
+                    · {{ diamond.color_grade }}
+                {% endif %}
+
+                {% if diamond.clarity_grade %}
+                    / {{ diamond.clarity_grade }}
+                {% endif %}
+
+                {% if diamond.polish %}
+                    · {{ diamond.polish|title }}
+                {% endif %}
+
+                {% if diamond.diamond_type %}
+                    · {{ diamond.get_diamond_type_display }}
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <a
+            href="{% url 'edit_diamond' diamond.pk %}"
+            class="dd-edit-btn"
+        >
+
+            <i class="fa-regular fa-pen-to-square"></i>
+
+            Edit Diamond
+
+        </a>
+
+    </div>
+
+
+    <!-- =========================================
+         Main Layout
+    ========================================== -->
+
+    <div class="dd-layout">
+
+
+        <!-- =====================================
+             LEFT COLUMN
+        ====================================== -->
+
+        <div class="dd-main-column">
+
+
+            <!-- Diamond Image -->
+
+            <div class="dd-image-card">
+
+                {% if diamond.picture %}
+
+                    <img
+                        src="{{ diamond.picture.url }}"
+                        alt="{{ diamond.shape }} diamond"
+                        class="dd-main-image uploaded"
+                    >
+
+                {% else %}
+
+                    <img
+                        src="{{ default_image_url }}"
+                        alt="{{ diamond.shape }} diamond"
+                        class="dd-main-image"
+                    >
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- =================================
+                 Diamond Specifications
+            ================================== -->
+
+            <div class="dd-card">
+
+                <h2 class="dd-card-title">
+                    Diamond Specifications
+                </h2>
+
+
+                <!-- Identification -->
+
+                <div class="dd-section-label">
+                    Identification
+                </div>
+
+
+                <div class="dd-spec-row">
+
+                    <span class="dd-spec-label">
+                        IGI No.
+                    </span>
+
+                    <span class="dd-spec-value">
+
+                        {{ diamond.report_number|default:"—" }}
+
+                    </span>
+
+                </div>
+
+
+                <div class="dd-spec-row">
+
+                    <span class="dd-spec-label">
+                        Report Link
+                    </span>
+
+                    <span class="dd-spec-value">
+
+                        {% if diamond.report_link %}
+
+                            <a
+                                href="{{ diamond.report_link }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                View Certificate
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </a>
+
+                        {% else %}
+
+                            <span class="dd-empty">—</span>
+
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+
+                <div class="dd-spec-row">
+
+                    <span class="dd-spec-label">
+                        Diamond Date
+                    </span>
+
+                    <span class="dd-spec-value">
+
+                        {{ diamond.diamond_date|date:"M d, Y"|default:"—" }}
+
+                    </span>
+
+                </div>
+
+
+                <!-- Grading -->
+
+                <div class="dd-section-label">
+                    Grading
+                </div>
+
+
+                <div class="dd-spec-row">
+
+                    <span class="dd-spec-label">
+                        Shape
+                    </span>
+
+                    <span class="dd-spec-value">
+                        {{ diamond.shape|default:"—" }}
+                    </span>
+
+                </div>
+
+
+                <div class="dd-spec-row">
+
+                    <span class="dd-spec-label">
+                        Carat
+                    </span>
+
+                    <span class="dd-spec-value">
+                        {{ diamond.carat_weight|default:"—" }}
+                        {% if diamond.carat_weight %}ct{% endif %}
+                    </span>
+
+                </div>
+
+
+                <div class="dd-spec-row">
+
+                    <span class="dd-spec-label">
+                        Measurements
+                    </span>
+
+                    <span class="dd-spec-value">
+                        {{ diamond.measurements|default:"—" }}
+                    </span>
+
+                </div>
+
+
+                <div class="dd-spec-row">
+
+                    <span class="dd-spec-label">
+                        Color
+                    </span>
+
+                    <span class="dd-spec-value">
+                        {{ diamond.color_grade|default:"—" }}
+                    </span>
+
+                </div>
+
+
+                <div class="dd-spec-row">
+
+                    <span class="dd-spec-label">
+                        Clarity
+                    </span>
+
+                    <span class="dd-spec-value">
+                        {{ diamond.clarity_grade|default:"—" }}
+                    </span>
+
+                </div>
+
+
+                <div class="dd-spec-row">
+
+                    <span class="dd-spec-label">
+                        Polish
+                    </span>
+
+                    <span class="dd-spec-value">
+                        {{ diamond.polish|default:"—" }}
+                    </span>
+
+                </div>
+
+
+                <div class="dd-spec-row">
+
+                    <span class="dd-spec-label">
+                        Symmetry
+                    </span>
+
+                    <span class="dd-spec-value">
+                        {{ diamond.symmetry|default:"—" }}
+                    </span>
+
+                </div>
+
+
+                <div class="dd-spec-row">
+
+                    <span class="dd-spec-label">
+                        Fluorescence
+                    </span>
+
+                    <span class="dd-spec-value">
+                        {{ diamond.fluorescence|default:"—" }}
+                    </span>
+
+                </div>
+
+
+                <div class="dd-spec-row">
+
+                    <span class="dd-spec-label">
+                        Diamond Type
+                    </span>
+
+                    <span class="dd-spec-value">
+                        {{ diamond.get_diamond_type_display|default:"—" }}
+                    </span>
+
+                </div>
+
+
+                <!-- Supplier -->
+
+                <div class="dd-section-label">
+                    Supplier Information
+                </div>
+
+
+                <div class="dd-spec-row">
+
+                    <span class="dd-spec-label">
+                        Company
+                    </span>
+
+                    <span class="dd-spec-value">
+                        {{ diamond.company|default:"—" }}
+                    </span>
+
+                </div>
+
+
+                <!-- Dates -->
+
+                <div class="dd-section-label">
+                    Record Information
+                </div>
+
+
+                <div class="dd-spec-row">
+
+                    <span class="dd-spec-label">
+                        Created
+                    </span>
+
+                    <span class="dd-spec-value">
+                        {{ diamond.created_at|date:"M d, Y H:i" }}
+                    </span>
+
+                </div>
+
+
+                <div class="dd-spec-row">
+
+                    <span class="dd-spec-label">
+                        Last Updated
+                    </span>
+
+                    <span class="dd-spec-value">
+                        {{ diamond.updated_at|date:"M d, Y H:i" }}
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================
+                 Notes
+            ================================== -->
+
+            {% if diamond.notes %}
+
+                <div class="dd-card">
+
+                    <h2 class="dd-card-title">
+                        Internal Notes
+                    </h2>
+
+                    <div class="dd-notes">
+                        {{ diamond.notes }}
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+
+        </div>
+
+
+        <!-- =====================================
+             RIGHT COLUMN
+        ====================================== -->
+
+        <div class="dd-side-column">
+
+
+            <!-- Status and Summary -->
+
+            <div class="dd-card dd-status-card">
+
+                <h2 class="dd-card-title">
+                    Status
+                </h2>
+
+
+                <span class="dd-status {{ diamond.status }}">
+
+                    <span class="dd-status-dot"></span>
+
+                    {{ diamond.get_status_display }}
+
+                </span>
+
+
+                <div class="dd-summary-grid">
+
+                    <div class="dd-summary-box">
+
+                        <span class="dd-summary-value">
+
+                            {{ diamond.carat_weight|default:"—" }}
+
+                        </span>
+
+                        <span class="dd-summary-label">
+                            Carat
+                        </span>
+
+                    </div>
+
+
+                    <div class="dd-summary-box">
+
+                        <span class="dd-summary-value">
+
+                            {% if diamond.color_grade %}
+                                {{ diamond.color_grade }}
+                            {% else %}
+                                —
+                            {% endif %}
+
+                            /
+
+                            {% if diamond.clarity_grade %}
+                                {{ diamond.clarity_grade }}
+                            {% else %}
+                                —
+                            {% endif %}
+
+                        </span>
+
+                        <span class="dd-summary-label">
+                            Color / Clarity
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================
+                 Related Tickets
+            ================================== -->
+
+            <div class="dd-card dd-ticket-card">
+
+                <h2 class="dd-card-title">
+                    Related Tickets
+                </h2>
+
+
+                {% if related_tickets %}
+
+                    {% for ticket in related_tickets %}
+
+                        <a
+                            href="{% url 'ticket_detail' ticket.pk %}"
+                            class="dd-ticket-item"
+                        >
+
+                            <div class="dd-ticket-number">
+
+                                {{ ticket.ticket_number }}
+
+                            </div>
+
+
+                            <div class="dd-ticket-description">
+
+                                Customer:
+                                {{ ticket.customer.name }}
+
+                                <br>
+
+                                Job:
+                                {{ ticket.job_type.type }}
+
+                                <br>
+
+                                Status:
+                                {{ ticket.status.status }}
+
+                            </div>
+
+                        </a>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <div class="dd-no-ticket">
+
+                        {% if diamond.status == "available" %}
+
+                            This diamond is available for assignment.
+
+                        {% elif diamond.status == "reserved" %}
+
+                            This diamond is reserved but has no linked ticket.
+
+                        {% elif diamond.status == "used" %}
+
+                            This diamond is marked as used but has no linked ticket.
+
+                        {% elif diamond.status == "sold" %}
+
+                            This diamond is marked as sold but has no linked ticket.
+
+                        {% endif %}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -7,6 +7,8 @@ from datetime import timedelta, date
 from django.utils import timezone
 import calendar as pycalendar
 import json
+from datetime import datetime
+from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 from django.core.paginator import Paginator
 from django.contrib import messages
 from django.contrib.auth.views import PasswordResetConfirmView
@@ -15,7 +17,10 @@ from django.contrib.auth.views import PasswordResetConfirmView
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.db.models import IntegerField
+from django.views.decorators.http import require_POST
+from django.db.models.deletion import ProtectedError
 from django.db.models.functions import Substr, Cast
+import requests
 from .models import (
     Mold,
     Ticket,
@@ -38,6 +43,12 @@ from .utils import (
     calculate_due_date,
     get_or_create_customer,
 )
+
+import re
+from decimal import Decimal, InvalidOperation
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
+from urllib.error import HTTPError, URLError
 
 def create_audit_log(request, action, model_name, object_id="", description=""):
     AuditLog.objects.create(
@@ -2792,6 +2803,712 @@ def all_diamonds(request):
     )
 
 
+@login_required
+@require_POST
+def fetch_gia_diamond_report(request):
+
+    report_number = request.POST.get(
+        "report_number", ""
+    ).strip()
+
+    company = request.POST.get(
+        "company", ""
+    ).strip().upper()
+
+    # -----------------------------------------
+    # Validate input
+    # -----------------------------------------
+
+    if not report_number or not company:
+        return JsonResponse({
+            "success": False,
+            "message": "Please enter both Report Number and Company."
+        }, status=400)
+
+    if "GIA" not in company:
+        return JsonResponse({
+            "success": False,
+            "message": "Please select GIA as the report company."
+        }, status=400)
+
+    if not re.fullmatch(r"[A-Za-z0-9-]{1,50}", report_number):
+        return JsonResponse({
+            "success": False,
+            "message": "Invalid GIA report number."
+        }, status=400)
+
+    # -----------------------------------------
+    # Helper functions
+    # -----------------------------------------
+
+    def get_next_line(lines, label):
+
+        for index, line in enumerate(lines):
+            if line.strip().lower() == label.lower():
+                if index + 1 < len(lines):
+                    return lines[index + 1].strip()
+
+        return ""
+
+    def get_inline_value(report_text, label):
+
+        pattern = (
+            rf"^\s*{re.escape(label)}\s+(.+?)\s*$"
+        )
+
+        match = re.search(
+            pattern,
+            report_text,
+            re.IGNORECASE | re.MULTILINE
+        )
+
+        return match.group(1).strip() if match else ""
+
+    # -----------------------------------------
+    # Build GIA report URL
+    # -----------------------------------------
+
+    report_url = (
+        f"https://www.gia.edu/report-check"
+        f"?locale=en_US&reportno={report_number}"
+    )
+
+    try:
+
+        # -----------------------------------------
+        # Open GIA report using Playwright
+        # -----------------------------------------
+
+        with sync_playwright() as p:
+
+            browser = p.chromium.launch(
+                headless=False,
+                args=["--disable-http2"]
+            )
+
+            try:
+
+                page = browser.new_page()
+
+                page.goto(
+                    report_url,
+                    wait_until="commit",
+                    timeout=60000
+                )
+
+                # Wait for the report content to load
+                page.wait_for_timeout(8000)
+
+                report_text = page.locator("body").inner_text()
+
+            finally:
+
+                browser.close()
+
+        # -----------------------------------------
+        # Prepare report text
+        # -----------------------------------------
+
+        lines = [
+            line.strip()
+            for line in report_text.splitlines()
+            if line.strip()
+        ]
+
+        # -----------------------------------------
+        # Report Number
+        # -----------------------------------------
+
+        returned_number = get_next_line(
+            lines,
+            "GIA REPORT NUMBER"
+        )
+
+        if returned_number != report_number:
+
+            return JsonResponse({
+                "success": False,
+                "message": (
+                    "The GIA report could not be verified. "
+                    "Please check the report number."
+                )
+            }, status=404)
+
+        # -----------------------------------------
+        # Date of Issue
+        # -----------------------------------------
+
+        date_text = get_next_line(
+            lines,
+            "DATE OF ISSUE"
+        )
+
+        diamond_date = ""
+
+        if date_text:
+
+            for date_format in (
+                "%b %d, %Y",
+                "%B %d, %Y",
+            ):
+
+                try:
+
+                    diamond_date = datetime.strptime(
+                        date_text.replace(".", ""),
+                        date_format
+                    ).strftime("%Y-%m-%d")
+
+                    break
+
+                except ValueError:
+                    continue
+
+        # -----------------------------------------
+        # Grading Results
+        # -----------------------------------------
+
+        shape_full = get_inline_value(
+            report_text,
+            "Shape"
+        )
+
+        shape = (
+            shape_full.split()[0].upper()
+            if shape_full else ""
+        )
+
+        carat_text = get_inline_value(
+            report_text,
+            "Carat Weight"
+        )
+
+        carat_match = re.search(
+            r"\d+(?:\.\d+)?",
+            carat_text
+        )
+
+        carat_weight = (
+            carat_match.group()
+            if carat_match else ""
+        )
+
+        color = get_inline_value(
+            report_text,
+            "Color Grade"
+        )
+
+        clarity = get_inline_value(
+            report_text,
+            "Clarity Grade"
+        )
+
+        cut = get_inline_value(
+            report_text,
+            "Cut Grade"
+        )
+
+        polish = get_inline_value(
+            report_text,
+            "Polish"
+        )
+
+        symmetry = get_inline_value(
+            report_text,
+            "Symmetry"
+        )
+
+        # -----------------------------------------
+        # Fluorescence
+        # Return only the value, e.g. None
+        # -----------------------------------------
+
+        fluorescence_match = re.search(
+            r"FLUORESCENCE\s+Fluorescence\s+([^\n]+)",
+            report_text,
+            re.IGNORECASE
+        )
+
+        fluorescence = (
+            fluorescence_match.group(1).strip()
+            if fluorescence_match else ""
+        )
+
+        # -----------------------------------------
+        # Measurements
+        # -----------------------------------------
+
+        measurements = get_inline_value(
+            report_text,
+            "Measurements"
+        )
+
+        measurement_values = re.findall(
+            r"\d+(?:\.\d+)?",
+            measurements
+        )
+
+        measurement_length = ""
+        measurement_width = ""
+        measurement_depth = ""
+
+        if len(measurement_values) >= 3:
+
+            measurement_length = measurement_values[0]
+            measurement_width = measurement_values[1]
+            measurement_depth = measurement_values[2]
+
+        # -----------------------------------------
+        # Diamond Type
+        # -----------------------------------------
+
+        diamond_type = ""
+
+        if re.search(
+            r"FOR\s+LABORATORY[- ]GROWN DIAMOND",
+            report_text,
+            re.IGNORECASE
+        ):
+
+            diamond_type = "lab_grown"
+
+        elif re.search(
+            r"FOR\s+NATURAL DIAMOND",
+            report_text,
+            re.IGNORECASE
+        ):
+
+            diamond_type = "natural"
+
+        # -----------------------------------------
+        # Check whether useful report data exists
+        # -----------------------------------------
+
+        if not shape and not carat_weight and not color and not clarity:
+
+            return JsonResponse({
+                "success": False,
+                "message": (
+                    "The GIA report was found, but its grading "
+                    "information could not be extracted."
+                )
+            }, status=422)
+
+        # -----------------------------------------
+        # Return data to frontend
+        # -----------------------------------------
+
+        return JsonResponse({
+
+            "success": True,
+
+            "data": {
+
+                "report_number": returned_number,
+                "report_link": report_url,
+                "company": "GIA",
+
+                "diamond_date": diamond_date,
+
+                "shape": shape,
+                "carat_weight": carat_weight,
+
+                "color_grade": color,
+                "clarity_grade": clarity,
+                "cut_grade": cut,
+
+                "polish": polish,
+                "symmetry": symmetry,
+                "fluorescence": fluorescence,
+
+                "diamond_type": diamond_type,
+
+                "measurement_length": measurement_length,
+                "measurement_width": measurement_width,
+                "measurement_depth": measurement_depth,
+            }
+        })
+
+    except PlaywrightTimeoutError:
+
+        logging.exception(
+            "GIA report retrieval timed out."
+        )
+
+        return JsonResponse({
+            "success": False,
+            "message": (
+                "GIA report retrieval timed out. "
+                "Please try again."
+            )
+        }, status=502)
+
+    except Exception:
+
+        logging.exception(
+            "GIA report retrieval failed."
+        )
+
+        return JsonResponse({
+            "success": False,
+            "message": (
+                "Unable to retrieve the GIA report. "
+                "Please try again later."
+            )
+        }, status=502)
+
+@login_required
+@require_POST
+def fetch_igi_diamond_report(request):
+
+    report_number = request.POST.get(
+        "report_number", ""
+    ).strip().upper()
+
+    company = request.POST.get(
+        "company", ""
+    ).strip().upper()
+
+    # -----------------------------------------
+    # Validate input
+    # -----------------------------------------
+
+    if not report_number or not company:
+        return JsonResponse({
+            "success": False,
+            "message": "Please enter both Report Number and Company."
+        }, status=400)
+
+    if not re.fullmatch(r"[A-Z0-9-]{1,50}", report_number):
+        return JsonResponse({
+            "success": False,
+            "message": "Invalid report number."
+        }, status=400)
+
+    if "IGI" not in company:
+        return JsonResponse({
+            "success": False,
+            "message": "Automatic report lookup currently supports IGI only."
+        }, status=400)
+
+    # -----------------------------------------
+    # Open IGI using Playwright
+    # -----------------------------------------
+
+    try:
+
+        with sync_playwright() as p:
+
+            browser = p.chromium.launch(
+                headless=False,
+            )
+
+            page = browser.new_page()
+
+            try:
+
+                # Step 1: Open IGI verification page
+                page.goto(
+                    "https://www.igi.org/Verify-Your-Report/",
+                    wait_until="domcontentloaded",
+                    timeout=60000
+                )
+
+                # Step 2: Enter report number
+                report_input = page.get_by_placeholder(
+                    "Enter Your Report No."
+                )
+
+                report_input.wait_for(
+                    state="visible",
+                    timeout=20000
+                )
+
+                report_input.fill(report_number)
+
+                # Step 3: Click Verify
+                verify_button = page.get_by_role(
+                    "button",
+                    name="Verify",
+                    exact=True
+                )
+
+                verify_button.click()
+
+                # Step 4: Wait for report result
+                page.wait_for_timeout(5000)
+
+                # Step 5: Read visible report text
+                report_text = page.locator("body").inner_text()
+                
+
+                # -----------------------------------------
+                # Extract values from report text
+                # -----------------------------------------
+
+                lines = [
+                    line.strip()
+                    for line in report_text.splitlines()
+                    if line.strip()
+                ]
+
+                def get_value(label):
+
+                    for index, line in enumerate(lines):
+
+                        if line.lower() == label.lower():
+
+                            if index + 1 < len(lines):
+                                return lines[index + 1]
+
+                    return ""
+
+                # -----------------------------------------
+                # Report number
+                # -----------------------------------------
+
+                report_match = re.search(
+                    r"Report number\s*/\s*([A-Z0-9-]+)",
+                    report_text,
+                    re.IGNORECASE
+                )
+
+                returned_number = (
+                    report_match.group(1).upper()
+                    if report_match else ""
+                )
+
+                if returned_number != report_number:
+
+                    return JsonResponse({
+                        "success": False,
+                        "message": (
+                            "The IGI report could not be verified. "
+                            "Please check the report number."
+                        )
+                    }, status=404)
+
+                # -----------------------------------------
+                # Extract diamond information
+                # -----------------------------------------
+
+                description = get_value(
+                    "Description"
+                ).upper()
+
+                shape = get_value("Shape and Cutting Style")
+
+                if shape:
+                    shape = shape.strip().split()[0]
+
+                carat_text = get_value(
+                    "Carat Weight"
+                )
+
+                color = get_value(
+                    "Color Grade"
+                )
+
+                clarity = get_value(
+                    "Clarity Grade"
+                )
+
+                polish = get_value(
+                    "Polish"
+                )
+
+                symmetry = get_value(
+                    "Symmetry"
+                )
+
+                fluorescence = get_value(
+                    "Fluorescence"
+                )
+
+                measurements_text = get_value(
+                    "Measurements"
+                )
+
+                # -----------------------------------------
+                # Carat weight
+                # -----------------------------------------
+
+                carat_weight = ""
+
+                carat_match = re.search(
+                    r"\d+(?:\.\d+)?",
+                    carat_text
+                )
+
+                if carat_match:
+                    carat_weight = carat_match.group()
+
+                # -----------------------------------------
+                # Measurements
+                # -----------------------------------------
+
+                measurement_values = re.findall(
+                    r"\d+(?:\.\d+)?",
+                    measurements_text
+                )
+
+                measurement_length = ""
+                measurement_width = ""
+                measurement_depth = ""
+
+                if len(measurement_values) >= 3:
+
+                    measurement_length = measurement_values[0]
+                    measurement_width = measurement_values[1]
+                    measurement_depth = measurement_values[2]
+
+                # -----------------------------------------
+                # Diamond type
+                # -----------------------------------------
+
+                diamond_type = ""
+
+                if (
+                    "LABORATORY GROWN" in description
+                    or "LAB GROWN" in description
+                ):
+                    diamond_type = "lab_grown"
+
+                elif "NATURAL DIAMOND" in description:
+                    diamond_type = "natural"
+
+                # -----------------------------------------
+                # Report link
+                # -----------------------------------------
+
+                report_link = (
+                    "https://www.igi.org/Verify-Your-Report/"
+                    f"?r={returned_number}"
+                )
+
+                # Extract Issue Date from IGI report text
+                date_match = re.search(
+                    r"Issue\s*Date\s*/\s*"
+                    r"([A-Za-z]+\s+\d{1,2},?\s+\d{4})",
+                    report_text,
+                    re.IGNORECASE
+                )
+
+                diamond_date = date_match.group(1).strip() if date_match else ""
+
+                # Convert date to YYYY-MM-DD
+                diamond_date_value = ""
+
+                if diamond_date:
+                    for date_format in (
+                        "%B %d, %Y",
+                        "%B %d %Y",
+                    ):
+                        try:
+                            diamond_date_value = datetime.strptime(
+                                diamond_date,
+                                date_format
+                            ).strftime("%Y-%m-%d")
+                            break
+                        except ValueError:
+                            continue
+
+                print("IGI ISSUE DATE:", diamond_date)
+                print("DIAMOND DATE VALUE:", diamond_date_value)
+
+                
+
+                # Convert IGI date into YYYY-MM-DD format
+                diamond_date_value = ""
+
+                if diamond_date:
+                    for date_format in (
+                        "%B %d, %Y",
+                        "%b %d, %Y",
+                        "%d %B %Y",
+                        "%d %b %Y",
+                        "%Y-%m-%d",
+                    ):
+                        try:
+                            diamond_date_value = datetime.strptime(
+                                diamond_date.strip(),
+                                date_format
+                            ).strftime("%Y-%m-%d")
+
+                            break
+
+                        except ValueError:
+                            continue
+
+                # -----------------------------------------
+                # Return data to frontend
+                # -----------------------------------------
+
+                return JsonResponse({
+
+                    "success": True,
+
+                    "data": {
+
+                        "report_number": returned_number,
+                        "diamond_date": diamond_date_value,
+
+                        "report_link": report_link,
+
+                        "shape": shape,
+
+                        "carat_weight": carat_weight,
+
+                        "color_grade": color,
+
+                        "clarity_grade": clarity,
+
+                        "polish": polish,
+
+                        "symmetry": symmetry,
+
+                        "fluorescence": fluorescence,
+
+                        "diamond_type": diamond_type,
+
+                        "measurement_length": measurement_length,
+
+                        "measurement_width": measurement_width,
+
+                        "measurement_depth": measurement_depth,
+
+                    }
+                })
+
+            finally:
+                browser.close()
+
+    except PlaywrightTimeoutError:
+
+        return JsonResponse({
+            "success": False,
+            "message": (
+                "IGI verification timed out. "
+                "Please try again."
+            )
+        }, status=502)
+
+    except Exception as error:
+
+        logging.exception(
+            "IGI Playwright report retrieval failed."
+        )
+
+        return JsonResponse({
+            "success": False,
+            "message": (
+                "Unable to retrieve the IGI report. "
+                "Please try again later."
+            )
+        }, status=502)
+
+
+
 def new_diamond(request):
 
     if request.method == "POST":
@@ -2833,7 +3550,7 @@ def new_diamond(request):
     )
 
 
-from django.views.decorators.http import require_POST
+\
 
 @login_required
 @require_POST
@@ -2880,8 +3597,7 @@ def update_diamond_status(request, pk):
     })
 
 
-from django.views.decorators.http import require_POST
-from django.db.models.deletion import ProtectedError
+
 
 
 @login_required
@@ -3014,3 +3730,57 @@ def edit_diamond(request, pk):
             "is_edit": True,
         }
     )
+
+def test_igi_connection(request):
+
+    session = requests.Session()
+
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/120.0.0.0 Safari/537.36"
+        ),
+        "Accept": (
+            "text/html,application/xhtml+xml,"
+            "application/xml;q=0.9,*/*;q=0.8"
+        ),
+        "Accept-Language": "en-US,en;q=0.9",
+    }
+
+    try:
+
+        # Step 1: Visit IGI homepage
+        home = session.get(
+            "https://www.igi.org/",
+            headers=headers,
+            timeout=20
+        )
+
+        print("Homepage status:", home.status_code)
+
+        # Step 2: Visit report page
+        response = session.get(
+            "https://www.igi.org/Verify-Your-Report/",
+            params={"r": "LG687526402"},
+            headers=headers,
+            timeout=20
+        )
+
+        print("Report status:", response.status_code)
+        print("Final URL:", response.url)
+        print(
+            "Content-Type:",
+            response.headers.get("Content-Type")
+        )
+        print("Response preview:")
+        print(response.text[:1000])
+
+    except requests.RequestException as error:
+
+        print("Request failed:", error)
+
+    return JsonResponse({
+        "success": True,
+        "message": "Check Django terminal for test results."
+    })

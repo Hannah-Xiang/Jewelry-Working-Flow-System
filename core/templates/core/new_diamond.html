@@ -563,6 +563,69 @@
     box-sizing: border-box;
 }
 
+/* =========================================================
+   IGI REPORT FETCH BUTTON
+========================================================= */
+
+.new-diamond-fetch-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: flex-start;
+    gap: 8px;
+
+    min-height: 43px;
+    margin-top: 12px;
+    padding: 10px 20px;
+
+    border: 1px solid #c9a646;
+    border-radius: 9px;
+
+    background: #c9a646;
+    color: #fff;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+.new-diamond-fetch-button:hover:not(:disabled) {
+    background: #b8943b;
+    border-color: #b8943b;
+}
+
+.new-diamond-fetch-button:disabled {
+    background: #e8dfcb;
+    border-color: #e8dfcb;
+    color: #999;
+    cursor: not-allowed;
+}
+
+.new-diamond-fetch-message {
+    display: none;
+    margin-top: 9px;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.new-diamond-fetch-message.success {
+    display: block;
+    color: #24834a;
+}
+
+.new-diamond-fetch-message.error {
+    display: block;
+    color: #c0392b;
+}
+
+.new-diamond-fetch-message.loading {
+    display: block;
+    color: #a17b25;
+}
+
 @media (max-width: 600px) {
 
     .new-diamond-measurements-grid {
@@ -683,7 +746,7 @@
 
             <h2 class="new-diamond-card-title">
                 <span class="gold-icon">◇</span>
-                <span>Diamond Information</span>
+                <span>Diamond Report</span>
             </h2>
 
             <div class="new-diamond-form-grid">
@@ -705,6 +768,87 @@
                     {% endfor %}
 
                 </div>
+
+                <div class="new-diamond-field full-width">
+
+                    <label for="{{ form.company.id_for_label }}">
+                        Company / Supplier
+                    </label>
+
+                    <div class="new-diamond-shape-wrapper">
+
+                        {{ form.company }}
+
+                        <div class="new-diamond-shape-dropdown">
+
+                            {% for value in form.company_choices %}
+
+                                <button
+                                    type="button"
+                                    class="new-diamond-shape-dropdown-item"
+                                    data-value="{{ value }}"
+                                >
+                                    {{ value }}
+                                </button>
+
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+
+                    {% for error in form.company.errors %}
+                        <div class="new-diamond-field-error">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+                    <button
+                        type="button"
+                        id="fetchIgiReportButton"
+                        class="new-diamond-fetch-button"
+                        disabled
+                    >
+                        <span id="fetchIgiReportButtonText">
+                            ✦ Fetch Report
+                        </span>
+                    </button>
+
+                    <div
+                        id="fetchIgiReportMessage"
+                        class="new-diamond-fetch-message"
+                        aria-live="polite"
+                    ></div>
+
+
+                <!-- REPORT LINK -->
+                <div class="new-diamond-field full-width">
+
+                    <label for="{{ form.report_link.id_for_label }}">
+                        Report Link
+                    </label>
+
+                    {{ form.report_link }}
+
+                    {% for error in form.report_link.errors %}
+                        <div class="new-diamond-field-error">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+            </div>
+        </section>
+        <section class="new-diamond-card">
+                <h2 class="new-diamond-card-title">
+                    <span class="gold-icon">◇</span>
+                    <span>Diamond Information</span>
+                </h2>
+
+            <div class="new-diamond-form-grid">
+                
 
 
                 <!-- Diamond Production Date -->
@@ -1087,74 +1231,6 @@
         </section>
 
 
-<!-- SUPPLIER INFORMATION -->
-<section class="new-diamond-card">
-
-    <h2 class="new-diamond-card-title">
-        <span class="gold-icon">◇</span>
-        <span>Supplier Information</span>
-    </h2>
-
-    <div class="new-diamond-form-grid">
-
-        
-        <div class="new-diamond-field full-width">
-
-            <label for="{{ form.company.id_for_label }}">
-                Company / Supplier
-            </label>
-
-            <div class="new-diamond-shape-wrapper">
-
-                {{ form.company }}
-
-                <div class="new-diamond-shape-dropdown">
-
-                    {% for value in form.company_choices %}
-
-                        <button
-                            type="button"
-                            class="new-diamond-shape-dropdown-item"
-                            data-value="{{ value }}"
-                        >
-                            {{ value }}
-                        </button>
-
-                    {% endfor %}
-
-                </div>
-
-            </div>
-
-            {% for error in form.company.errors %}
-                <div class="new-diamond-field-error">
-                    {{ error }}
-                </div>
-            {% endfor %}
-
-        </div>
-
-
-        <!-- REPORT LINK -->
-        <div class="new-diamond-field full-width">
-
-            <label for="{{ form.report_link.id_for_label }}">
-                Report Link
-            </label>
-
-            {{ form.report_link }}
-
-            {% for error in form.report_link.errors %}
-                <div class="new-diamond-field-error">
-                    {{ error }}
-                </div>
-            {% endfor %}
-
-        </div>
-
-    </div>
-
-</section>
 
 
 
@@ -1575,6 +1651,14 @@ document.querySelectorAll(".new-diamond-shape-wrapper").forEach(wrapper => {
 
         input.value = item.dataset.value.toUpperCase();
 
+        input.dispatchEvent(
+            new Event("input", { bubbles: true })
+        );
+
+        input.dispatchEvent(
+            new Event("change", { bubbles: true })
+        );
+
         dropdown.style.display = "none";
     });
 
@@ -1598,6 +1682,349 @@ document.querySelectorAll(".new-diamond-shape-wrapper").forEach(wrapper => {
 });
 
 
+
+/* =========================================================
+   IGI / GIA REPORT AUTO FETCH
+========================================================= */
+
+(function () {
+
+    const reportNumberInput =
+        document.getElementById("id_report_number");
+
+    const companyInput =
+        document.getElementById("id_company");
+
+    const fetchButton =
+        document.getElementById("fetchIgiReportButton");
+
+    const fetchButtonText =
+        document.getElementById("fetchIgiReportButtonText");
+
+    const messageBox =
+        document.getElementById("fetchIgiReportMessage");
+
+    if (
+        !reportNumberInput ||
+        !companyInput ||
+        !fetchButton ||
+        !fetchButtonText ||
+        !messageBox
+    ) {
+        return;
+    }
+
+    // -----------------------------------------
+    // Enable button only when both inputs exist
+    // -----------------------------------------
+
+    function updateFetchButton() {
+
+        const reportNumber =
+            reportNumberInput.value.trim();
+
+        const company =
+            companyInput.value.trim();
+
+        fetchButton.disabled = !(
+            reportNumber && company
+        );
+
+    }
+
+    reportNumberInput.addEventListener(
+        "input",
+        updateFetchButton
+    );
+
+    companyInput.addEventListener(
+        "input",
+        updateFetchButton
+    );
+
+    companyInput.addEventListener(
+        "change",
+        updateFetchButton
+    );
+
+    // -----------------------------------------
+    // Display message
+    // -----------------------------------------
+
+    function showFetchMessage(message, type) {
+
+        messageBox.textContent = message;
+
+        messageBox.className =
+            "new-diamond-fetch-message " + type;
+
+    }
+
+    // -----------------------------------------
+    // Fill form fields
+    // -----------------------------------------
+
+    function setDiamondField(id, value) {
+
+        if (
+            value === null ||
+            value === undefined ||
+            value === ""
+        ) {
+            return;
+        }
+
+        const field = document.getElementById(id);
+
+        if (!field) return;
+
+        field.value = value;
+
+        field.dispatchEvent(
+            new Event("input", { bubbles: true })
+        );
+
+        field.dispatchEvent(
+            new Event("change", { bubbles: true })
+        );
+
+    }
+
+    function fillDiamondForm(data) {
+
+        setDiamondField(
+            "id_report_number",
+            data.report_number
+        );
+
+        setDiamondField(
+            "id_diamond_date",
+            data.diamond_date
+        );
+
+        setDiamondField(
+            "id_report_link",
+            data.report_link
+        );
+
+        setDiamondField(
+            "id_company",
+            data.company
+        );
+
+        setDiamondField(
+            "id_description",
+            data.description
+        );
+
+        setDiamondField(
+            "id_shape",
+            data.shape
+        );
+
+        setDiamondField(
+            "id_carat_weight",
+            data.carat_weight
+        );
+
+        setDiamondField(
+            "id_color_grade",
+            data.color_grade
+        );
+
+        setDiamondField(
+            "id_clarity_grade",
+            data.clarity_grade
+        );
+
+        setDiamondField(
+            "id_polish",
+            data.polish
+        );
+
+        setDiamondField(
+            "id_symmetry",
+            data.symmetry
+        );
+
+        setDiamondField(
+            "id_fluorescence",
+            data.fluorescence
+        );
+
+        setDiamondField(
+            "id_diamond_type",
+            data.diamond_type
+        );
+
+        setDiamondField(
+            "id_measurement_length",
+            data.measurement_length
+        );
+
+        setDiamondField(
+            "id_measurement_width",
+            data.measurement_width
+        );
+
+        setDiamondField(
+            "id_measurement_depth",
+            data.measurement_depth
+        );
+
+    }
+
+    // -----------------------------------------
+    // Fetch report
+    // -----------------------------------------
+
+    fetchButton.addEventListener("click", async function () {
+
+        const reportNumber =
+            reportNumberInput.value.trim();
+
+        const company =
+            companyInput.value.trim();
+
+        if (!reportNumber || !company) {
+            return;
+        }
+
+        // Determine report provider
+
+        const normalizedCompany =
+            company.toUpperCase();
+
+        let fetchUrl = "";
+        let providerName = "";
+
+        if (normalizedCompany.includes("IGI")) {
+
+            fetchUrl =
+                "{% url 'fetch_igi_diamond_report' %}";
+
+            providerName = "IGI";
+
+        } else if (normalizedCompany.includes("GIA")) {
+
+            fetchUrl =
+                "{% url 'fetch_gia_diamond_report' %}";
+
+            providerName = "GIA";
+
+        } else {
+
+            showFetchMessage(
+                "Automatic report retrieval is currently supported for IGI and GIA only.",
+                "error"
+            );
+
+            return;
+
+        }
+
+        const csrfInput =
+            document.querySelector(
+                "#newDiamondForm input[name='csrfmiddlewaretoken']"
+            );
+
+        if (!csrfInput) {
+
+            showFetchMessage(
+                "Security token is missing. Please refresh the page.",
+                "error"
+            );
+
+            return;
+        }
+
+        // Loading state
+
+        fetchButton.disabled = true;
+
+        fetchButtonText.textContent =
+            "Fetching Report...";
+
+        showFetchMessage(
+            "Connecting to " + providerName +
+            " and retrieving report information...",
+            "loading"
+        );
+
+        try {
+
+            const response = await fetch(
+                fetchUrl,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/x-www-form-urlencoded",
+
+                        "X-CSRFToken":
+                            csrfInput.value
+                    },
+
+                    body: new URLSearchParams({
+                        report_number: reportNumber,
+                        company: company
+                    }),
+
+                    credentials: "same-origin"
+                }
+            );
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+
+                throw new Error(
+                    result.message ||
+                    "Unable to retrieve the " +
+                    providerName + " report."
+                );
+
+            }
+
+            // Fill all available fields
+
+            fillDiamondForm(result.data);
+
+            showFetchMessage(
+                providerName +
+                " report information retrieved successfully. Please review the fields before saving.",
+                "success"
+            );
+
+        }
+
+        catch (error) {
+
+            showFetchMessage(
+                error.message ||
+                "Something went wrong while retrieving the report.",
+                "error"
+            );
+
+        }
+
+        finally {
+
+            fetchButtonText.textContent =
+                "✦ Fetch Report";
+
+            updateFetchButton();
+
+        }
+
+    });
+
+    // Initial state
+
+    updateFetchButton();
+
+})();
 
 </script>
 

@@ -208,6 +208,24 @@ path(
     name="edit_diamond"
 ),
 
+path(
+    "diamonds/fetch-igi-report/",
+    views.fetch_igi_diamond_report,
+    name="fetch_igi_diamond_report",
+),
+
+path(
+    "test-igi-connection/",
+    views.test_igi_connection,
+    name="test_igi_connection"
+),
+
+path(
+    "diamonds/fetch-gia-report/",
+    views.fetch_gia_diamond_report,
+    name="fetch_gia_diamond_report"
+),
+
 ]
 
 # Media files (uploaded ticket photos) are only served this way in development.

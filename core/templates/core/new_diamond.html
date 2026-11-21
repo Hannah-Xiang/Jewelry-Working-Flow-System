@@ -120,7 +120,16 @@
 /* =========================================================
    INPUTS
 ========================================================= */
+/* Uppercase Diamond Report Number */
+/* Uppercase only for entered text */
+#id_report_number {
+    text-transform: uppercase;
+}
 
+/* Keep placeholder in normal capitalization */
+#id_report_number::placeholder {
+    text-transform: none;
+}
 .new-diamond-field input:not([type="checkbox"]):not([type="file"]),
 .new-diamond-field select,
 .new-diamond-field textarea {

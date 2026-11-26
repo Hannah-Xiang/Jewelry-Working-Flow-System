@@ -1363,9 +1363,11 @@ def customers(request):
     # Job statistics BEFORE pagination
     # --------------------------------
 
-    total_value = tickets.aggregate(
-        Sum("price")
-    )["price__sum"] or 0
+    # SQLite sums decimals as floats (e.g. 1.0400000000000000),
+    # so round the total back to cents.
+    total_value = Decimal(
+        str(tickets.aggregate(Sum("price"))["price__sum"] or 0)
+    ).quantize(Decimal("0.01"))
 
     # This is the number of jobs matching
     # the currently selected job type

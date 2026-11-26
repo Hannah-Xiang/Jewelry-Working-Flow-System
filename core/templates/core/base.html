@@ -380,5 +380,84 @@
 
 </div>
 
+<script>
+/*
+ * "Back" links (<a data-back href="fallback">) return to the page
+ * the user viewed just before this one, instead of a fixed list page.
+ *
+ * A per-tab history of viewed pages is kept in sessionStorage.
+ * Edit / create form pages are never used as a back target, so after
+ * saving an edit, Back skips the form and goes to the page before it.
+ */
+(function () {
+
+    var KEY = "pageTrail";
+    var MAX = 50;
+
+    function readTrail() {
+        try {
+            return JSON.parse(sessionStorage.getItem(KEY)) || [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function writeTrail(trail) {
+        try {
+            sessionStorage.setItem(KEY, JSON.stringify(trail.slice(-MAX)));
+        } catch (e) {}
+    }
+
+    function isFormPage(url) {
+        var u = new URL(url, location.origin);
+        return /\/edit\/?$/.test(u.pathname)
+            || u.searchParams.get("edit") === "1"
+            || /^\/new-/.test(u.pathname);
+    }
+
+    var here = location.pathname + location.search;
+    var trail = readTrail();
+
+    // Was this page reached with the browser's own Back/Forward button?
+    var navEntry = performance.getEntriesByType
+        ? performance.getEntriesByType("navigation")[0]
+        : null;
+    var isHistoryNav = navEntry && navEntry.type === "back_forward";
+
+    if (isHistoryNav && trail.length >= 2 && trail[trail.length - 2] === here) {
+        trail.pop();                         // browser Back: drop the page we left
+    } else if (trail[trail.length - 1] !== here) {
+        trail.push(here);                    // normal visit (ignore refresh)
+    }
+
+    writeTrail(trail);
+
+    document.addEventListener("click", function (event) {
+
+        var link = event.target.closest("a[data-back]");
+        if (!link) return;
+
+        var currentPath = location.pathname;
+        var t = readTrail();
+
+        // Walk back from the entry before the current page
+        for (var i = t.length - 2; i >= 0; i--) {
+            var candidatePath = new URL(t[i], location.origin).pathname;
+
+            if (candidatePath === currentPath) continue;   // same page (e.g. after a save)
+            if (isFormPage(t[i])) continue;                // never return to a form
+
+            event.preventDefault();
+            writeTrail(t.slice(0, i));      // target page re-adds itself on load
+            location.href = t[i];
+            return;
+        }
+
+        // No earlier page in this tab: follow the link's normal href
+    });
+
+})();
+</script>
+
 </body>
 </html>

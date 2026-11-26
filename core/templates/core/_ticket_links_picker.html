@@ -1,0 +1,397 @@
+{% comment %}
+    Mold + Diamond picker for New / Edit Ticket.
+    Must be included INSIDE the ticket <form>.
+
+    Context:
+        selected_molds     - iterable of Mold
+        selected_diamonds  - iterable of Diamond
+        picker_ticket_id   - (optional) current ticket id, so its
+                             reserved/sold diamonds still appear in search
+{% endcomment %}
+
+<div class="card link-picker-card">
+
+    <h3>Molds &amp; Diamonds</h3>
+    <p class="link-picker-hint">
+        Link molds and diamonds from inventory. Linked diamonds are
+        marked <strong>Reserved</strong>, and become <strong>Sold</strong>
+        when the ticket is completed.
+    </p>
+
+    <!-- ============ MOLDS ============ -->
+    <div class="link-picker" data-kind="mold"
+         data-url="{% url 'mold_picker_search' %}"
+         data-input-name="mold_ids">
+
+        <label class="link-picker-label">
+            <i class="fa-solid fa-ring"></i> Molds
+        </label>
+
+        <div class="link-picker-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" class="link-picker-input"
+                   placeholder="Search mold code, file name or type..."
+                   autocomplete="off">
+            <div class="link-picker-results" hidden></div>
+        </div>
+
+        <div class="link-picker-chips">
+            {% for mold in selected_molds %}
+                <span class="link-chip" data-id="{{ mold.id }}">
+                    {% if mold.preview_image %}
+                        <img src="{{ mold.preview_image.url }}" alt="">
+                    {% endif %}
+                    <span>{{ mold.mold_code }} · {{ mold.file_name }}</span>
+                    <button type="button" class="link-chip-remove" aria-label="Remove">&times;</button>
+                    <input type="hidden" name="mold_ids" value="{{ mold.id }}">
+                </span>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- ============ DIAMONDS ============ -->
+    <div class="link-picker" data-kind="diamond"
+         data-url="{% url 'diamond_picker_search' %}{% if picker_ticket_id %}?ticket={{ picker_ticket_id }}{% endif %}"
+         data-input-name="diamond_ids">
+
+        <label class="link-picker-label">
+            <i class="fa-regular fa-gem"></i> Diamonds
+            <span class="link-picker-sub">(Available / Used only)</span>
+        </label>
+
+        <div class="link-picker-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" class="link-picker-input"
+                   placeholder="Search report number, shape, company, color..."
+                   autocomplete="off">
+            <div class="link-picker-results" hidden></div>
+        </div>
+
+        <div class="link-picker-chips">
+            {% for diamond in selected_diamonds %}
+                <span class="link-chip" data-id="{{ diamond.id }}">
+                    {% if diamond.picture %}
+                        <img src="{{ diamond.picture.url }}" alt="">
+                    {% endif %}
+                    <span>
+                        {{ diamond.report_number|default:diamond.pk }}
+                        {% if diamond.carat_weight %}· {{ diamond.carat_weight }}ct{% endif %}
+                        {% if diamond.shape %}· {{ diamond.shape }}{% endif %}
+                    </span>
+                    <span class="link-chip-status status-{{ diamond.status }}">{{ diamond.get_status_display }}</span>
+                    <button type="button" class="link-chip-remove" aria-label="Remove">&times;</button>
+                    <input type="hidden" name="diamond_ids" value="{{ diamond.id }}">
+                </span>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+<style>
+.link-picker-hint{
+    color:#777;
+    font-size:13px;
+    margin:6px 0 18px;
+}
+.link-picker{
+    margin-bottom:20px;
+    display:flex;
+    flex-direction:column;
+}
+/* Order: label, then chosen items, then the search box */
+.link-picker-label{ order:0; }
+.link-picker-chips{ order:1; }
+.link-picker-search{ order:2; }
+.link-picker:last-child{
+    margin-bottom:0;
+}
+.link-picker-label{
+    display:block;
+    font-weight:600;
+    margin-bottom:8px;
+    color:#333;
+}
+.link-picker-label i{
+    color:#c79c3d;
+    margin-right:4px;
+}
+.link-picker-sub{
+    font-weight:400;
+    color:#999;
+    font-size:12px;
+}
+.link-picker-search{
+    position:relative;
+}
+.link-picker-search > i{
+    position:absolute;
+    left:12px;
+    top:50%;
+    transform:translateY(-50%);
+    color:#aaa;
+    pointer-events:none;
+}
+.link-picker-input{
+    width:100%;
+    box-sizing:border-box;
+    padding:10px 12px 10px 36px;
+    border:1px solid #ddd;
+    border-radius:10px;
+    font-size:14px;
+}
+.link-picker-input:focus{
+    outline:none;
+    border-color:#c79c3d;
+}
+.link-picker-results{
+    position:absolute;
+    z-index:50;
+    left:0;
+    right:0;
+    top:calc(100% + 4px);
+    background:#fff;
+    border:1px solid #eee;
+    border-radius:10px;
+    box-shadow:0 8px 24px rgba(0,0,0,.08);
+    max-height:280px;
+    overflow-y:auto;
+}
+.link-picker-option{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:8px 12px;
+    cursor:pointer;
+    font-size:14px;
+}
+.link-picker-option:hover{
+    background:#faf6ec;
+}
+.link-picker-option.is-selected{
+    opacity:.45;
+    cursor:default;
+}
+.link-picker-option img,
+.link-picker-thumb{
+    width:34px;
+    height:34px;
+    border-radius:6px;
+    object-fit:cover;
+    background:#f3f3f3;
+    flex-shrink:0;
+}
+.link-picker-option .opt-sub{
+    color:#999;
+    font-size:12px;
+}
+.link-picker-empty{
+    padding:10px 12px;
+    color:#999;
+    font-size:13px;
+}
+.link-picker-chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:10px;
+}
+.link-picker-chips:not(:has(.link-chip)){
+    margin-bottom:0;
+}
+.link-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:#faf6ec;
+    border:1px solid #ecdcb4;
+    border-radius:999px;
+    padding:4px 6px 4px 4px;
+    font-size:13px;
+    max-width:100%;
+}
+.link-chip img{
+    width:24px;
+    height:24px;
+    border-radius:50%;
+    object-fit:cover;
+}
+.link-chip > span:first-of-type{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+.link-chip-status{
+    font-size:11px;
+    padding:1px 6px;
+    border-radius:999px;
+    background:#eee;
+    color:#555;
+}
+.link-chip-status.status-available{ background:#e6f4ea; color:#1e7b3a; }
+.link-chip-status.status-used{ background:#eef1f6; color:#4a5a78; }
+.link-chip-status.status-reserved{ background:#fff4df; color:#a86b00; }
+.link-chip-status.status-sold{ background:#fde8e8; color:#b42318; }
+.link-chip-remove{
+    border:none;
+    background:transparent;
+    color:#999;
+    font-size:16px;
+    line-height:1;
+    cursor:pointer;
+    padding:0 4px;
+}
+.link-chip-remove:hover{
+    color:#b42318;
+}
+</style>
+
+<script>
+(function () {
+
+    function escapeHtml(value) {
+        return String(value ?? "").replace(/[&<>"']/g, c => ({
+            "&": "&amp;", "<": "&lt;", ">": "&gt;",
+            '"': "&quot;", "'": "&#39;"
+        }[c]));
+    }
+
+    function describe(kind, item) {
+        if (kind === "mold") {
+            return {
+                title: `${item.mold_code} · ${item.file_name}`,
+                sub: item.type,
+                image: item.image_url,
+            };
+        }
+        const specs = [
+            item.carat_weight ? `${item.carat_weight}ct` : "",
+            item.shape,
+            [item.color_grade, item.clarity_grade].filter(Boolean).join(" / "),
+        ].filter(Boolean).join(" · ");
+        return {
+            title: item.report_number,
+            sub: specs,
+            image: item.picture_url,
+            status: item.status,
+            statusDisplay: item.status_display,
+        };
+    }
+
+    document.querySelectorAll(".link-picker").forEach(picker => {
+
+        const kind = picker.dataset.kind;
+        const url = picker.dataset.url;
+        const inputName = picker.dataset.inputName;
+        const input = picker.querySelector(".link-picker-input");
+        const results = picker.querySelector(".link-picker-results");
+        const chips = picker.querySelector(".link-picker-chips");
+
+        let timer = null;
+        let requestId = 0;
+
+        function selectedIds() {
+            return new Set(
+                [...chips.querySelectorAll(".link-chip")].map(c => c.dataset.id)
+            );
+        }
+
+        function addChip(item) {
+            const id = String(item.id);
+            if (selectedIds().has(id)) return;
+
+            const d = describe(kind, item);
+            const chip = document.createElement("span");
+            chip.className = "link-chip";
+            chip.dataset.id = id;
+            chip.innerHTML = `
+                ${d.image ? `<img src="${escapeHtml(d.image)}" alt="">` : ""}
+                <span>${escapeHtml(d.title)}</span>
+                ${d.status ? `<span class="link-chip-status status-${escapeHtml(d.status)}">${escapeHtml(d.statusDisplay)}</span>` : ""}
+                <button type="button" class="link-chip-remove" aria-label="Remove">&times;</button>
+                <input type="hidden" name="${inputName}" value="${escapeHtml(id)}">
+            `;
+            chips.appendChild(chip);
+        }
+
+        function render(items) {
+            const chosen = selectedIds();
+
+            if (!items.length) {
+                results.innerHTML = `<div class="link-picker-empty">No matches found.</div>`;
+                results.hidden = false;
+                return;
+            }
+
+            results.innerHTML = "";
+
+            items.forEach(item => {
+                const d = describe(kind, item);
+                const isSelected = chosen.has(String(item.id));
+                const row = document.createElement("div");
+                row.className = "link-picker-option" + (isSelected ? " is-selected" : "");
+                row.innerHTML = `
+                    ${d.image
+                        ? `<img src="${escapeHtml(d.image)}" alt="">`
+                        : `<span class="link-picker-thumb"></span>`}
+                    <div>
+                        <div>${escapeHtml(d.title)}</div>
+                        <div class="opt-sub">${escapeHtml(d.sub)}${d.statusDisplay ? ` · ${escapeHtml(d.statusDisplay)}` : ""}</div>
+                    </div>
+                `;
+                if (!isSelected) {
+                    row.addEventListener("mousedown", e => {
+                        e.preventDefault();       // keep focus in input
+                        addChip(item);
+                        row.classList.add("is-selected");
+                    });
+                }
+                results.appendChild(row);
+            });
+
+            results.hidden = false;
+        }
+
+        function search() {
+            const q = input.value.trim();
+            const myId = ++requestId;
+            const sep = url.includes("?") ? "&" : "?";
+
+            fetch(`${url}${sep}q=${encodeURIComponent(q)}`, {
+                headers: { "X-Requested-With": "XMLHttpRequest" }
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (myId === requestId) render(data.results || []);
+                })
+                .catch(() => {
+                    results.innerHTML = `<div class="link-picker-empty">Search failed.</div>`;
+                    results.hidden = false;
+                });
+        }
+
+        input.addEventListener("input", () => {
+            clearTimeout(timer);
+            timer = setTimeout(search, 250);
+        });
+
+        input.addEventListener("focus", search);
+
+        input.addEventListener("blur", () => {
+            setTimeout(() => { results.hidden = true; }, 150);
+        });
+
+        // Don't submit the ticket form when pressing Enter in the search box
+        input.addEventListener("keydown", e => {
+            if (e.key === "Enter") e.preventDefault();
+            if (e.key === "Escape") results.hidden = true;
+        });
+
+        chips.addEventListener("click", e => {
+            const btn = e.target.closest(".link-chip-remove");
+            if (btn) btn.closest(".link-chip").remove();
+        });
+    });
+
+})();
+</script>

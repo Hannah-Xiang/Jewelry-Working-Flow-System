@@ -158,6 +158,12 @@ class Ticket(models.Model):
         related_name="related_tickets"
     )
 
+    molds = models.ManyToManyField(
+        "Mold",
+        blank=True,
+        related_name="related_tickets"
+    )
+
     def __str__(self):
         return self.ticket_number
 
@@ -648,6 +654,13 @@ class Diamond(models.Model):
         max_length=20,
         choices=DIAMOND_STATUS_CHOICES,
         default="available"
+    )
+
+    # Status the diamond had before a ticket reserved it
+    # (available / used). Restored when the diamond is unlinked.
+    status_before_reserve = models.CharField(
+        max_length=20,
+        blank=True
     )
 
 

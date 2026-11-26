@@ -42,6 +42,7 @@ from .utils import (
     generate_ticket_number,
     calculate_due_date,
     get_or_create_customer,
+    sync_ticket_diamonds,
 )
 
 import re
@@ -58,6 +59,163 @@ def create_audit_log(request, action, model_name, object_id="", description=""):
         object_id=str(object_id),
         description=description,
     )
+
+
+def _posted_ids(request, name):
+    return {
+        int(value)
+        for value in request.POST.getlist(name)
+        if str(value).isdigit()
+    }
+
+
+def apply_ticket_links(request, ticket):
+    """
+    Read mold_ids / diamond_ids from POST, update the ticket's
+    links, sync diamond statuses, and return audit change strings.
+    """
+
+    changes = []
+
+    # ---- Molds ----
+    old_mold_ids = set(ticket.molds.values_list("id", flat=True))
+    new_mold_ids = set(
+        Mold.objects.filter(
+            id__in=_posted_ids(request, "mold_ids")
+        ).values_list("id", flat=True)
+    )
+
+    if old_mold_ids != new_mold_ids:
+        ticket.molds.set(new_mold_ids)
+
+        added = Mold.objects.filter(id__in=new_mold_ids - old_mold_ids)
+        removed = Mold.objects.filter(id__in=old_mold_ids - new_mold_ids)
+
+        if added:
+            changes.append(
+                "Molds linked: "
+                + ", ".join(m.mold_code for m in added)
+            )
+        if removed:
+            changes.append(
+                "Molds unlinked: "
+                + ", ".join(m.mold_code for m in removed)
+            )
+
+    # ---- Diamonds ----
+    old_diamond_ids = set(ticket.diamonds.values_list("id", flat=True))
+
+    # Only available/used diamonds may be newly linked;
+    # diamonds already on this ticket are always kept if posted.
+    posted = _posted_ids(request, "diamond_ids")
+    new_diamond_ids = set(
+        Diamond.objects.filter(id__in=posted).filter(
+            Q(status__in=["available", "used"])
+            | Q(id__in=old_diamond_ids)
+        ).values_list("id", flat=True)
+    )
+
+    added = list(Diamond.objects.filter(id__in=new_diamond_ids - old_diamond_ids))
+    removed = list(Diamond.objects.filter(id__in=old_diamond_ids - new_diamond_ids))
+
+    if old_diamond_ids != new_diamond_ids:
+        ticket.diamonds.set(new_diamond_ids)
+
+        if added:
+            changes.append(
+                "Diamonds linked: "
+                + ", ".join(d.report_number or str(d.pk) for d in added)
+            )
+        if removed:
+            changes.append(
+                "Diamonds unlinked: "
+                + ", ".join(d.report_number or str(d.pk) for d in removed)
+            )
+
+    changes += sync_ticket_diamonds(ticket, added=added, removed=removed)
+
+    return changes
+
+
+def selected_links_from_post(request):
+    """Re-populate picker chips when a form fails validation."""
+    return {
+        "selected_molds": Mold.objects.filter(
+            id__in=_posted_ids(request, "mold_ids")
+        ),
+        "selected_diamonds": Diamond.objects.filter(
+            id__in=_posted_ids(request, "diamond_ids")
+        ),
+    }
+
+
+@login_required
+def mold_picker_search(request):
+
+    q = request.GET.get("q", "").strip()
+
+    molds = Mold.objects.select_related("type")
+
+    if q:
+        molds = molds.filter(
+            Q(mold_code__icontains=q)
+            | Q(file_name__icontains=q)
+            | Q(type__name__icontains=q)
+        )
+
+    results = [
+        {
+            "id": mold.id,
+            "mold_code": mold.mold_code,
+            "file_name": mold.file_name,
+            "type": mold.type.name,
+            "image_url": mold.preview_image.url if mold.preview_image else "",
+        }
+        for mold in molds.order_by("mold_code")[:20]
+    ]
+
+    return JsonResponse({"results": results})
+
+
+@login_required
+def diamond_picker_search(request):
+
+    q = request.GET.get("q", "").strip()
+    ticket_id = request.GET.get("ticket", "")
+
+    allowed = Q(status__in=["available", "used"])
+
+    if ticket_id.isdigit():
+        allowed |= Q(related_tickets__id=int(ticket_id))
+
+    diamonds = Diamond.objects.filter(allowed).distinct()
+
+    if q:
+        diamonds = diamonds.filter(
+            Q(report_number__icontains=q)
+            | Q(shape__icontains=q)
+            | Q(company__icontains=q)
+            | Q(color_grade__iexact=q)
+            | Q(clarity_grade__iexact=q)
+        )
+
+    results = [
+        {
+            "id": d.id,
+            "report_number": d.report_number or f"#{d.pk}",
+            "shape": d.shape,
+            "carat_weight": str(d.carat_weight) if d.carat_weight else "",
+            "color_grade": d.color_grade,
+            "clarity_grade": d.clarity_grade,
+            "status": d.status,
+            "status_display": d.get_status_display(),
+            "picture_url": d.picture.url if d.picture else "",
+        }
+        for d in diamonds.order_by("-created_at")[:20]
+    ]
+
+    return JsonResponse({"results": results})
+
 
 @login_required
 def dashboard(request):
@@ -210,6 +368,17 @@ def new_ticket(request):
                 note="Ticket created."
             )
 
+            link_changes = apply_ticket_links(request, ticket)
+
+            if link_changes:
+                create_audit_log(
+                    request,
+                    "UPDATE",
+                    "Ticket",
+                    ticket.ticket_number,
+                    "; ".join(link_changes)
+                )
+
             photos = request.FILES.getlist("photos")
             for photo in photos:
                 ticket_photo = TicketPhoto.objects.create(
@@ -226,6 +395,8 @@ def new_ticket(request):
 
             return redirect("all_tickets")
 
+        selected_links = selected_links_from_post(request)
+
     else:
 
         form = TicketForm(
@@ -235,6 +406,11 @@ def new_ticket(request):
             }
         )
 
+        selected_links = {
+            "selected_molds": [],
+            "selected_diamonds": [],
+        }
+
     return render(
         request,
         "core/new_ticket.html",
@@ -243,6 +419,7 @@ def new_ticket(request):
             "today": date.today(),
             "job_types": JobType.objects.all(),
             "statuses": Status.objects.filter(status__in=["Received", "In Progress"]),
+            **selected_links,
         }
     )
 
@@ -252,7 +429,23 @@ def delete_ticket(request, ticket_id):
 
     if request.method == "POST":
         ticket_number = ticket.ticket_number
+
+        diamond_changes = sync_ticket_diamonds(
+            ticket,
+            removed=list(ticket.diamonds.all())
+        )
+
         ticket.delete()
+
+        if diamond_changes:
+            create_audit_log(
+                request,
+                "UPDATE",
+                "Diamond",
+                ticket_number,
+                f"Ticket {ticket_number} deleted; "
+                + "; ".join(diamond_changes)
+            )
         create_audit_log(
         request,
         "DELETE",
@@ -1267,6 +1460,7 @@ def edit_ticket(request, ticket_id):
                     "ticket": ticket,
                     "job_types": JobType.objects.all(),
                     "statuses": Status.objects.all(),
+                    **selected_links_from_post(request),
                 }
             )
 
@@ -1473,6 +1667,13 @@ def edit_ticket(request, ticket_id):
 
         changes = []
 
+        # ===========================
+        # Linked molds / diamonds
+        # (also syncs diamond status with the ticket status)
+        # ===========================
+
+        changes += apply_ticket_links(request, ticket)
+
 
         if old_ticket_number != ticket.ticket_number:
 
@@ -1598,6 +1799,8 @@ def edit_ticket(request, ticket_id):
             'ticket': ticket,
             'job_types': JobType.objects.all(),
             'statuses': Status.objects.all(),
+            'selected_molds': ticket.molds.all(),
+            'selected_diamonds': ticket.diamonds.all(),
         }
     )
 @login_required
@@ -1721,6 +1924,18 @@ def set_status(request, ticket_id, status_id):
         status=status,
         note=""
     )
+
+    diamond_changes = sync_ticket_diamonds(ticket)
+
+    if diamond_changes:
+        create_audit_log(
+            request,
+            "UPDATE",
+            "Diamond",
+            ticket.ticket_number,
+            f"Ticket {ticket.ticket_number} -> {status.status}; "
+            + "; ".join(diamond_changes)
+        )
 
     return redirect('ticket_detail', ticket_id=ticket.id)
 
@@ -2341,6 +2556,13 @@ def mold_detail(request, pk):
         "mold": mold,
 
         "edit_mode": edit_mode,
+
+        # Tickets that used this mold, newest first
+        "mold_tickets": mold.related_tickets.select_related(
+            "customer",
+            "job_type",
+            "status",
+        ).order_by("-created_date"),
 
         # Used by the mold type dropdown
         "mold_types": MoldType.objects.all().order_by(
@@ -3671,7 +3893,11 @@ def diamond_detail(request, pk):
     )
 
     # Related tickets
-    related_tickets = diamond.related_tickets.all()
+    related_tickets = diamond.related_tickets.select_related(
+        "customer",
+        "job_type",
+        "status",
+    ).order_by("-created_date")
 
     context = {
         "diamond": diamond,

@@ -1592,6 +1592,78 @@
             </div>
 
 
+            <!-- TICKET HISTORY -->
+
+            <div class="mold-info-card">
+
+                <div class="mold-card-title">
+                    <span>◇</span>
+                    <span>TICKET HISTORY</span>
+                </div>
+
+                {% if mold_tickets %}
+
+                    {% for ticket in mold_tickets %}
+                        <a href="{% url 'ticket_detail' ticket.pk %}" class="mold-ticket-item">
+                            <div class="mold-ticket-top">
+                                <span class="mold-ticket-number">{{ ticket.ticket_number }}</span>
+                                <span
+                                    class="mold-ticket-status"
+                                    style="background:{{ ticket.status.color }}20; color:{{ ticket.status.color }};"
+                                >{{ ticket.status.status }}</span>
+                            </div>
+                            <div class="mold-ticket-sub">
+                                {{ ticket.customer.name }} · {{ ticket.job_type.type }}
+                                · {{ ticket.created_date|date:"M d, Y" }}
+                            </div>
+                        </a>
+                    {% endfor %}
+
+                {% else %}
+
+                    <p class="mold-ticket-empty">
+                        This mold hasn't been used on any ticket yet.
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+            <style>
+            .mold-ticket-item{
+                display:block;
+                padding:10px 0;
+                border-bottom:1px solid #f1f1f1;
+                text-decoration:none;
+                color:inherit;
+            }
+            .mold-ticket-item:last-child{ border-bottom:none; }
+            .mold-ticket-item:hover .mold-ticket-number{ color:#c79c3d; }
+            .mold-ticket-top{
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                gap:8px;
+            }
+            .mold-ticket-number{ font-weight:600; }
+            .mold-ticket-status{
+                font-size:12px;
+                padding:2px 8px;
+                border-radius:999px;
+                white-space:nowrap;
+            }
+            .mold-ticket-sub{
+                color:#888;
+                font-size:13px;
+                margin-top:2px;
+            }
+            .mold-ticket-empty{
+                color:#999;
+                margin:6px 0 0;
+            }
+            </style>
+
+
             <!-- TAGS -->
 
             <!-- =================================================

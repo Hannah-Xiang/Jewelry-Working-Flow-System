@@ -73,6 +73,88 @@ def get_or_create_customer(name, phone, email="", wedding_date=None):
         wedding_date=wedding_date
     )
 
+# =========================================================
+# Ticket <-> Diamond status sync
+# =========================================================
+
+def ticket_is_completed(ticket):
+    return bool(
+        ticket.status_id
+        and ticket.status.status.lower() == "completed"
+    )
+
+
+def sync_ticket_diamonds(ticket, added=(), removed=()):
+    """
+    Keep diamond status in line with the tickets that use it.
+
+    added   -> available/used becomes reserved (or sold if the
+               ticket is already completed)
+    removed -> reserved/sold goes back to the status it had
+               before it was reserved, unless another ticket
+               still uses it
+    Always  -> diamonds on a completed ticket are sold; diamonds
+               on any other ticket that are sold go back to reserved
+
+    Returns a list of human-readable change strings for the audit log.
+    """
+
+    changes = []
+    completed = ticket_is_completed(ticket)
+
+    def set_status(diamond, new_status, clear_previous=False):
+        old_status = diamond.status
+        if old_status == new_status and not clear_previous:
+            return
+        diamond.status = new_status
+        fields = ["status", "updated_at"]
+        if clear_previous:
+            diamond.status_before_reserve = ""
+            fields.append("status_before_reserve")
+        diamond.save(update_fields=fields)
+        if old_status != new_status:
+            changes.append(
+                f"Diamond {diamond.report_number or diamond.pk}: "
+                f"{old_status} -> {new_status}"
+            )
+
+    # ---- Newly linked diamonds ----
+    for diamond in added:
+        if diamond.status in ("available", "used"):
+            diamond.status_before_reserve = diamond.status
+            diamond.save(update_fields=["status_before_reserve"])
+            set_status(diamond, "sold" if completed else "reserved")
+
+    # ---- Unlinked diamonds ----
+    for diamond in removed:
+        still_used = diamond.related_tickets.exclude(
+            pk=ticket.pk
+        ).exists()
+
+        if still_used:
+            continue
+
+        if diamond.status in ("reserved", "sold"):
+            set_status(
+                diamond,
+                diamond.status_before_reserve or "available",
+                clear_previous=True
+            )
+
+    # ---- Status pass for all diamonds still linked ----
+    if ticket.pk:
+        removed_ids = {d.pk for d in removed}
+        for diamond in ticket.diamonds.all():
+            if diamond.pk in removed_ids:
+                continue
+            if completed and diamond.status == "reserved":
+                set_status(diamond, "sold")
+            elif not completed and diamond.status == "sold":
+                set_status(diamond, "reserved")
+
+    return changes
+
+
 from PIL import Image, ImageOps
 from pathlib import Path
 

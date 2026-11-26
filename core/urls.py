@@ -40,6 +40,17 @@ urlpatterns = [
     ),
 
     path(
+        'api/molds/search/',
+        views.mold_picker_search,
+        name='mold_picker_search'
+    ),
+    path(
+        'api/diamonds/search/',
+        views.diamond_picker_search,
+        name='diamond_picker_search'
+    ),
+
+    path(
         'api/jobtypes/<int:pk>/',
         views.jobtype_detail,
         name='jobtype_detail'

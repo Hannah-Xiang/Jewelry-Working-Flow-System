@@ -211,7 +211,102 @@
 
                 </div>
             </div>
-            
+
+            <!-- LINKED MOLDS & DIAMONDS -->
+            {% with linked_molds=ticket.molds.all linked_diamonds=ticket.diamonds.all %}
+            <div class="card linked-items-card">
+
+                <h3>Molds &amp; Diamonds</h3>
+
+                {% if linked_molds or linked_diamonds %}
+
+                    {% for mold in linked_molds %}
+                        <a href="{% url 'mold_detail' mold.pk %}" class="linked-item">
+                            {% if mold.preview_image %}
+                                <img src="{{ mold.preview_image.url }}" alt="">
+                            {% else %}
+                                <span class="linked-item-thumb"><i class="fa-solid fa-ring"></i></span>
+                            {% endif %}
+                            <div class="linked-item-text">
+                                <div class="linked-item-title">{{ mold.mold_code }}</div>
+                                <div class="linked-item-sub">Mold · {{ mold.file_name }}</div>
+                            </div>
+                        </a>
+                    {% endfor %}
+
+                    {% for diamond in linked_diamonds %}
+                        <a href="{% url 'diamond_detail' diamond.pk %}" class="linked-item">
+                            {% if diamond.picture %}
+                                <img src="{{ diamond.picture.url }}" alt="">
+                            {% else %}
+                                <span class="linked-item-thumb"><i class="fa-regular fa-gem"></i></span>
+                            {% endif %}
+                            <div class="linked-item-text">
+                                <div class="linked-item-title">{{ diamond.report_number|default:diamond.pk }}</div>
+                                <div class="linked-item-sub">
+                                    Diamond
+                                    {% if diamond.carat_weight %}· {{ diamond.carat_weight }}ct{% endif %}
+                                    {% if diamond.shape %}· {{ diamond.shape }}{% endif %}
+                                    {% if diamond.color_grade or diamond.clarity_grade %}· {{ diamond.color_grade }} / {{ diamond.clarity_grade }}{% endif %}
+                                </div>
+                            </div>
+                            <span class="linked-item-status status-{{ diamond.status }}">{{ diamond.get_status_display }}</span>
+                        </a>
+                    {% endfor %}
+
+                {% else %}
+                    <p class="linked-items-empty">
+                        No molds or diamonds linked.
+                        <a href="{% url 'edit_ticket' ticket.id %}">Link some</a>
+                    </p>
+                {% endif %}
+
+            </div>
+            {% endwith %}
+
+            <style>
+            .linked-item{
+                display:flex;
+                align-items:center;
+                gap:12px;
+                padding:10px 0;
+                border-bottom:1px solid #f1f1f1;
+                text-decoration:none;
+                color:inherit;
+            }
+            .linked-item:last-child{ border-bottom:none; }
+            .linked-item:hover .linked-item-title{ color:#c79c3d; }
+            .linked-item img,
+            .linked-item-thumb{
+                width:40px;
+                height:40px;
+                border-radius:8px;
+                object-fit:cover;
+                background:#faf6ec;
+                color:#c79c3d;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                flex-shrink:0;
+            }
+            .linked-item-text{ flex:1; min-width:0; }
+            .linked-item-title{ font-weight:600; }
+            .linked-item-sub{ color:#888; font-size:13px; }
+            .linked-item-status{
+                font-size:12px;
+                padding:2px 8px;
+                border-radius:999px;
+                background:#eee;
+                color:#555;
+                white-space:nowrap;
+            }
+            .linked-item-status.status-available{ background:#e6f4ea; color:#1e7b3a; }
+            .linked-item-status.status-used{ background:#eef1f6; color:#4a5a78; }
+            .linked-item-status.status-reserved{ background:#fff4df; color:#a86b00; }
+            .linked-item-status.status-sold{ background:#fde8e8; color:#b42318; }
+            .linked-items-empty{ color:#999; margin:10px 0 0; }
+            .linked-items-empty a{ color:#c79c3d; }
+            </style>
 
         </div>
 

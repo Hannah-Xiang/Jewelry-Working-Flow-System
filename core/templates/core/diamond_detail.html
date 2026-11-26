@@ -602,26 +602,13 @@
             
             <div class="dd-image-card">
 
-                {% if diamond.picture %}
-
-                    <!-- Uploaded diamond photo -->
-                    <img
-                        src="{{ diamond.picture.url }}"
-                        alt="{{ diamond.shape }} diamond"
-                        class="dd-main-image uploaded"
-                    >
-
-                {% else %}
-
-                    <!-- Default image according to diamond shape -->
-                    <img
-                        src=""
-                        data-shape="{{ diamond.shape|default:''|lower }}"
-                        alt="{{ diamond.shape }} diamond"
-                        class="dd-main-image dd-default-image"
-                    >
-
-                {% endif %}
+                <!-- Uploaded photo, else shape image, else default icon -->
+                <img
+                    src="{{ diamond.image_url }}"
+                    alt="{{ diamond.shape }} diamond"
+                    class="dd-main-image {% if diamond.has_picture_file %}uploaded{% else %}dd-default-image{% endif %}"
+                    onerror="this.onerror=null; this.src='{% static 'images/diamonds/default.svg' %}'"
+                >
 
             </div>
 
@@ -1069,39 +1056,5 @@
     </div>
 
 </div>
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-
-    const diamondDefaultImages = {
-        "round": "{% static 'images/diamonds/round.jpg' %}",
-        "princess": "{% static 'images/diamonds/princess.jpg' %}",
-        "oval": "{% static 'images/diamonds/oval.jpg' %}",
-        "emerald": "{% static 'images/diamonds/emerald.jpg' %}",
-        "pear": "{% static 'images/diamonds/pear.jpg' %}",
-        "cushion": "{% static 'images/diamonds/cushion.jpg' %}",
-        "radiant": "{% static 'images/diamonds/radiant.jpg' %}",
-        "marquise": "{% static 'images/diamonds/marquise.jpg' %}",
-        "asscher": "{% static 'images/diamonds/asscher.jpg' %}",
-        "heart": "{% static 'images/diamonds/heart.jpg' %}"
-    };
-
-    const defaultImage = "{% static 'images/diamonds/default.jpg' %}";
-
-    const image = document.querySelector(".dd-default-image");
-
-    if (image) {
-        const shape = image.dataset.shape.trim().toLowerCase();
-
-        image.src = diamondDefaultImages[shape] || defaultImage;
-
-        image.onerror = function () {
-            this.onerror = null;
-            this.src = defaultImage;
-        };
-    }
-
-});
-</script>
 
 {% endblock %}

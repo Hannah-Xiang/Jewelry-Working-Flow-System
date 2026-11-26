@@ -236,11 +236,11 @@
 
                     {% for diamond in linked_diamonds %}
                         <a href="{% url 'diamond_detail' diamond.pk %}" class="linked-item">
-                            {% if diamond.picture %}
-                                <img src="{{ diamond.picture.url }}" alt="">
-                            {% else %}
-                                <span class="linked-item-thumb"><i class="fa-regular fa-gem"></i></span>
-                            {% endif %}
+                            <img
+                                src="{{ diamond.image_url }}"
+                                alt=""
+                                onerror="this.onerror=null; this.src='{% static 'images/diamonds/default.svg' %}'"
+                            >
                             <div class="linked-item-text">
                                 <div class="linked-item-title">{{ diamond.report_number|default:diamond.pk }}</div>
                                 <div class="linked-item-sub">

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#faf6ec"/>
+  <g fill="none" stroke="#c79c3d" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- outline -->
+    <path d="M62 58 H138 L170 92 L100 158 L30 92 Z"/>
+    <!-- girdle -->
+    <path d="M30 92 H170"/>
+    <!-- crown facets -->
+    <path d="M62 58 L80 92 L100 58 L120 92 L138 58"/>
+    <!-- pavilion facets -->
+    <path d="M80 92 L100 158 L120 92"/>
+  </g>
+</svg>

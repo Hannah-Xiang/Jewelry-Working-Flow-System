@@ -148,6 +148,29 @@ class TicketDiamondLinkTests(TestCase):
         numbers = {d["report_number"] for d in data["results"]}
         self.assertIn("A1", numbers)  # reserved, but on this ticket
 
+    def test_diamond_image_fallbacks(self):
+        # Picture set but the file is missing on disk -> shape image
+        self.d_avail.shape = "OVAL"
+        self.d_avail.picture.name = "diamonds/does-not-exist.jpg"
+        self.assertFalse(self.d_avail.has_picture_file)
+        self.assertTrue(self.d_avail.image_url.endswith("oval.jpg"))
+
+        # Unknown shape, no picture -> generic icon
+        self.d_used.shape = "TRILLION"
+        self.assertTrue(self.d_used.image_url.endswith("default.svg"))
+
+        # Pages render with the fallback images
+        self.d_avail.save()
+        self.assertContains(
+            self.client.get(reverse("diamond_detail", args=[self.d_avail.pk])),
+            "oval.jpg",
+        )
+        self.assertContains(self.client.get(reverse("all_diamonds")), "default.svg")
+        ajax = self.client.get(
+            reverse("all_diamonds"), HTTP_X_REQUESTED_WITH="XMLHttpRequest"
+        ).json()
+        self.assertTrue(all(d["picture_url"] for d in ajax["diamonds"]))
+
     def test_mold_search(self):
         data = self.client.get(reverse("mold_picker_search"), {"q": "halo"}).json()
         self.assertEqual([m["mold_code"] for m in data["results"]], ["M002"])

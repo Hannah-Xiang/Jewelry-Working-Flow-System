@@ -70,9 +70,8 @@
         <div class="link-picker-chips">
             {% for diamond in selected_diamonds %}
                 <span class="link-chip" data-id="{{ diamond.id }}">
-                    {% if diamond.picture %}
-                        <img src="{{ diamond.picture.url }}" alt="">
-                    {% endif %}
+                    <img src="{{ diamond.image_url }}" alt="">
+
                     <span>
                         {{ diamond.report_number|default:diamond.pk }}
                         {% if diamond.carat_weight %}· {{ diamond.carat_weight }}ct{% endif %}

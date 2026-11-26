@@ -98,6 +98,11 @@ DATABASES = {
     }
 }
 
+# Set explicitly so every computer agrees. Django 5.x defaults to
+# AutoField and Django 6.x to BigAutoField; leaving it unset made each
+# machine generate "alter_*_id" migrations that undo the other's.
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators

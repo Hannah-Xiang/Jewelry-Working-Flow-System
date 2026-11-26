@@ -1046,25 +1046,12 @@
 
                                 <div class="diamond-thumbnail">
 
-                                    {% if diamond.picture %}
-
-                                        <!-- Uploaded diamond photo -->
-                                        <img
-                                            src="{{ diamond.picture.url }}"
-                                            alt="Diamond"
-                                        >
-
-                                    {% else %}
-
-                                        <!-- Default image according to diamond shape -->
-                                        <img
-                                            src="{% static 'core/images/diamonds/default.png' %}"
-                                            data-shape="{{ diamond.shape|default:''|lower }}"
-                                            class="diamond-default-image"
-                                            alt="{{ diamond.shape }} diamond"
-                                        >
-
-                                    {% endif %}
+                                    <!-- Uploaded photo, else shape image, else default icon -->
+                                    <img
+                                        src="{{ diamond.image_url }}"
+                                        alt="{{ diamond.shape|default:'Diamond' }}"
+                                        onerror="this.onerror=null; this.src='{% static 'images/diamonds/default.svg' %}'"
+                                    >
 
                                 </div>
 
@@ -1465,22 +1452,15 @@ function loadDiamonds(page = 1) {
 
             data.diamonds.forEach(diamond => {
 
-                const imageHTML = diamond.picture_url
-                    ? `
-                        <img
-                            src="${escapeDiamondHTML(diamond.picture_url)}"
-                            alt="Diamond"
-                        >
-                    `
-                    : `
-                        <img
-                            src="${escapeDiamondHTML(
-                                getDiamondDefaultImage(diamond.shape)
-                            )}"
-                            alt="${escapeDiamondHTML(diamond.shape || "Diamond")}"
-                            onerror="this.onerror=null; this.src='${defaultDiamondImage}'"
-                        >
-                    `;
+                // picture_url is always set by the server:
+                // uploaded photo, else shape image, else default icon
+                const imageHTML = `
+                    <img
+                        src="${escapeDiamondHTML(diamond.picture_url || defaultDiamondImage)}"
+                        alt="${escapeDiamondHTML(diamond.shape || "Diamond")}"
+                        onerror="this.onerror=null; this.src='${defaultDiamondImage}'"
+                    >
+                `;
                                 const reportHTML = diamond.report_number
                     ? `IGI ${escapeDiamondHTML(diamond.report_number)}`
                     : "No Report Number";
@@ -1826,7 +1806,7 @@ const diamondDefaultImages = {
 };
 
 const defaultDiamondImage =
-    "{% static 'images/diamonds/default.jpg' %}";
+    "{% static 'images/diamonds/default.svg' %}";
 
 
 function getDiamondDefaultImage(shape) {

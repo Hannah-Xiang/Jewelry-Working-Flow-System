@@ -687,6 +687,60 @@ class Diamond(models.Model):
         if self.picture:
             compress_image(self.picture.path)
 
+    # -----------------------------------------------------
+    # Display Image
+    # Uploaded photo -> shape image -> generic diamond icon
+    # -----------------------------------------------------
+
+    SHAPE_IMAGES = {
+        "round": "round.jpg",
+        "round brilliant": "round.jpg",
+        "princess": "princess.jpg",
+        "oval": "oval.jpg",
+        "emerald": "emerald.jpg",
+        "pear": "pear.jpg",
+        "cushion": "cushion.jpg",
+        "radiant": "radiant.jpg",
+        "marquise": "marquise.jpg",
+        "heart": "heart.jpg",
+    }
+
+    DEFAULT_IMAGE = "images/diamonds/default.svg"
+
+    @property
+    def has_picture_file(self):
+        """True only if a picture is set AND the file exists on disk."""
+        if not self.picture:
+            return False
+        try:
+            return self.picture.storage.exists(self.picture.name)
+        except Exception:
+            return False
+
+    @property
+    def image_url(self):
+        from django.templatetags.static import static
+
+        if self.has_picture_file:
+            return self.picture.url
+
+        shape_file = self.SHAPE_IMAGES.get(
+            (self.shape or "").strip().lower()
+        )
+
+        if shape_file:
+            try:
+                return static(f"images/diamonds/{shape_file}")
+            except ValueError:
+                pass
+
+        return self.default_image_url()
+
+    @classmethod
+    def default_image_url(cls):
+        from django.templatetags.static import static
+        return static(cls.DEFAULT_IMAGE)
+
     def __str__(self):
 
         if self.report_number:

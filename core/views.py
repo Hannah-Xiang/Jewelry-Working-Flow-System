@@ -209,7 +209,7 @@ def diamond_picker_search(request):
             "clarity_grade": d.clarity_grade,
             "status": d.status,
             "status_display": d.get_status_display(),
-            "picture_url": d.picture.url if d.picture else "",
+            "picture_url": d.image_url,
         }
         for d in diamonds.order_by("-created_at")[:20]
     ]
@@ -2900,7 +2900,7 @@ def all_diamonds(request):
             diamonds_data.append({
                 "id": diamond.pk,
                 "report_number": diamond.report_number or "",
-                "picture_url": diamond.picture.url if diamond.picture else "",
+                "picture_url": diamond.image_url,
                 "notes": diamond.notes or "",
                 "shape": diamond.shape or "",
                 "carat_weight": str(diamond.carat_weight) if diamond.carat_weight else "",
